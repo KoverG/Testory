@@ -12,7 +12,11 @@ public final class Fxml {
         try {
             URL url = Fxml.class.getResource(path);
             if (url == null) throw new IllegalStateException("FXML not found: " + path);
-            return new FXMLLoader(url).load();
+
+            FXMLLoader loader = new FXMLLoader(url);
+            loader.setResources(I18n.bundle());
+
+            return loader.load();
         } catch (Exception e) {
             throw new RuntimeException("Failed to load FXML: " + path + " -> " + e.getMessage(), e);
         }

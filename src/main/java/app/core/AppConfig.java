@@ -36,6 +36,5 @@ public final class AppConfig {
     private AppConfig() {}
 
     public static String version() { return P.getProperty("app.version", "0.0.0"); }
-    public static String name()    { return P.getProperty("app.name", "Testory"); }
-    public static String title()   { return P.getProperty("app.title", "Testory"); }
+
 }

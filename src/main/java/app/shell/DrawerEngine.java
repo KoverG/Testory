@@ -25,6 +25,11 @@ public final class DrawerEngine {
 
     private final TranslateTransition anim;
 
+    // hooks (опционально)
+    private final Runnable onOpenStart;
+    private final Runnable onCloseStart;
+    private final Runnable onStateChanged;
+
     private boolean open = false;
 
     public DrawerEngine(
@@ -35,12 +40,30 @@ public final class DrawerEngine {
             BoolFn anyDrawerOpen,
             Duration animDuration
     ) {
+        this(panel, overlay, side, updateGeometry, anyDrawerOpen, animDuration, null, null, null);
+    }
+
+    public DrawerEngine(
+            VBox panel,
+            Pane overlay,
+            Side side,
+            Runnable updateGeometry,
+            BoolFn anyDrawerOpen,
+            Duration animDuration,
+            Runnable onOpenStart,
+            Runnable onCloseStart,
+            Runnable onStateChanged
+    ) {
         this.panel = Objects.requireNonNull(panel);
         this.overlay = Objects.requireNonNull(overlay);
         this.side = Objects.requireNonNull(side);
 
         this.updateGeometry = Objects.requireNonNull(updateGeometry);
         this.anyDrawerOpen = Objects.requireNonNull(anyDrawerOpen);
+
+        this.onOpenStart = onOpenStart;
+        this.onCloseStart = onCloseStart;
+        this.onStateChanged = onStateChanged;
 
         Duration d = (animDuration != null) ? animDuration : Duration.millis(180);
 
@@ -64,6 +87,9 @@ public final class DrawerEngine {
 
         panel.setTranslateX(closedX());
 
+        if (onOpenStart != null) onOpenStart.run();
+        if (onStateChanged != null) onStateChanged.run();
+
         anim.stop();
         anim.setFromX(panel.getTranslateX());
         anim.setToX(0);
@@ -76,6 +102,9 @@ public final class DrawerEngine {
 
         open = false;
 
+        if (onCloseStart != null) onCloseStart.run();
+        if (onStateChanged != null) onStateChanged.run();
+
         anim.stop();
         anim.setFromX(panel.getTranslateX());
         anim.setToX(closedX());
@@ -86,6 +115,8 @@ public final class DrawerEngine {
             if (!anyDrawerOpen.get()) overlay.setVisible(false);
 
             panel.setTranslateX(closedX());
+
+            if (onStateChanged != null) onStateChanged.run();
         });
         anim.play();
     }
@@ -95,11 +126,16 @@ public final class DrawerEngine {
 
         open = false;
 
+        if (onCloseStart != null) onCloseStart.run();
+        if (onStateChanged != null) onStateChanged.run();
+
         anim.stop();
         panel.setVisible(false);
         panel.setTranslateX(closedX());
 
         if (!anyDrawerOpen.get()) overlay.setVisible(false);
+
+        if (onStateChanged != null) onStateChanged.run();
     }
 
     public void snapClosed() {

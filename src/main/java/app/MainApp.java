@@ -1,8 +1,9 @@
 package app;
 
 import app.core.AppConfig;
+import app.core.Fxml;
+import app.core.I18n;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
@@ -15,11 +16,12 @@ public class MainApp extends Application {
     public void start(Stage stage) throws Exception {
         fixWorkingDirectoryToAppRoot();
 
-        FXMLLoader fxml = new FXMLLoader(getClass().getResource("/ui/shell.fxml"));
-        Scene scene = new Scene(fxml.load(), 1200, 800);
+        I18n.initFromSettings();
+
+        Scene scene = new Scene(Fxml.load("/ui/shell.fxml"), 1200, 800);
         scene.getStylesheets().add(getClass().getResource("/ui/styles.css").toExternalForm());
 
-        stage.setTitle(AppConfig.title() + " v" + AppConfig.version());
+        stage.setTitle("Testory v" + AppConfig.version());
         stage.setScene(scene);
         stage.show();
     }

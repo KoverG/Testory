@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
+<?import app.ui.ToggleSwitch?>
 
 <StackPane xmlns="http://javafx.com/javafx/23"
            xmlns:fx="http://javafx.com/fxml/1"
@@ -9,106 +11,150 @@
            fx:id="rootStack"
            styleClass="app-root">
 
-    <!-- ===== ОСНОВНОЙ КАРКАС (Router меняет center) ===== -->
-    <BorderPane fx:id="appRoot" styleClass="app-root">
+    <BorderPane fx:id="frame" styleClass="app-root">
+
+        <!-- ================= HEADER ================= -->
         <top>
             <VBox fx:id="topBar">
                 <HBox spacing="12" styleClass="app-header">
-                    <!-- Menu слева -->
                     <Button fx:id="btnMenu"
                             onAction="#toggleMenu"
                             focusTraversable="false"
-                            styleClass="icon-btn,sm"
-                            accessibleText="Menu"/>
+                            styleClass="icon-btn,sm"/>
 
-                    <Label fx:id="title" styleClass="app-title emboss"/>
-                    <Label text="beta" styleClass="accent-chip"/>
+                    <Label fx:id="title" id="title" text="Testory"/>
 
-                    <Pane HBox.hgrow="ALWAYS"/>
+                    <Region HBox.hgrow="ALWAYS"/>
 
-                    <Label fx:id="lblHeaderScreen" styleClass="screen-title"/>
+                    <Label fx:id="lblHeaderScreen"
+                           text="%view.home"
+                           styleClass="screen-title"/>
 
-                    <!-- Settings справа -->
                     <Button fx:id="btnSettings"
                             onAction="#toggleSettingsDrawer"
                             focusTraversable="false"
-                            styleClass="icon-btn,sm"
-                            accessibleText="Settings"/>
+                            styleClass="icon-btn,sm"/>
                 </HBox>
 
-                <!-- красная линия -->
-                <Pane styleClass="fheader-accent"/>
+                <Region styleClass="fheader-accent"/>
             </VBox>
         </top>
 
+        <!-- ================= CONTENT ================= -->
         <center>
-            <StackPane/>
+            <StackPane fx:id="contentStack" styleClass="app-root">
+
+                <BorderPane fx:id="appRoot" styleClass="app-root">
+                    <center>
+                        <StackPane/>
+                    </center>
+                </BorderPane>
+
+                <Pane fx:id="drawerOverlay"
+                      visible="false"
+                      managed="true"
+                      styleClass="drawer-overlay"
+                      StackPane.alignment="TOP_LEFT"
+                      onMouseClicked="#closeAnyDrawer"/>
+
+                <!-- левый drawer -->
+                <VBox fx:id="drawer"
+                      visible="false"
+                      managed="true"
+                      styleClass="drawer"
+                      StackPane.alignment="TOP_LEFT"
+                      onMouseClicked="#consumeInsideDrawer"
+                      prefWidth="240" minWidth="240" maxWidth="240">
+
+                    <VBox spacing="8"
+                          styleClass="drawer-nav"
+                          fillWidth="true">
+                        <VBox.margin>
+                            <Insets top="0" right="0" bottom="0" left="0"/>
+                        </VBox.margin>
+
+                        <Button text="%view.home"       onAction="#navHome"      styleClass="drawer-item" maxWidth="Infinity"/>
+                        <Button text="%view.testCases"  onAction="#navTestCases" styleClass="drawer-item" maxWidth="Infinity"/>
+                        <Button text="%view.cycles"     onAction="#navCycles"    styleClass="drawer-item" maxWidth="Infinity"/>
+                        <Button text="%view.history"    onAction="#navHistory"   styleClass="drawer-item" maxWidth="Infinity"/>
+                        <Button text="%view.analytics"  onAction="#navAnalytics" styleClass="drawer-item" maxWidth="Infinity"/>
+                        <Button text="%view.reports"    onAction="#navReports"   styleClass="drawer-item" maxWidth="Infinity"/>
+                    </VBox>
+
+                    <Region VBox.vgrow="ALWAYS"/>
+                </VBox>
+
+                <!-- правый drawer -->
+                <VBox fx:id="settingsDrawer"
+                      visible="false"
+                      managed="true"
+                      styleClass="drawer,drawer-right"
+                      StackPane.alignment="TOP_RIGHT"
+                      onMouseClicked="#consumeInsideDrawer"
+                      prefWidth="240" minWidth="240" maxWidth="240">
+
+                    <VBox spacing="8"
+                          styleClass="drawer-nav"
+                          fillWidth="true">
+                        <VBox.margin>
+                            <Insets top="0" right="0" bottom="0" left="0"/>
+                        </VBox.margin>
+
+                        <Button text="%drawer.settings" onAction="#openSettings" styleClass="drawer-item" maxWidth="Infinity"/>
+                        <Button text="%drawer.editMode" onAction="#openEditMode" styleClass="drawer-item" maxWidth="Infinity"/>
+                        <Button text="%drawer.about"    onAction="#openAbout"    styleClass="drawer-item" maxWidth="Infinity"/>
+
+                        <Region VBox.vgrow="ALWAYS"/>
+
+                        <!-- Language -->
+                        <Button fx:id="btnLanguage"
+                                text="%drawer.language"
+                                onAction="#toggleLanguageChooser"
+                                styleClass="drawer-item"
+                                maxWidth="Infinity"/>
+
+                        <VBox fx:id="languageRow"
+                              spacing="8"
+                              visible="false"
+                              managed="false"
+                              styleClass="drawer-theme-row">
+                            <ComboBox fx:id="cbLanguage" styleClass="drawer-combo" maxWidth="Infinity" prefWidth="Infinity"/>
+                        </VBox>
+
+                        <!-- Theme -->
+                        <Button fx:id="btnTheme"
+                                text="%drawer.theme"
+                                onAction="#toggleThemeChooser"
+                                styleClass="drawer-item"
+                                maxWidth="Infinity"/>
+
+                        <HBox fx:id="themeRow"
+                              spacing="10"
+                              alignment="CENTER_LEFT"
+                              visible="false"
+                              managed="false"
+                              styleClass="drawer-theme-row">
+                            <ToggleSwitch fx:id="tgTheme"/>
+                            <Label fx:id="lblTheme" text="%theme.dark" styleClass="drawer-theme-label"/>
+                        </HBox>
+                    </VBox>
+
+                    <Region VBox.vgrow="ALWAYS"/>
+                </VBox>
+
+            </StackPane>
         </center>
 
+        <!-- ================= FOOTER ================= -->
         <bottom>
             <VBox>
-                <Pane styleClass="ffooter-accent"/>
-                <HBox spacing="16" styleClass="footer">
-                    <Label fx:id="lblVersion" styleClass="footer-left"/>
-                    <Pane HBox.hgrow="ALWAYS"/>
-                    <Label fx:id="lblScreenName" styleClass="footer-right"/>
+                <Region styleClass="ffooter-accent"/>
+                <HBox styleClass="footer" spacing="10">
+                    <Label fx:id="lblVersion" text="v0.0.0" styleClass="footer-left"/>
+                    <Region HBox.hgrow="ALWAYS"/>
                 </HBox>
             </VBox>
         </bottom>
+
     </BorderPane>
-
-    <!-- ===== OVERLAY: покрывает ТОЛЬКО контент (не шапку) ===== -->
-    <Pane fx:id="drawerOverlay"
-          visible="false"
-          managed="true"
-          styleClass="drawer-overlay"
-          StackPane.alignment="TOP_LEFT"
-          onMouseClicked="#closeAnyDrawer"/>
-
-    <!-- ===== DRAWER слева ===== -->
-    <VBox fx:id="drawer"
-          visible="false"
-          managed="true"
-          styleClass="drawer"
-          StackPane.alignment="TOP_LEFT"
-          onMouseClicked="#consumeInsideDrawer"
-          prefWidth="170" minWidth="170" maxWidth="170">
-
-        <VBox spacing="8"
-              styleClass="drawer-nav"
-              fillWidth="true">
-
-            <Button text="Home"       onAction="#navHome"       styleClass="drawer-item" maxWidth="Infinity"/>
-            <Button text="Test Cases" onAction="#navTestCases"  styleClass="drawer-item" maxWidth="Infinity"/>
-            <Button text="Cycles"     onAction="#navCycles"     styleClass="drawer-item" maxWidth="Infinity"/>
-            <Button text="History"    onAction="#navHistory"    styleClass="drawer-item" maxWidth="Infinity"/>
-            <Button text="Analytics"  onAction="#navAnalytics"  styleClass="drawer-item" maxWidth="Infinity"/>
-            <Button text="Reports"    onAction="#navReports"    styleClass="drawer-item" maxWidth="Infinity"/>
-        </VBox>
-
-        <!-- пустая область тоже часть панели -->
-        <Region VBox.vgrow="ALWAYS"/>
-    </VBox>
-
-    <!-- ===== DRAWER справа (Settings) ===== -->
-    <VBox fx:id="settingsDrawer"
-          visible="false"
-          managed="true"
-          styleClass="drawer,drawer-right"
-          StackPane.alignment="TOP_RIGHT"
-          onMouseClicked="#consumeInsideDrawer"
-          prefWidth="240" minWidth="240" maxWidth="240">
-
-        <VBox spacing="8"
-              styleClass="drawer-nav"
-              fillWidth="true">
-
-            <Button text="Settings…"   onAction="#openSettings"     styleClass="drawer-item" maxWidth="Infinity"/>
-            <Button text="Edit Mode"   onAction="#openEditMode"     styleClass="drawer-item" maxWidth="Infinity"/>
-            <Button text="About"       onAction="#openAbout"        styleClass="drawer-item" maxWidth="Infinity"/>
-        </VBox>
-
-        <Region VBox.vgrow="ALWAYS"/>
-    </VBox>
-
 </StackPane>
