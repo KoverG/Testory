@@ -1,32 +1,42 @@
 /* FILE: src/main/resources/ui/styles.css */
+
 /* =====================================================================
   1) Глобальные токены темы (.root) — переменные и базовая типографика
 ===================================================================== */
 .root {
-    /* ---- Палитра фона приложения ---- */
+
+    /* ---- Палитра фона приложения (градиент фона всего окна) ---- */
     -fx-bg-top: #2e2e2d;
     -fx-bg-bottom: -fx-bg-top;
 
-    /* ---- Текст ---- */
+    /* ---- Текст (основной/приглушённый/в шапке) ---- */
     -fx-text-color:   #f2f4f7;
     -fx-muted-color: #c3b3a9;
     -fx-header-text: #918880;
 
-    /* ---- Акцент ---- */
+    /* ---- Акцент (основной и сильный) ---- */
     -fx-accent:           #7f1d1d;
     -fx-accent-strong:    #f50049;
 
-    /* ---- Поверхности ---- */
+    /* ---- Поверхности (полупрозрачные слои для hover/pressed и стекла) ---- */
     -fx-surface:      rgba(255,255,255,0.06);
     -fx-surface-2:    rgba(255,255,255,0.08);
 
-    /* ---- База ---- */
+    /* ---- Контуры ---- */
+    -fx-border: rgba(255,255,255,0.12);
+    -fx-border-strong: rgba(255,255,255,0.20);
+
+    /* ---- Тени ---- */
+    -fx-shadow: rgba(0,0,0,0.40);
+
+
+    /* ---- База (шрифт и размер по умолчанию) ---- */
     -fx-text-fill:   -fx-text-color;
     -fx-font-family: "Segoe UI", Inter, Arial, sans-serif;
     -fx-font-size: 13px;
 
     /* =================================================================
-      ToggleSwitch tokens для темной среды
+      ToggleSwitch tokens (dark)
     ================================================================= */
     -fx-switch-off-bg:    rgba(255,255,255,0.07);
     -fx-switch-off-text:  rgba(255,255,255,0.72);
@@ -41,14 +51,15 @@
     -fx-icon-accent:  -fx-accent-strong;
     -fx-icon-status:  -fx-text-color;
 
-    /* ---- Header/icon button border ---- */
+    /* ---- Border для icon-button в header ---- */
     -fx-icon-btn-border: rgba(255,255,255,0.22);
 }
 
 /* =====================================================================
-  LIGHT THEME OVERRIDES (переключается классом .theme-light на .root)
+  LIGHT THEME OVERRIDES (класс .theme-light на .root)
 ===================================================================== */
 .root.theme-light {
+
     /* ---- Палитра фона приложения ---- */
     -fx-bg-top:       #f3f4f6;
     -fx-bg-bottom:    #eceff3;
@@ -70,7 +81,7 @@
     -fx-text-fill:   -fx-text-color;
 
     /* =================================================================
-      ToggleSwitch tokens для светлой среды
+      ToggleSwitch tokens (light)
     ================================================================= */
     -fx-switch-off-bg:    rgba(0,0,0,0.06);
     -fx-switch-off-text:  rgba(0,0,0,0.70);
@@ -79,20 +90,19 @@
     -fx-switch-ripple:    rgba(255,255,255,0.55);
     -fx-switch-shadow:    rgba(0,0,0,0.22);
 
-    /* icon tokens в light остаются семантически теми же */
+    /* icon tokens */
     -fx-icon-primary: -fx-text-color;
     -fx-icon-muted:   -fx-muted-color;
     -fx-icon-accent:  -fx-accent-strong;
     -fx-icon-status:  -fx-text-color;
 
-    /* ---- Header/icon button border ---- */
+    /* ---- Border для icon-button в header (light) ---- */
     -fx-icon-btn-border: rgba(0,0,0,0.22);
 }
 
+/* ВАЖНО: light-стили drawer-item НЕ тут, а рядом с drawer-item */
 
-/* ВАЖНО: light-стили drawer-item НЕ тут, а рядом с drawer-item в секции 6 */
-
-/* Theme chooser (в правом drawer) */
+/* Theme chooser (в правом drawer): контейнер вокруг тумблера/текстов */
 .drawer-theme-chooser {
     -fx-padding: 4 6 8 6;
 }
@@ -103,17 +113,18 @@
     -fx-background-insets: 0;
 }
 
-/* Внутренние контейнеры контента не должны перерисовывать фон (единый фон на весь экран) */
+/* Внутренние контейнеры контента не должны перерисовывать фон */
 #contentStack .app-root {
     -fx-background-color: transparent;
     -fx-background-insets: 0;
 }
 
+
 /* =====================================================================
   2) Базовые/общие правила и ресеты
 ===================================================================== */
 
-/* 2A) Focus reset */
+/* Focus reset */
 .button:focused,
 .toggle-button:focused,
 .hyperlink:focused,
@@ -123,7 +134,7 @@
     -fx-faint-focus-color: transparent;
 }
 
-/* 2B) Общие правила для кликабельных */
+/* cursor “рука” */
 .button,
 .toggle-button,
 .hyperlink,
@@ -132,46 +143,44 @@
     -fx-cursor: hand;
 }
 
-/* Базовая геометрия кнопок (не задаём фон, чтобы не ломать вариации ниже) */
+/* базовая геометрия кнопок */
 .button {
     -fx-background-radius: 12;
     -fx-padding: 10 14;
     -fx-font-weight: 600;
 }
 
+
 /* =====================================================================
-  3) Каркас приложения: шапка и футер
+  3) Каркас приложения: шапка/футер + акцентные линии
 ===================================================================== */
 
+/* Шапка */
 .app-header {
     -fx-padding: 10 12;
     -fx-alignment: CENTER_LEFT;
 
-    /* как drawer (dark) */
     -fx-background-color: rgba(0, 0, 0, 0.4);
     -fx-background-insets: 0;
 
-    /* без теней/свечения */
     -fx-effect: none;
 }
-
-/* Header: без теней/свечения у любых вложенных узлов */
 .app-header * { -fx-effect: none; }
 
-/* как drawer (light) */
+/* Шапка (light) */
 .root.theme-light .app-header {
     -fx-background-color: rgba(0, 0, 0, 0.14);
     -fx-background-insets: 0;
     -fx-effect: none;
 }
 
+/* Заголовки в header */
 #title {
     -fx-text-fill: -fx-header-text;
     -fx-font-size: 18px;
     -fx-font-weight: 800;
     -fx-alignment: CENTER_RIGHT;
 }
-
 .screen-title {
     -fx-text-fill: -fx-header-text;
     -fx-font-size: 13px;
@@ -179,6 +188,7 @@
     -fx-alignment: CENTER_RIGHT;
 }
 
+/* Emboss (если используется точечно) */
 .emboss {
     -fx-effect:
             dropshadow(gaussian, rgba(0,0,0,0.70), 22, 0.35, 0, 4),
@@ -186,39 +196,35 @@
             innershadow(gaussian, rgba(255,255,255,0.10), 2, 0.40, 0, -2);
 }
 
-.fheader-accent {
-    -fx-min-height: 2px;
-    -fx-max-height: 2px;
-
-    /* 1) База как фон шапки  2) Градиент поверх */
-    -fx-background-color:
-            rgba(0, 0, 0, 0.40),
-            linear-gradient(to right, -fx-accent-strong, rgba(245, 0, 73, 0.0));
-
+/* Акцентные линии */
+.fheader-accent,
+.ffooter-accent {
     -fx-background-insets: 0, 0;
     -fx-background-radius: 0, 0;
 }
 
-
+/* Header accent */
+.fheader-accent {
+    -fx-min-height: 2px;
+    -fx-max-height: 2px;
+    -fx-background-color:
+            rgba(0, 0, 0, 0.40),
+            linear-gradient(to right, -fx-accent-strong, rgba(245, 0, 73, 0.0));
+}
 .root.theme-light .fheader-accent {
     -fx-background-color:
             rgba(0, 0, 0, 0.14),
             linear-gradient(to right, -fx-accent-strong, rgba(245, 0, 73, 0.0));
 }
 
+/* Footer accent */
 .ffooter-accent {
     -fx-min-height: 1px;
     -fx-max-height: 1px;
-
-    /* 1) База как фон шапки  2) Градиент поверх */
     -fx-background-color:
             rgba(0, 0, 0, 0.40),
             linear-gradient(to right, -fx-accent-strong, rgba(245, 0, 73, 0.0));
-
-    -fx-background-insets: 0, 0;
-    -fx-background-radius: 0, 0;
 }
-
 .root.theme-light .ffooter-accent {
     -fx-background-color:
             rgba(0, 0, 0, 0.14),
@@ -228,23 +234,18 @@
 /* Футер */
 .footer {
     -fx-padding: 8 12;
-
-    /* как drawer (dark) */
     -fx-background-color: rgba(0, 0, 0, 0.4);
     -fx-background-insets: 0;
-
     -fx-effect: none;
 }
-
-/* как drawer (light) */
 .root.theme-light .footer {
     -fx-background-color: rgba(0, 0, 0, 0.14);
     -fx-background-insets: 0;
     -fx-effect: none;
 }
-
 .footer-left  { -fx-text-fill: -fx-muted-color; -fx-font-size: 12px; }
 .footer-right { -fx-text-fill: -fx-muted-color; -fx-font-size: 12px; }
+
 
 /* =====================================================================
   4) Главная: заголовок и плитки
@@ -256,27 +257,18 @@
     -fx-font-weight: 700;
 }
 
-/* ============== Контейнер кнопок главного экрана (как drawer-nav) ============== */
+/* контейнер плиток (тень на контейнере) */
 .product-nav {
     -fx-background-color: transparent;
     -fx-background-insets: 0;
     -fx-padding: 0;
-
-    /* FIX: тень на контейнере, а не на кнопках (не расширяет hover-зону кнопок) */
-    -fx-effect:
-            dropshadow(gaussian, rgba(0,0,0,0.22), 10, 0.18, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.22), 10, 0.18, 0, 2);
 }
-
 .root.theme-light .product-nav {
-    /* FIX: тень на контейнере (light) */
-    -fx-effect:
-            dropshadow(gaussian, rgba(0,0,0,0.10), 8, 0.16, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 8, 0.16, 0, 2);
 }
 
-/* =====================================================================
-   product-button = drawer-item (dark)
-===================================================================== */
-
+/* product-button (dark) */
 .button.product-button {
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.22), rgba(255,255,255,0.10)),
@@ -296,93 +288,63 @@
     -fx-border-width: 1;
     -fx-border-radius: 14;
 
-    /* FIX: убрали тень с кнопки, чтобы hover не срабатывал “по тени” */
     -fx-effect: none;
 }
-
 .button.product-button:hover {
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.28), rgba(255,255,255,0.14)),
             rgba(255,255,255,0.08);
-
     -fx-border-color: rgba(255,255,255,0.36);
 }
-
 .button.product-button:pressed {
     -fx-translate-y: 1;
-
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.18), rgba(255,255,255,0.10)),
             rgba(255,255,255,0.05);
-
     -fx-border-color: rgba(255,255,255,0.24);
-
-    /* FIX: эффект не нужен (иначе снова расширение хит-зоны) */
     -fx-effect: none;
 }
 
-
-/* =====================================================================
-   product-button = drawer-item (light)
-===================================================================== */
-
+/* product-button (light) */
 .root.theme-light .button.product-button {
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.96), rgba(255,255,255,0.78)),
             rgba(0,0,0,0.02);
-
     -fx-border-color: #f50049;
-
-    /* FIX: убрали тень с кнопки, чтобы hover не срабатывал “по тени” */
     -fx-effect: none;
 }
-
-/* ultra-minimal hover — light theme (НЕ убираем базовый цвет кнопки) */
 .root.theme-light .button.product-button:hover {
     -fx-background-color:
-        /* 1) БАЗА (как в обычном состоянии) */
             linear-gradient(to bottom, rgba(255,255,255,0.96), rgba(255,255,255,0.78)),
             rgba(0,0,0,0.02),
-
-                /* 2) очень мягкая внутренняя подсветка по краям (не “затемнение”) */
             rgba(255,255,255,0.35),
-
-                /* 3) очень мягкая внутренняя тень по краям (чтобы читалось “наведение”) */
             rgba(0,0,0,0.04);
 
-    -fx-background-insets:
-            0,          /* база */
-            1,          /* белый иннер-слой чуть внутри */
-            2;          /* тёмный иннер-слой ещё глубже */
-
-    -fx-background-radius:
-            14, 13, 12;
+    -fx-background-insets: 0, 1, 2;
+    -fx-background-radius: 14, 13, 12;
 
     -fx-border-color: rgba(245, 0, 73, 0.65);
     -fx-effect: none;
 }
-
 .root.theme-light .button.product-button:pressed {
     -fx-translate-y: 1;
-
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.90), rgba(255,255,255,0.74)),
             rgba(0,0,0,0.02);
-
     -fx-border-color: rgba(245, 0, 73, 0.65);
     -fx-effect: none;
 }
 
 
 /* =====================================================================
-  5) Иконки: универсальная кнопка-иконка и покраска SVGPath
+  5) Иконки: icon-btn + покраска SVGPath
 ===================================================================== */
 
 .icon-btn {
     -fx-padding: 0;
 
-    -fx-min-width: 28; -fx-min-height: 28;
-    -fx-pref-width: 28; -fx-pref-height: 28;
+    -fx-min-width: 32; -fx-min-height: 32;
+    -fx-pref-width: 32; -fx-pref-height: 32;
 
     -fx-background-color: transparent;
     -fx-background-insets: 0;
@@ -396,36 +358,62 @@
     -fx-graphic-text-gap: 0;
 }
 
-.icon-btn:hover  { -fx-background-color: -fx-surface; }
-.icon-btn:pressed{ -fx-background-color: -fx-surface-2; }
+.icon-btn:hover   { -fx-background-color: -fx-surface; }
+.icon-btn:pressed { -fx-background-color: -fx-surface-2; }
 .icon-btn:disabled{ -fx-opacity: 0.55; -fx-effect: none; }
 
-/* Размер-утилита */
+/* size helpers (ONE source of truth) */
 .icon-btn.sm {
-    -fx-min-width: 26; -fx-min-height: 26;
-    -fx-pref-width: 26; -fx-pref-height: 26;
+    -fx-min-width: 28;
+    -fx-pref-width: 28;
+    -fx-max-width: 28;
+
+    -fx-min-height: 28;
+    -fx-pref-height: 28;
+    -fx-max-height: 28;
+
+    -fx-padding: 0;
 }
 
-/* Покраска SVGPath внутри икон-кнопки */
+.icon-btn.wide {
+    -fx-min-width: 52;
+    -fx-pref-width: 52;
+    -fx-max-width: 52;
+}
+
+/* FIX: wide + sm (btnBack) */
+.icon-btn.sm.wide {
+    -fx-min-width: 54;
+    -fx-pref-width: 54;
+    -fx-max-width: 54;
+}
+
 .icon-btn .svg-path {
     -fx-fill: -fx-icon-primary;
 }
 
+/* danger */
+.icon-btn.danger {
+    -fx-border-color: rgba(245, 0, 73, 0.70);
+    -fx-background-color: rgba(245, 0, 73, 0.10);
+}
+.icon-btn.danger:hover   { -fx-background-color: rgba(245, 0, 73, 0.16); }
+.icon-btn.danger:pressed { -fx-background-color: rgba(245, 0, 73, 0.22); }
+.icon-btn.danger .svg-path { -fx-fill: -fx-accent-strong; }
+
+
+
 /* =====================================================================
-  6) Navigation drawer (выезжающее меню слева)
+  6) Navigation drawer (overlay, drawer, nav, item, combo)
 ===================================================================== */
 
-/* Overlay — dark: ОСВЕТЛЕНИЕ (не затемнение) */
 .drawer-overlay {
     -fx-background-color: rgba(34, 33, 33, 0.8);
 }
-
-/* Overlay — light */
 .root.theme-light .drawer-overlay {
     -fx-background-color: rgba(174, 174, 174, 0.6);
 }
 
-/* ===== Сам drawer ===== */
 .drawer {
     -fx-background-color: rgba(0, 0, 0, 0.14);
     -fx-padding: 12 14 12 14;
@@ -433,47 +421,34 @@
     -fx-border-color: rgba(81, 79, 77, 0.45);
     -fx-border-width: 0 1 0 0;
 }
-
-/* ===== Right drawer: только отличия стороны ===== */
 .drawer-right {
     -fx-border-width: 0 0 0 1;
 }
-
-/* ===== Локальные корректировки для светлой темы ===== */
 .root.theme-light .drawer {
     -fx-background-color: rgba(0, 0, 0, 0.04);
     -fx-border-color: rgba(0, 0, 0, 0.14);
     -fx-border-width: 0 1 0 0;
 }
-
 .root.theme-light .drawer-right {
     -fx-border-width: 0 0 0 1;
     -fx-border-color: rgba(0, 0, 0, 0.14);
 }
 
-
-/* ==============Контейнер кнопок==============*/
+/* nav container */
 .drawer-nav {
     -fx-background-color: rgba(62, 60, 59);
     -fx-background-radius: 12;
     -fx-background-insets: 0;
     -fx-padding: 8;
 
-    /* FIX: тень на контейнере, а не на кнопках (не расширяет hover-зону кнопок) */
-    -fx-effect:
-            dropshadow(gaussian, rgba(0,0,0,0.22), 10, 0.18, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.22), 10, 0.18, 0, 2);
 }
-
-/* drawer-nav — light override (настройка рядом) */
 .root.theme-light .drawer-nav {
     -fx-background-color: rgb(211, 207, 207);
-
-    /* FIX: тень на контейнере (light) */
-    -fx-effect:
-            dropshadow(gaussian, rgba(0,0,0,0.10), 8, 0.16, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 8, 0.16, 0, 2);
 }
 
-/* ===== drawer-item: iOS-like glass (dark) ===== */
+/* drawer-item (dark) */
 .button.drawer-item {
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.22), rgba(255,255,255,0.10)),
@@ -493,39 +468,60 @@
     -fx-border-width: 1;
     -fx-border-radius: 14;
 
-    /* FIX: убрали тень с кнопки, чтобы hover не срабатывал “по тени” */
     -fx-effect: none;
 }
-
 .button.drawer-item:hover {
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.28), rgba(255,255,255,0.14)),
             rgba(255,255,255,0.08);
-
     -fx-border-color: rgba(255,255,255,0.36);
 }
-
 .button.drawer-item:pressed {
     -fx-translate-y: 1;
-
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.18), rgba(255,255,255,0.10)),
             rgba(255,255,255,0.05);
-
     -fx-border-color: rgba(255,255,255,0.24);
-
-    /* FIX: эффект не нужен (иначе снова расширение хит-зоны) */
     -fx-effect: none;
 }
 
-/* ===== drawer-combo: как drawer-item (glass) ===== */
+/* drawer-item (light) */
+.root.theme-light .button.drawer-item {
+    -fx-background-color:
+            linear-gradient(to bottom, rgba(255,255,255,0.96), rgba(255,255,255,0.78)),
+            rgba(0,0,0,0.02);
+    -fx-border-color: rgba(255,255,255,0.90);
+    -fx-effect: none;
+}
+.root.theme-light .button.drawer-item:hover {
+    -fx-background-color:
+            linear-gradient(to bottom, rgba(255,255,255,0.96), rgba(255,255,255,0.78)),
+            rgba(0,0,0,0.02),
+            rgba(255,255,255,0.35),
+            rgba(0,0,0,0.04);
 
+    -fx-background-insets: 0, 1, 2;
+    -fx-background-radius: 14, 13, 12;
+
+    -fx-border-color: rgba(0,0,0,0.10);
+    -fx-effect: none;
+}
+.root.theme-light .button.drawer-item:pressed {
+    -fx-translate-y: 1;
+    -fx-background-color:
+            linear-gradient(to bottom, rgba(255,255,255,0.90), rgba(255,255,255,0.74)),
+            rgba(0,0,0,0.02);
+    -fx-border-color: rgba(255,255,255,0.86);
+    -fx-effect: none;
+}
+
+/* drawer ComboBox (dark) */
 .combo-box.drawer-combo,
 .combo-box-base.drawer-combo {
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.22), rgba(255,255,255,0.10)),
             rgba(255,255,255,0.06);
-    -fx-background-radius: 12;   /* было 14 */
+    -fx-background-radius: 12;
     -fx-border-radius: 12;
     -fx-background-insets: 0;
 
@@ -533,10 +529,9 @@
     -fx-border-width: 1;
 
     -fx-padding: 0;
-    -fx-effect: none; /* важно: не расширяем хит-зону как у кнопок */
+    -fx-effect: none;
 }
 
-/* текст в закрытом состоянии */
 .combo-box.drawer-combo .list-cell {
     -fx-text-fill: -fx-text-color;
     -fx-font-size: 13px;
@@ -544,8 +539,6 @@
     -fx-padding: 6 12;
     -fx-background-color: transparent;
 }
-
-/* стрелка */
 .combo-box.drawer-combo .arrow-button {
     -fx-background-color: transparent;
     -fx-padding: 6 8;
@@ -554,7 +547,6 @@
     -fx-background-color: -fx-text-color;
 }
 
-/* hover как у drawer-item:hover */
 .combo-box.drawer-combo:hover,
 .combo-box-base.drawer-combo:hover {
     -fx-background-color:
@@ -562,8 +554,6 @@
             rgba(255,255,255,0.08);
     -fx-border-color: rgba(255,255,255,0.36);
 }
-
-/* pressed как у drawer-item:pressed */
 .combo-box.drawer-combo:pressed,
 .combo-box-base.drawer-combo:pressed {
     -fx-background-color:
@@ -573,15 +563,13 @@
     -fx-effect: none;
 }
 
-/* popup (выпадающий список) — тоже “в тему” */
 .combo-box-popup .list-view {
-    -fx-background-color: rgba(62, 60, 59, 0.98); /* близко к drawer-nav */
+    -fx-background-color: rgba(62, 60, 59, 0.98);
     -fx-background-radius: 12;
     -fx-background-insets: 0;
     -fx-padding: 6;
     -fx-effect: none;
 }
-
 .combo-box-popup .list-view .list-cell {
     -fx-text-fill: -fx-text-color;
     -fx-font-size: 13px;
@@ -591,17 +579,14 @@
     -fx-padding: 10 12;
     -fx-background-radius: 10;
 }
-
 .combo-box-popup .list-view .list-cell:hover {
     -fx-background-color: rgba(255,255,255,0.08);
 }
-
 .combo-box-popup .list-view .list-cell:selected {
     -fx-background-color: rgba(255,255,255,0.12);
 }
 
-/* ===== drawer-combo: light theme (как drawer-item light) ===== */
-
+/* drawer ComboBox (light) */
 .root.theme-light .combo-box.drawer-combo,
 .root.theme-light .combo-box-base.drawer-combo {
     -fx-background-color:
@@ -610,8 +595,6 @@
     -fx-border-color: rgba(255,255,255,0.90);
     -fx-effect: none;
 }
-
-/* hover в light — мягкая “инверсия” как у drawer-item:hover */
 .root.theme-light .combo-box.drawer-combo:hover,
 .root.theme-light .combo-box-base.drawer-combo:hover {
     -fx-background-color:
@@ -626,103 +609,42 @@
     -fx-border-color: rgba(0,0,0,0.10);
     -fx-effect: none;
 }
-
 .root.theme-light .combo-box.drawer-combo .arrow {
     -fx-background-color: -fx-text-color;
 }
-
 .root.theme-light .combo-box-popup .list-view {
-    -fx-background-color: rgba(211, 207, 207, 0.98); /* как drawer-nav light */
+    -fx-background-color: rgba(211, 207, 207, 0.98);
     -fx-effect: none;
 }
-
 .root.theme-light .combo-box-popup .list-view .list-cell:hover {
     -fx-background-color: rgba(0,0,0,0.06);
 }
-
 .root.theme-light .combo-box-popup .list-view .list-cell:selected {
     -fx-background-color: rgba(0,0,0,0.08);
 }
 
-
-/* ===== drawer-theme-label: текст рядом с ToggleSwitch ===== */
+/* label рядом с ToggleSwitch в drawer */
 .drawer-theme-label {
     -fx-text-fill: -fx-text-color;
     -fx-font-size: 13px;
     -fx-font-weight: 800;
-
     -fx-alignment: CENTER_LEFT;
     -fx-padding: 0;
-
-    /* чтобы текст не "прыгал" относительно кнопок */
     -fx-min-height: 28px;
     -fx-line-spacing: 0;
 }
 
-/* ===== drawer-item: iOS-like glass (light) ===== */
-.root.theme-light .button.drawer-item {
-    -fx-background-color:
-            linear-gradient(to bottom, rgba(255,255,255,0.96), rgba(255,255,255,0.78)),
-            rgba(0,0,0,0.02);
-
-    -fx-border-color: rgba(255,255,255,0.90);
-
-    /* FIX: убрали тень с кнопки, чтобы hover не срабатывал “по тени” */
-    -fx-effect: none;
-}
-
-/* ОСТАВЛЕНО РОВНО ОДНО ПРАВИЛО: “тёмный hover” (инверсия) */
-/* ultra-minimal hover — light theme */
-.root.theme-light .button.drawer-item:hover {
-    -fx-background-color:
-        /* 1) БАЗА (как в обычном состоянии) */
-            linear-gradient(to bottom, rgba(255,255,255,0.96), rgba(255,255,255,0.78)),
-            rgba(0,0,0,0.02),
-
-                /* 2) очень мягкая внутренняя подсветка по краям (не “затемнение”) */
-            rgba(255,255,255,0.35),
-
-                /* 3) очень мягкая внутренняя тень по краям (чтобы читалось “наведение”) */
-            rgba(0,0,0,0.04);
-
-    -fx-background-insets:
-            0,          /* база */
-            1,          /* белый иннер-слой чуть внутри */
-            2;          /* тёмный иннер-слой ещё глубже */
-
-    -fx-background-radius:
-            14, 13, 12;
-
-    -fx-border-color: rgba(0,0,0,0.10);
-    -fx-effect: none;
-}
-
-.root.theme-light .button.drawer-item:pressed {
-    -fx-translate-y: 1;
-
-    -fx-background-color:
-            linear-gradient(to bottom, rgba(255,255,255,0.90), rgba(255,255,255,0.74)),
-            rgba(0,0,0,0.02);
-
-    -fx-border-color: rgba(255,255,255,0.86);
-
-    -fx-effect: none;
-}
 
 /* =====================================================================
   7) ToggleSwitch (кастомный контрол для смены темы)
 ===================================================================== */
+.toggle-switch { -fx-cursor: hand; }
 
-.toggle-switch {
-    -fx-cursor: hand;
-}
-
-/* TRACK — капсула */
+/* track (dark) */
 .toggle-switch .track {
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.22), rgba(255,255,255,0.10)),
             rgba(255,255,255,0.06);
-
     -fx-background-radius: 999;
     -fx-background-insets: 0;
 
@@ -730,64 +652,47 @@
     -fx-border-radius: 999;
     -fx-border-width: 1;
 
-    -fx-effect:
-            dropshadow(gaussian, rgba(0,0,0,0.22), 10, 0.18, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.22), 10, 0.18, 0, 2);
 }
-
-/* hover: чуть поднять “стекло” */
 .toggle-switch:hover .track {
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.28), rgba(255,255,255,0.14)),
             rgba(255,255,255,0.08);
-
     -fx-border-color: rgba(255,255,255,0.36);
 }
-
-/* selected НЕ меняет капсулу */
 .toggle-switch:selected .track {
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.22), rgba(255,255,255,0.10)),
             rgba(255,255,255,0.06);
-
     -fx-border-color: rgba(255,255,255,0.28);
-
-    -fx-effect:
-            dropshadow(gaussian, rgba(0,0,0,0.22), 10, 0.18, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.22), 10, 0.18, 0, 2);
 }
 
-/* THUMB — нейтральный (как и было), только чуть “iOS” */
+/* thumb */
 .toggle-switch .thumb {
     -fx-background-radius: 999;
     -fx-background-insets: 0;
     -fx-background-color: -fx-switch-thumb;
     -fx-effect: dropshadow(gaussian, -fx-switch-shadow, 10, 0.25, 0, 2);
 }
+.toggle-switch:selected .thumb { -fx-background-color: -fx-switch-thumb; }
 
-.toggle-switch:selected .thumb {
-    -fx-background-color: -fx-switch-thumb;
-}
-
-/* Если используется текст внутри тогла */
+/* text */
 .toggle-switch .toggle-text {
     -fx-font-size: 11px;
     -fx-font-weight: 700;
     -fx-text-fill: -fx-switch-off-text;
 }
+.toggle-switch:selected .toggle-text { -fx-text-fill: -fx-switch-on-text; }
 
-.toggle-switch:selected .toggle-text {
-    -fx-text-fill: -fx-switch-on-text;
-}
-
-/* Рябь (Circle) */
-.toggle-switch .toggle-ripple {
-    -fx-fill: -fx-switch-ripple;
-}
+/* ripple */
+.toggle-switch .toggle-ripple { -fx-fill: -fx-switch-ripple; }
 .root.theme-light .toggle-switch .toggle-ripple {
-    -fx-fill: rgba(0, 0, 0, 0.35);   /* тёмная рябь вместо светлой */
+    -fx-fill: rgba(0, 0, 0, 0.35);
     -fx-blend-mode: multiply;
 }
 
-/* Блик (Region) — оставляем, он iOS-уместен */
+/* glint */
 .toggle-switch .glint {
     -fx-background-radius: 999;
     -fx-background-insets: 0;
@@ -798,38 +703,900 @@
     );
 }
 
-/* Иконки внутри ToggleSwitch (SUN/MOON) */
-.toggle-switch .toggle-icon {
-    -fx-fill: -fx-icon-primary;
-}
+/* icons */
+.toggle-switch .toggle-icon { -fx-fill: -fx-icon-primary; }
 
-/* ===== Light theme overrides: как drawer-item (light) ===== */
+/* track (light) */
 .root.theme-light .toggle-switch .track {
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.96), rgba(255,255,255,0.78)),
             rgba(0,0,0,0.02);
-
     -fx-border-color: rgba(255,255,255,0.90);
-
-    -fx-effect:
-            dropshadow(gaussian, rgba(0,0,0,0.10), 8, 0.16, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 8, 0.16, 0, 2);
 }
-
 .root.theme-light .toggle-switch:hover .track {
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.99), rgba(255,255,255,0.82)),
             rgba(0,0,0,0.03);
-
     -fx-border-color: rgba(255,255,255,0.95);
 }
-
 .root.theme-light .toggle-switch:selected .track {
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.96), rgba(255,255,255,0.78)),
             rgba(0,0,0,0.02);
-
     -fx-border-color: rgba(255,255,255,0.90);
-
-    -fx-effect:
-            dropshadow(gaussian, rgba(0,0,0,0.10), 8, 0.16, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 8, 0.16, 0, 2);
 }
+
+
+/* =====================================================================
+  8) TEST CASES SCREEN (2-zones layout)
+===================================================================== */
+
+.tc-root { -fx-background-color: transparent; }
+
+/* панели */
+.tc-left,
+.tc-right {
+    -fx-background-color: rgba(0,0,0,0.28);
+    -fx-background-radius: 18;
+    -fx-padding: 14;
+    -fx-border-color: rgba(255,255,255,0.12);
+    -fx-border-radius: 18;
+}
+.root.theme-light .tc-left,
+.root.theme-light .tc-right {
+    -fx-background-color: rgba(0,0,0,0.10);
+    -fx-border-color: rgba(0,0,0,0.14);
+}
+
+/* кнопки экрана */
+.tc-btn {
+    -fx-background-color: rgba(255,255,255,0.06);
+    -fx-text-fill: -fx-text-color;
+    -fx-border-color: rgba(255,255,255,0.16);
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-font-weight: 700;
+
+    -fx-min-height: 32px;
+    -fx-max-height: 32px;
+
+    -fx-padding: 0 12;
+    -fx-alignment: CENTER;
+}
+.root.theme-light .tc-btn {
+    -fx-background-color: rgba(0,0,0,0.06);
+    -fx-border-color: rgba(0,0,0,0.16);
+}
+
+/* primary */
+.tc-primary {
+    -fx-background-color: rgba(245, 0, 73, 0.16);
+    -fx-text-fill: -fx-text-color;
+    -fx-border-color: rgba(245, 0, 73, 0.55);
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-font-weight: 800;
+}
+
+.tc-btnlike-title {
+    -fx-text-fill: -fx-text-color;
+    -fx-font-weight: 700;
+    -fx-font-size: 13px;
+}
+
+/* поля */
+.tc-search {
+    -fx-min-height: 32px;
+    -fx-max-height: 32px;
+
+    -fx-background-color: rgba(255,255,255,0.06);
+    -fx-text-fill: -fx-text-color;
+    -fx-prompt-text-fill: rgba(255,255,255,0.35);
+    -fx-border-color: rgba(255,255,255,0.14);
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+
+    -fx-padding: 0 12;
+}
+
+/* подсветка как у private */
+.tc-search.tc-priv-edit {
+    -fx-border-color: #f50049;
+    -fx-border-width: 1;
+}
+.root.theme-light .tc-search.tc-priv-edit {
+    -fx-border-color: #f50049;
+    -fx-border-width: 1;
+}
+
+/* multiline */
+.tc-area {
+    -fx-background-color: rgba(255,255,255,0.06);
+    -fx-text-fill: -fx-text-color;
+    -fx-prompt-text-fill: rgba(255,255,255,0.35);
+    -fx-border-color: rgba(255,255,255,0.14);
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 10 12;
+}
+
+/* light overrides */
+.root.theme-light .tc-search,
+.root.theme-light .tc-field,
+.root.theme-light .tc-area {
+    -fx-background-color: rgba(0,0,0,0.05);
+    -fx-prompt-text-fill: rgba(0,0,0,0.35);
+    -fx-border-color: rgba(0,0,0,0.14);
+}
+
+.tc-inline-strip { -fx-background-color: rgba(255,255,255,0.14); }
+.root.theme-light .tc-inline-strip { -fx-background-color: rgba(0,0,0,0.16); }
+
+.tc-inline-title {
+    -fx-text-fill: -fx-text-color;
+    -fx-font-weight: 800;
+    -fx-font-size: 12px;
+    -fx-padding: 0 8;
+    -fx-min-height: 18px;
+}
+
+/* фикс размеров icon-btn в левой зоне (оставил, чтобы ничего не сломать) */
+.tc-left .button.icon-btn,
+.tc-left .button.icon-btn.sm {
+    -fx-min-width: 32px;
+    -fx-pref-width: 32px;
+    -fx-max-width: 32px;
+
+    -fx-min-height: 32px;
+    -fx-pref-height: 32px;
+    -fx-max-height: 32px;
+
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+}
+
+/* лист */
+.tc-list { -fx-background-color: transparent; }
+.tc-list .list-cell {
+    -fx-background-color: rgba(255,255,255,0.04);
+    -fx-text-fill: -fx-text-color;
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-border-radius: 12;
+    -fx-padding: 10 12;
+}
+.tc-list .list-cell:filled:selected {
+    -fx-background-color: rgba(245, 0, 73, 0.12);
+    -fx-border-color: rgba(245, 0, 73, 0.35);
+}
+
+
+/* =====================================================================
+  8.1) TESTCASES: sheets (cases/filter) + base (без дублей)
+===================================================================== */
+
+/* базовый шаблон (если будешь переиспользовать) */
+.tc-sheet-base {
+    -fx-border-width: 1;
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-padding: 14;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 18, 0.25, 0, -6);
+}
+
+/* контейнер списка кейсов */
+.tc-cases-sheet {
+    -fx-background-color: rgba(112, 110, 110, 0.2);
+    -fx-border-color: rgba(255,255,255,0.14);
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+}
+
+/* модалка фильтра */
+.tc-filter-sheet {
+    -fx-background-color: rgba(159, 129, 103, 0.2);
+    -fx-border-color: rgba(255,255,255,0.18);
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+}
+.root.theme-light .tc-filter-sheet {
+    -fx-background-color: rgba(221, 209, 198, 0.2);
+    -fx-border-color: rgba(175, 158, 138, 0.75);
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+}
+
+
+/* =====================================================================
+  8.2) TESTCASES: Filter modal (header/tabs/chips/apply)
+===================================================================== */
+
+.tc-filter-header { -fx-background-color: transparent; }
+
+/* tabs */
+.tc-filter-tab {
+    -fx-background-color: rgb(97, 95, 92);
+    -fx-border-color: rgba(255,255,255,0.16);
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+
+    -fx-min-height: 32px;
+    -fx-pref-height: 32px;
+    -fx-max-height: 32px;
+
+    -fx-padding: 0 10 0 10;
+
+    -fx-text-fill: -fx-text-color;
+    -fx-font-weight: 700;
+    -fx-alignment: CENTER;
+}
+.root.theme-light .tc-filter-tab {
+    -fx-background-color: rgb(218, 216, 216);
+    -fx-border-color: rgb(255, 255, 255);
+}
+
+.tc-filter-tab:selected {
+    -fx-background-color: rgb(163, 25, 55);
+    -fx-border-color: rgba(245, 0, 73, 0.45);
+}
+.root.theme-light .tc-filter-tab:selected {
+    -fx-background-color: rgb(163, 25, 55);
+    -fx-border-color: rgba(245, 0, 73, 0.45);
+    -fx-text-fill: rgb(255, 255, 255);
+}
+
+/* reset */
+.tc-filter-reset {
+    -fx-background-color: rgb(97, 95, 92);
+    -fx-border-color: rgb(163, 25, 55);
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+
+    -fx-min-height: 32px;
+    -fx-pref-height: 32px;
+    -fx-max-height: 32px;
+
+    -fx-padding: 0 10 0 10;
+
+    -fx-text-fill: -fx-text-color;
+    -fx-font-weight: 700;
+    -fx-alignment: CENTER;
+}
+.root.theme-light .tc-filter-reset {
+    -fx-background-color: rgb(218, 216, 216);
+    -fx-border-color: rgb(163, 25, 55);
+}
+
+/* chips */
+.tc-filter-chip {
+    -fx-background-color: rgb(97, 95, 92);
+    -fx-border-color: rgba(255,255,255,0.14);
+    -fx-border-width: 1;
+
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+
+    -fx-padding: 7 10 7 10;
+    -fx-text-fill: -fx-text-color;
+    -fx-font-weight: 700;
+
+    -fx-effect: null;
+}
+.root.theme-light .tc-filter-chip {
+    -fx-background-color: rgb(232, 230, 227);
+    -fx-border-color: rgba(175, 158, 138, 0.75);
+}
+
+/* selected */
+.tc-filter-chip:selected {
+    -fx-border-color: rgba(245, 0, 73, 0.75);
+    -fx-border-width: 1;
+    -fx-effect:
+            innershadow(gaussian, rgba(245, 0, 73, 0.42), 14, 0.35, 0, 0),
+            innershadow(gaussian, rgba(0, 0, 0, 0.40), 10, 0.30, 0, 1);
+}
+.root.theme-light .tc-filter-chip:selected {
+    -fx-border-color: rgba(245, 0, 73, 0.65);
+    -fx-border-width: 1;
+    -fx-effect:
+            innershadow(gaussian, rgba(245, 0, 73, 0.22), 14, 0.30, 0, 0),
+            innershadow(gaussian, rgba(255, 255, 255, 0.70), 10, 0.25, 0, -1);
+}
+
+/* bottom + apply */
+.tc-filter-bottom { -fx-background-color: transparent; }
+
+.tc-filter-apply {
+    -fx-background-color: rgb(163, 25, 55);
+    -fx-border-color: rgba(245, 0, 73, 0.45);
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-padding: 12 12 12 12;
+    -fx-text-fill: rgb(255, 255, 255);
+    -fx-font-weight: 800;
+}
+
+
+/* =====================================================================
+  8.3) TESTCASES: Filter modal scroll (tc-filter-scroll)
+===================================================================== */
+
+.tc-filter-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-padding: 0;
+}
+.tc-filter-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+.tc-filter-scroll .scroll-bar {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+.tc-filter-scroll .scroll-bar:vertical { -fx-pref-width: 10px; -fx-opacity: 1; }
+.tc-filter-scroll .scroll-bar:horizontal{ -fx-pref-height: 10px; -fx-opacity: 1; }
+
+.tc-filter-scroll .scroll-bar .track {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-padding: 0;
+    -fx-border-color: transparent;
+}
+
+.tc-filter-scroll .scroll-bar:vertical .thumb,
+.tc-filter-scroll .scroll-bar:horizontal .thumb {
+    -fx-background-color: rgba(255,255,255,0.30);
+    -fx-background-insets: 0;
+    -fx-background-radius: 5px;
+    -fx-padding: 0;
+}
+.tc-filter-scroll .scroll-bar .thumb:hover  { -fx-background-color: rgba(255,255,255,0.40); }
+.tc-filter-scroll .scroll-bar .thumb:pressed{ -fx-background-color: rgba(255,255,255,0.52); }
+
+.tc-filter-scroll .scroll-bar .increment-button,
+.tc-filter-scroll .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-pref-height: 0; -fx-min-height: 0; -fx-max-height: 0;
+    -fx-pref-width: 0;  -fx-min-width: 0;  -fx-max-width: 0;
+}
+.tc-filter-scroll .scroll-bar .increment-arrow,
+.tc-filter-scroll .scroll-bar .decrement-arrow {
+    -fx-shape: "";
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+}
+
+/* rounding helpers */
+.tc-filter-scroll .scroll-bar:vertical .thumb.thumb-at-top    { -fx-background-radius: 5 14 5 5; }
+.tc-filter-scroll .scroll-bar:vertical .thumb.thumb-at-bottom { -fx-background-radius: 5 5 14 5; }
+.tc-filter-scroll .scroll-bar:vertical .thumb.thumb-at-top.thumb-at-bottom { -fx-background-radius: 5 14 14 5; }
+
+/* light */
+.root.theme-light .tc-filter-scroll .scroll-bar:vertical .thumb,
+.root.theme-light .tc-filter-scroll .scroll-bar:horizontal .thumb {
+    -fx-background-color: rgba(0,0,0,0.22);
+}
+.root.theme-light .tc-filter-scroll .scroll-bar .thumb:hover  { -fx-background-color: rgba(0,0,0,0.30); }
+.root.theme-light .tc-filter-scroll .scroll-bar .thumb:pressed{ -fx-background-color: rgba(0,0,0,0.38); }
+
+
+/* =====================================================================
+  8.4) TESTCASES: Sort
+===================================================================== */
+
+.button.tc-sort-btn {
+    -fx-min-height: 32px;
+    -fx-max-height: 32px;
+
+    -fx-min-width: 160px;
+    -fx-pref-width: 160px;
+    -fx-max-width: infinity;
+
+    -fx-padding: 0 10 0 12;
+
+    -fx-font-weight: 800;
+    -fx-alignment: CENTER_LEFT;
+    -fx-graphic-text-gap: 8px;
+
+    -fx-text-overrun: ellipsis;
+}
+.button.tc-sort-btn .svg-path { -fx-fill: -fx-icon-primary; }
+
+.button.tc-sort-item {
+    -fx-background-color: rgb(97, 95, 92);
+    -fx-border-color: rgba(255,255,255,0.14);
+    -fx-border-width: 1;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+
+    -fx-padding: 10 12;
+    -fx-alignment: CENTER_LEFT;
+    -fx-font-weight: 800;
+}
+.root.theme-light .button.tc-sort-item {
+    -fx-background-color: rgb(232, 230, 227);
+    -fx-border-color: rgba(175, 158, 138, 0.75);
+}
+
+.button.tc-sort-item:hover { -fx-background-color: rgba(255, 255, 255, 0.24); }
+.root.theme-light .button.tc-sort-item:hover { -fx-background-color: rgba(244, 244, 244, 0.42); }
+
+.button.tc-sort-item.selected { -fx-border-color: rgba(245, 0, 73, 0.55); }
+.root.theme-light .button.tc-sort-item.selected { -fx-border-color: rgba(245, 0, 73, 0.55); }
+
+.tc-sort-check { -fx-padding: 0; }
+.tc-sort-check .svg-path { -fx-fill: -fx-accent-strong; }
+.tc-sort-check.off { -fx-opacity: 0; }
+
+.button.tc-sort-item .label { -fx-text-fill: rgb(255,255,255); }
+.root.theme-light .button.tc-sort-item .label { -fx-text-fill: rgb(0, 0, 0); }
+
+
+/* =====================================================================
+  8.5) TESTCASES: Title field
+===================================================================== */
+
+.tc-title-field {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+
+    -fx-alignment: CENTER_LEFT;
+
+    -fx-pref-height: 40px;
+    -fx-min-height: 40px;
+    -fx-max-height: 40px;
+
+    -fx-padding: 0 2 0 2;
+
+    -fx-font-size: 20px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -fx-text-color;
+
+    -fx-border-color: transparent transparent rgba(255,255,255,0.18) transparent;
+    -fx-border-width: 0 0 1 0;
+
+    -fx-prompt-text-fill: rgba(242,244,247,0.45);
+    -fx-line-spacing: 2px;
+}
+
+.root.theme-light .tc-title-field {
+    -fx-border-color: transparent transparent rgba(0,0,0,0.18) transparent;
+    -fx-prompt-text-fill: rgba(0,0,0,0.35);
+}
+
+.tc-title-field:focused {
+    -fx-border-color: #f50049;
+    -fx-border-width: 0 0 1 0;
+}
+.root.theme-light .tc-title-field:focused {
+    -fx-border-color: #f50049;
+    -fx-border-width: 0 0 1 0;
+}
+
+.tc-title-placeholder {
+    -fx-text-fill: -fx-muted-color;
+}
+
+/* =====================================================================
+  8.6) TESTCASES: Save button (RIGHT ZONE)
+===================================================================== */
+
+.tc-save-btn {
+    -fx-min-height: 36;
+    -fx-pref-height: 36;
+    -fx-background-color: rgb(163, 25, 55);
+    -fx-border-color: rgba(245, 0, 73, 0.45);
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-text-fill: white;
+}
+.tc-save-btn:hover { -fx-background-color: #97072b; }
+.tc-save-btn:pressed { -fx-translate-y: 1; }
+
+
+/* =====================================================================
+  8.7) TESTCASES: ListView scrollbar (как у tc-filter-scroll)
+===================================================================== */
+
+.tc-list .scroll-bar { -fx-background-color: transparent; }
+
+.tc-list .scroll-bar:vertical { -fx-pref-width: 10px; -fx-opacity: 1; }
+.tc-list .scroll-bar:horizontal{ -fx-pref-height: 10px; -fx-opacity: 1; }
+
+.tc-list .scroll-bar .track {
+    -fx-background-color: transparent;
+    -fx-background-radius: 999;
+}
+
+.tc-list .scroll-bar:vertical .thumb,
+.tc-list .scroll-bar:horizontal .thumb {
+    -fx-background-color: rgba(255,255,255,0.28);
+    -fx-background-insets: 2;
+    -fx-background-radius: 999;
+}
+.tc-list .scroll-bar .thumb:hover  { -fx-background-color: rgba(255,255,255,0.40); }
+.tc-list .scroll-bar .thumb:pressed{ -fx-background-color: rgba(255,255,255,0.52); }
+
+.tc-list .scroll-bar .increment-button,
+.tc-list .scroll-bar .decrement-button {
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+}
+.tc-list .scroll-bar .increment-arrow,
+.tc-list .scroll-bar .decrement-arrow {
+    -fx-shape: "";
+    -fx-padding: 0;
+}
+
+/* light */
+.root.theme-light .tc-list .scroll-bar:vertical .thumb,
+.root.theme-light .tc-list .scroll-bar:horizontal .thumb {
+    -fx-background-color: rgba(0,0,0,0.18);
+}
+.root.theme-light .tc-list .scroll-bar .thumb:hover  { -fx-background-color: rgba(0,0,0,0.30); }
+.root.theme-light .tc-list .scroll-bar .thumb:pressed{ -fx-background-color: rgba(0,0,0,0.38); }
+
+
+/* =====================================================================
+  8.8) TESTCASES: метки в RIGHT ZONE (FlowPane: поле + чипы)
+===================================================================== */
+
+.tc-tag-flow {
+    -fx-padding: 0 0 2 0;
+}
+
+/* оставил (на случай если где-то ещё используется рядом-стоящая кнопка) */
+.tc-tag-add-btn {
+    -fx-pref-width: 32;
+    -fx-pref-height: 32;
+}
+
+/* chip */
+.tc-tag-chip {
+    -fx-background-color: rgba(255,255,255,0.06);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(255,255,255,0.14);
+    -fx-border-radius: 12;
+    -fx-pref-height: 32;
+
+    -fx-padding: 0 2 0 8;
+    -fx-spacing: 2;
+}
+.root.theme-light .tc-tag-chip {
+    -fx-background-color: rgba(0,0,0,0.06);
+    -fx-border-color: rgba(0,0,0,0.12);
+}
+
+.tc-tag-chip-text {
+    -fx-text-fill: -fx-text-color;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+.tc-tag-chip-text {
+    -fx-text-fill: -fx-text-color;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+
+    -fx-text-overrun: ellipsis;   /* ВОТ ЭТО */
+    -fx-wrap-text: false;         /* и это */
+}
+
+.tc-tag-chip-close {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+
+    -fx-pref-width: 22;
+    -fx-pref-height: 22;
+    -fx-min-width: 22;
+    -fx-min-height: 22;
+}
+
+/* input wrap + button inside */
+.tc-tag-input-wrap { -fx-background-color: transparent; }
+
+.tc-tag-add-in {
+    -fx-pref-width: 32;
+    -fx-pref-height: 32;
+    -fx-min-width: 32;
+    -fx-min-height: 32;
+
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+
+    -fx-translate-x: -2;
+}
+
+/* резерв справа под кнопку */
+.tc-tag-input {
+    -fx-padding: 0 34 0 10;
+}
+
+/* =====================================================================
+  8.x) TESTCASES: TextArea internals (tc-area) — прозрачные слои + скроллбар как tc-filter-scroll
+===================================================================== */
+
+/* чтобы не было синей/белой подсветки фокуса */
+.tc-area {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+/* внутренний ScrollPane, viewport и content у TextArea делаем полностью прозрачными,
+   иначе будет "вторая" подложка поверх твоего rgba */
+.tc-area .scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+.tc-area .scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+.tc-area .content {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+/* скроллбар внутри TextArea — в стиле tc-filter-scroll */
+.tc-area .scroll-bar {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+/* размеры как у tc-filter-scroll */
+.tc-area .scroll-bar:vertical { -fx-pref-width: 10px; -fx-opacity: 1; }
+.tc-area .scroll-bar:horizontal{ -fx-pref-height: 10px; -fx-opacity: 1; }
+
+.tc-area .scroll-bar .track {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-padding: 0;
+    -fx-border-color: transparent;
+}
+
+.tc-area .scroll-bar:vertical .thumb,
+.tc-area .scroll-bar:horizontal .thumb {
+    -fx-background-color: rgba(255,255,255,0.30);
+    -fx-background-insets: 0;
+    -fx-background-radius: 5px;
+    -fx-padding: 0;
+}
+
+.tc-area .scroll-bar .thumb:hover  { -fx-background-color: rgba(255,255,255,0.40); }
+.tc-area .scroll-bar .thumb:pressed{ -fx-background-color: rgba(255,255,255,0.52); }
+
+.tc-area .scroll-bar .increment-button,
+.tc-area .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-pref-height: 0; -fx-min-height: 0; -fx-max-height: 0;
+    -fx-pref-width: 0;  -fx-min-width: 0;  -fx-max-width: 0;
+}
+.tc-area .scroll-bar .increment-arrow,
+.tc-area .scroll-bar .decrement-arrow {
+    -fx-shape: "";
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+}
+
+/* optional: те же rounding helpers, если хочешь как в tc-filter-scroll */
+.tc-area .scroll-bar:vertical .thumb.thumb-at-top    { -fx-background-radius: 5 14 5 5; }
+.tc-area .scroll-bar:vertical .thumb.thumb-at-bottom { -fx-background-radius: 5 5 14 5; }
+.tc-area .scroll-bar:vertical .thumb.thumb-at-top.thumb-at-bottom { -fx-background-radius: 5 14 14 5; }
+
+/* light: как у tc-filter-scroll (твои значения) */
+.root.theme-light .tc-area .scroll-bar:vertical .thumb,
+.root.theme-light .tc-area .scroll-bar:horizontal .thumb {
+    -fx-background-color: rgba(0,0,0,0.22);
+}
+.root.theme-light .tc-area .scroll-bar .thumb:hover  { -fx-background-color: rgba(0,0,0,0.30); }
+.root.theme-light .tc-area .scroll-bar .thumb:pressed{ -fx-background-color: rgba(0,0,0,0.38); }
+
+/* =====================================================================
+  TEST CASES: STEPS (RIGHT ZONE)
+===================================================================== */
+
+/* контейнер блока шагов */
+.tc-steps-block {}
+
+/* ----- STEP CARD ----- */
+.tc-step-card {
+    -fx-background-color: -fx-surface;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-border-color: rgba(255,255,255,0.08);
+    -fx-border-width: 1;
+
+    -fx-padding: 8 10 2 4;
+    -fx-spacing: 0;
+    -fx-alignment: TOP_LEFT;
+}
+
+.root.theme-light .tc-step-card {
+    -fx-background-color: rgba(0,0,0,0.04);
+    -fx-border-color: rgba(0,0,0,0.10);
+}
+
+/* left column (index + drag) */
+.tc-step-left {
+    -fx-alignment: TOP_CENTER;
+}
+
+/* index chip — КАК icon-btn (скругление 12 + рамка) */
+.tc-step-index {
+    -fx-min-width: 22;
+    -fx-pref-width: 22;
+    -fx-max-width: 22;
+
+    -fx-min-height: 22;
+    -fx-pref-height: 22;
+    -fx-max-height: 22;
+
+    -fx-alignment: CENTER;
+
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+
+    -fx-text-fill: -fx-muted-color;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+}
+
+
+
+/* drag handle button (under index)
+   ВАЖНО: НЕ делаем background transparent — иначе пропадает рамка icon-btn */
+.tc-step-drag {
+    -fx-opacity: 0.75;
+
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.tc-step-row:hover .tc-step-drag { -fx-opacity: 1.0; }
+
+.tc-step-drag:hover {
+    -fx-background-color: rgba(255,255,255,0.08);
+    -fx-border-color: transparent;
+}
+
+.root.theme-light .tc-step-drag:hover { -fx-background-color: rgba(0,0,0,0.06); }
+
+.tc-step-drag:pressed {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+
+/* ----- text area inside step ----- */
+/* Убираем “прямую черту” (нижний border) и “лишние линии” внутри TextArea */
+.tc-step-area {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+
+    -fx-text-fill: -fx-text-color;
+    -fx-prompt-text-fill: rgba(242,244,247,0.45);
+
+    -fx-font-size: 13px;
+
+    /* компактнее, без ощущения “лишней строки” */
+    -fx-padding: 2 4 2 4;
+
+    /* убрать линию снизу */
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-border-insets: 0;
+
+    /* убрать фокус-ободки */
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-pref-row-count: 1;
+}
+
+.root.theme-light .tc-step-area {
+    -fx-prompt-text-fill: rgba(20,20,20,0.42);
+}
+
+/* убрать фон/линии внутренних узлов TextArea */
+.tc-step-area .content {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.tc-step-area .scroll-pane,
+.tc-step-area .scroll-pane .viewport,
+.tc-step-area .scroll-pane .content {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+/* delete button */
+.tc-step-del {
+    -fx-background-color: transparent;
+    -fx-padding: 4;
+    -fx-opacity: 0.85;
+}
+
+.tc-step-del:hover {
+    -fx-background-color: rgba(255,255,255,0.08);
+    -fx-background-radius: 10;
+    -fx-opacity: 1.0;
+}
+
+.root.theme-light .tc-step-del:hover {
+    -fx-background-color: rgba(0,0,0,0.06);
+}
+
+/* size helpers */
+.icon-btn.xs {
+    -fx-min-width: 22;
+    -fx-pref-width: 22;
+    -fx-max-width: 22;
+
+    -fx-min-height: 22;
+    -fx-pref-height: 22;
+    -fx-max-height: 22;
+
+    -fx-padding: 0;
+}
+
+.icon-btn.sm {
+    -fx-min-width: 28;
+    -fx-pref-width: 28;
+    -fx-max-width: 28;
+
+    -fx-min-height: 28;
+    -fx-pref-height: 28;
+    -fx-max-height: 28;
+
+    -fx-padding: 0;
+}
+
+
+/* ===== Step zones in row (left -> right) ===== */
+
+.tc-step-zones-row {
+    -fx-padding: 0;
+    -fx-spacing: 0;
+}
+
+.tc-step-zone {
+    -fx-padding: 0;
+}
+
+.tc-step-zone-title {
+    -fx-text-fill: -fx-muted-color;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-padding: 0 0 0 7; /* было 2, ставим как у .tc-step-area слева */
+}
+
+.tc-step-zone-vsep {
+    -fx-min-width: 1;
+    -fx-pref-width: 1;
+    -fx-max-width: 1;
+    -fx-background-color: rgba(255,255,255,0.14);
+}
+
+.root.theme-light .tc-step-zone-vsep {
+    -fx-background-color: rgba(0,0,0,0.14);
+}
+

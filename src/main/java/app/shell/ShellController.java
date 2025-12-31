@@ -1,4 +1,3 @@
-// FILE: src/main/java/app/shell/ShellController.java
 package app.shell;
 
 import app.core.AppConfig;
@@ -7,21 +6,19 @@ import app.core.I18n;
 import app.core.Router;
 import app.core.View;
 import app.ui.ToggleSwitch;
+import app.ui.UiBlur;
 import app.ui.UiSvg;
 import javafx.animation.FadeTransition;
-import javafx.animation.Interpolator;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
 import javafx.animation.ParallelTransition;
-import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.effect.GaussianBlur;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -34,28 +31,21 @@ import javafx.scene.shape.SVGPath;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-
-import java.util.ArrayList;
-import java.util.List;
-
 public class ShellController {
 
     private static final Duration ANIM = Duration.millis(180);
 
     @FXML private StackPane rootStack;
-
     @FXML private StackPane contentStack;
 
     @FXML private BorderPane appRoot;
     @FXML private VBox topBar;
 
     @FXML private Label lblHeaderScreen;
-
     @FXML private Label lblVersion;
 
     @FXML private Button btnMenu;
+    @FXML private Button btnBack;
     @FXML private Button btnSettings;
 
     @FXML private VBox drawer;            // левый
@@ -76,59 +66,43 @@ public class ShellController {
     private DrawerEngine left;
     private DrawerEngine right;
 
-    // ===================== BLUR (универсально) =====================
-
-    private final GaussianBlur blurFx = new GaussianBlur(0.0);
-    private Timeline blurTl;
-    private boolean blurActive = false;
-
-    private final List<Node> blurTargets = new ArrayList<>();
+    // ===================== BLUR (через UiBlur) =====================
+    private final UiBlur drawerBlur = new UiBlur(ANIM, 10.0);
 
     private void initBlurTargets() {
-        blurTargets.clear();
-        if (appRoot != null) blurTargets.add(appRoot);
-    }
-
-    private void applyBlurActive(boolean active) {
-        if (active == blurActive) return;
-        blurActive = active;
-
-        if (blurTl != null) blurTl.stop();
-
-        double from = blurFx.getRadius();
-        double to = active ? 10.0 : 0.0;
-
-        if (active) {
-            for (Node t : blurTargets) {
-                if (t != null) t.setEffect(blurFx);
-            }
-        }
-
-        blurTl = new Timeline(
-                new KeyFrame(Duration.ZERO,
-                        new KeyValue(blurFx.radiusProperty(), from, Interpolator.EASE_BOTH)
-                ),
-                new KeyFrame(ANIM,
-                        new KeyValue(blurFx.radiusProperty(), to, Interpolator.EASE_BOTH)
-                )
-        );
-
-        blurTl.setOnFinished(e -> {
-            if (!blurActive) {
-                for (Node t : blurTargets) {
-                    if (t != null) t.setEffect(null);
-                }
-            }
-        });
-
-        blurTl.play();
+        if (appRoot != null) drawerBlur.setTargets(appRoot);
     }
 
     private void updateBlurForDrawers() {
-        applyBlurActive(anyDrawerOpen());
+        drawerBlur.setActive(anyDrawerOpen());
+    }
+    // ===============================================================
+
+    // ====== Сохранение состояния правого drawer на время перезагрузки shell ======
+    private static final class RestoreState {
+        final boolean settingsDrawerOpen;
+        final boolean languageRowOpen;
+        final boolean themeRowOpen;
+
+        RestoreState(boolean settingsDrawerOpen, boolean languageRowOpen, boolean themeRowOpen) {
+            this.settingsDrawerOpen = settingsDrawerOpen;
+            this.languageRowOpen = languageRowOpen;
+            this.themeRowOpen = themeRowOpen;
+        }
     }
 
-    // =============================================================================
+    private static RestoreState PENDING_RESTORE;
+
+    private static void setPendingRestore(RestoreState rs) {
+        PENDING_RESTORE = rs;
+    }
+
+    private static RestoreState consumePendingRestore() {
+        RestoreState rs = PENDING_RESTORE;
+        PENDING_RESTORE = null;
+        return rs;
+    }
+    // ============================================================================
 
     @FXML
     public void initialize() {
@@ -136,12 +110,26 @@ public class ShellController {
 
         UiSvg.setButtonSvg(btnSettings, "settings.svg", 14);
         UiSvg.setButtonSvg(btnMenu, "menu.svg", 14);
+        UiSvg.setButtonSvg(btnBack, "back.svg", 14);
 
         Router.init(appRoot);
+
+        // ✅ восстановить back-stack (если это reload после смены языка)
+        Router.NavState ns = Router.consumePendingNavState();
+        if (ns != null) {
+            Router.get().restoreSnapshot(ns);
+        }
+
         Router.get().setOnHeaderTitle(t -> {
             if (lblHeaderScreen != null) lblHeaderScreen.setText(t);
+            updateBackButton();
         });
-        Router.get().home();
+
+        View init = Router.consumeInitialView();
+        if (init != null) Router.get().open(init);
+        else Router.get().home();
+
+        updateBackButton();
 
         if (topBar != null) topBar.setPickOnBounds(false);
 
@@ -188,7 +176,6 @@ public class ShellController {
             languageRow.setVisible(false);
         }
 
-        // Языки (минимально, без усложнений)
         if (cbLanguage != null) {
             cbLanguage.getItems().setAll("Русский", "English");
 
@@ -200,12 +187,17 @@ public class ShellController {
                 if (b == null) return;
                 String code = b.equals("English") ? "en" : "ru";
 
-                // применяем локаль + сохраняем
+                boolean settingsOpen = (right != null && right.isOpen());
+                boolean langOpen = (languageRow != null && languageRow.isVisible());
+                boolean themeOpen = (themeRow != null && themeRow.isVisible());
+                setPendingRestore(new RestoreState(settingsOpen, langOpen, themeOpen));
+
+                // ✅ сохраняем back-stack ДО перезагрузки
+                Router.setPendingNavState(Router.get().snapshot());
+
                 I18n.setLang(code);
                 AppSettings.setLang(code);
 
-                // самый надёжный путь в твоей архитектуре:
-                // перезагрузка приложения/сцены после смены bundle (FXML берёт resources из I18n.bundle())
                 reloadShellPreserveView();
             });
         }
@@ -245,7 +237,7 @@ public class ShellController {
 
             applyTheme(light);
 
-            tgTheme.selectedProperty().addListener((o, oldV, newV) -> {
+            tgTheme.selectedProperty().addListener((oo, oldV, newV) -> {
                 applyTheme(newV);
                 AppSettings.setThemeLight(newV);
             });
@@ -266,7 +258,55 @@ public class ShellController {
             right.snapClosed();
 
             updateBlurForDrawers();
+            updateBackButton();
+
+            RestoreState rs = consumePendingRestore();
+            if (rs != null) {
+                if (languageRow != null) {
+                    languageRow.setVisible(rs.languageRowOpen);
+                    languageRow.setOpacity(1.0);
+                    languageRow.setTranslateY(0.0);
+                }
+                if (themeRow != null) {
+                    themeRow.setVisible(rs.themeRowOpen);
+                    themeRow.setOpacity(1.0);
+                    themeRow.setTranslateY(0.0);
+                }
+
+                if (rs.settingsDrawerOpen && right != null) {
+                    right.openImmediate();
+                }
+            }
         });
+    }
+
+    // ===================== BACK BUTTON =====================
+
+    private void updateBackButton() {
+        if (btnBack == null) return;
+
+        Router r = Router.get();
+        View v = r.currentView();
+
+        boolean show = (v != null && v != View.HOME && r.canGoBack());
+
+        btnBack.setVisible(show);
+        btnBack.setManaged(show);
+        btnBack.setDisable(!show);
+    }
+
+    @FXML
+    public void navBack() {
+        if (anyDrawerOpen()) closeAnyDrawer();
+
+        Router r = Router.get();
+        if (!r.canGoBack()) {
+            updateBackButton();
+            return;
+        }
+
+        r.back();
+        updateBackButton();
     }
 
     // ===================== i18n: reload shell =====================
@@ -276,11 +316,8 @@ public class ShellController {
         if (stage == null) return;
 
         View cur = Router.get().currentView();
-        if (cur != null && cur != View.HOME) {
-            Router.setInitialView(cur);
-        } else {
-            Router.setInitialView(null);
-        }
+        if (cur != null && cur != View.HOME) Router.setInitialView(cur);
+        else Router.setInitialView(null);
 
         Parent root = app.core.Fxml.load("/ui/shell.fxml");
 
@@ -293,7 +330,6 @@ public class ShellController {
             stage.setScene(s);
         }
     }
-
 
     // ===================== reset UI state of settings drawer =====================
 
@@ -425,7 +461,6 @@ public class ShellController {
     private void nav(View v) {
         if (left != null) left.close();
 
-        // ВАЖНО: используем актуальные методы Router (push history)
         if (v == View.HOME) { Router.get().home(); return; }
 
         switch (v) {
@@ -436,6 +471,8 @@ public class ShellController {
             case REPORTS -> Router.get().reports();
             default -> Router.get().open(v);
         }
+
+        updateBackButton();
     }
 
     @FXML

@@ -1,31 +1,25 @@
 package app.shell;
 
-import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
-import java.util.Objects;
+import java.util.function.BooleanSupplier;
 
 public final class DrawerEngine {
 
     public enum Side { LEFT, RIGHT }
 
-    public interface BoolFn {
-        boolean get();
-    }
-
     private final VBox panel;
     private final Pane overlay;
     private final Side side;
 
-    private final Runnable updateGeometry;
-    private final BoolFn anyDrawerOpen;
+    private final Runnable updateOverlayGeometry;
+    private final BooleanSupplier anyDrawerOpen;
 
     private final TranslateTransition anim;
 
-    // hooks (опционально)
     private final Runnable onOpenStart;
     private final Runnable onCloseStart;
     private final Runnable onStateChanged;
@@ -36,39 +30,26 @@ public final class DrawerEngine {
             VBox panel,
             Pane overlay,
             Side side,
-            Runnable updateGeometry,
-            BoolFn anyDrawerOpen,
-            Duration animDuration
-    ) {
-        this(panel, overlay, side, updateGeometry, anyDrawerOpen, animDuration, null, null, null);
-    }
-
-    public DrawerEngine(
-            VBox panel,
-            Pane overlay,
-            Side side,
-            Runnable updateGeometry,
-            BoolFn anyDrawerOpen,
+            Runnable updateOverlayGeometry,
+            BooleanSupplier anyDrawerOpen,
             Duration animDuration,
             Runnable onOpenStart,
             Runnable onCloseStart,
             Runnable onStateChanged
     ) {
-        this.panel = Objects.requireNonNull(panel);
-        this.overlay = Objects.requireNonNull(overlay);
-        this.side = Objects.requireNonNull(side);
+        this.panel = panel;
+        this.overlay = overlay;
+        this.side = side;
 
-        this.updateGeometry = Objects.requireNonNull(updateGeometry);
-        this.anyDrawerOpen = Objects.requireNonNull(anyDrawerOpen);
+        this.updateOverlayGeometry = updateOverlayGeometry;
+        this.anyDrawerOpen = anyDrawerOpen;
 
         this.onOpenStart = onOpenStart;
         this.onCloseStart = onCloseStart;
         this.onStateChanged = onStateChanged;
 
-        Duration d = (animDuration != null) ? animDuration : Duration.millis(180);
-
-        this.anim = new TranslateTransition(d, panel);
-        this.anim.setInterpolator(Interpolator.EASE_BOTH);
+        this.anim = new TranslateTransition(animDuration, panel);
+        this.anim.setInterpolator(javafx.animation.Interpolator.EASE_OUT);
     }
 
     public boolean isOpen() {
@@ -80,11 +61,10 @@ public final class DrawerEngine {
 
         open = true;
 
-        updateGeometry.run();
+        if (updateOverlayGeometry != null) updateOverlayGeometry.run();
 
         overlay.setVisible(true);
         panel.setVisible(true);
-
         panel.setTranslateX(closedX());
 
         if (onOpenStart != null) onOpenStart.run();
@@ -95,6 +75,27 @@ public final class DrawerEngine {
         anim.setToX(0);
         anim.setOnFinished(null);
         anim.play();
+    }
+
+    /**
+     * Важно для i18n-reload: восстановить drawer без анимации,
+     * чтобы визуально он не "закрывался и открывался заново".
+     */
+    public void openImmediate() {
+        if (open) return;
+
+        open = true;
+
+        if (updateOverlayGeometry != null) updateOverlayGeometry.run();
+
+        overlay.setVisible(true);
+        panel.setVisible(true);
+
+        anim.stop();
+        panel.setTranslateX(0);
+
+        if (onOpenStart != null) onOpenStart.run();
+        if (onStateChanged != null) onStateChanged.run();
     }
 
     public void close() {
@@ -112,7 +113,7 @@ public final class DrawerEngine {
             panel.setVisible(false);
             anim.setOnFinished(null);
 
-            if (!anyDrawerOpen.get()) overlay.setVisible(false);
+            if (!anyDrawerOpen.getAsBoolean()) overlay.setVisible(false);
 
             panel.setTranslateX(closedX());
 
@@ -133,7 +134,7 @@ public final class DrawerEngine {
         panel.setVisible(false);
         panel.setTranslateX(closedX());
 
-        if (!anyDrawerOpen.get()) overlay.setVisible(false);
+        if (!anyDrawerOpen.getAsBoolean()) overlay.setVisible(false);
 
         if (onStateChanged != null) onStateChanged.run();
     }

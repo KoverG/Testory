@@ -22,6 +22,14 @@
                             focusTraversable="false"
                             styleClass="icon-btn,sm"/>
 
+                    <!-- BACK (скрыта на HOME и когда нет истории) -->
+                    <Button fx:id="btnBack"
+                            onAction="#navBack"
+                            focusTraversable="false"
+                            visible="false"
+                            managed="false"
+                            styleClass="icon-btn,sm,wide,danger"/>
+
                     <Label fx:id="title" id="title" text="Testory"/>
 
                     <Region HBox.hgrow="ALWAYS"/>

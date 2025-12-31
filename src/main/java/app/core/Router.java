@@ -4,13 +4,39 @@ import javafx.scene.Parent;
 import javafx.scene.layout.BorderPane;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
+import java.util.List;
 import java.util.function.Consumer;
 
 public final class Router {
     private static Router INSTANCE;
 
     private static View initialView = null;
+
+    // ====== restore navigation state across shell reload ======
+    private static NavState pendingNavState = null;
+
+    public static final class NavState {
+        public final View current;
+        public final List<View> historyStackTopFirst;
+
+        public NavState(View current, List<View> historyStackTopFirst) {
+            this.current = current;
+            this.historyStackTopFirst = historyStackTopFirst;
+        }
+    }
+
+    public static void setPendingNavState(NavState s) {
+        pendingNavState = s;
+    }
+
+    public static NavState consumePendingNavState() {
+        NavState s = pendingNavState;
+        pendingNavState = null;
+        return s;
+    }
+    // =========================================================
 
     private final BorderPane root;
     private final Deque<View> history = new ArrayDeque<>();
@@ -74,5 +100,26 @@ public final class Router {
         current = view;
 
         if (onHeaderTitle != null) onHeaderTitle.accept(view.title());
+    }
+
+    // ===================== snapshot / restore =====================
+
+    public NavState snapshot() {
+        List<View> h = new ArrayList<>(history); // ArrayDeque iterator gives top-first
+        return new NavState(current, h);
+    }
+
+    public void restoreSnapshot(NavState s) {
+        history.clear();
+        if (s != null && s.historyStackTopFirst != null) {
+            // keep same order (top-first) for push/pop semantics
+            for (int i = s.historyStackTopFirst.size() - 1; i >= 0; i--) {
+                View v = s.historyStackTopFirst.get(i);
+                if (v != null) history.push(v);
+            }
+        }
+        // current is applied by navigation in ShellController (open/initView),
+        // but we still keep it here for consistency:
+        if (s != null) current = s.current;
     }
 }
