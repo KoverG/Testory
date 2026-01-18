@@ -1,4 +1,3 @@
-// FILE: src/main/java/app/domain/testcases/ui/TestCasesSheets.java
 package app.domain.testcases.ui;
 
 import app.core.I18n;
@@ -6,17 +5,25 @@ import app.domain.testcases.LabelStore;
 import app.domain.testcases.TagStore;
 import app.ui.UiBlur;
 import app.ui.UiSvg;
+import app.ui.UiScroll;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.ParallelTransition;
+import javafx.animation.PauseTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
+import javafx.css.PseudoClass;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBase;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -27,6 +34,7 @@ import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 
 public final class TestCasesSheets {
 
@@ -36,12 +44,26 @@ public final class TestCasesSheets {
     private static final double FILTER_OVERLAY_MARGIN_BOTTOM = 12.0;
     private static final double FILTER_OVERLAY_EXTRA_SCROLL = 18.0;
 
+    // Скругление для клипа модалки фильтра (чтобы vbar/ползунок не выходили за нижние углы)
+    private static final double FILTER_SHEET_RADIUS = 18.0;
+
+    // CSS-класс, который ты добавил в styles.css
+    private static final String CASES_SCROLL_HIDDEN_CLASS = "tc-cases-scroll-hidden";
+
+    // ✅ имитируем CSS :pressed/:armed при программном fire()
+    private static final PseudoClass PC_PRESSED = PseudoClass.getPseudoClass("pressed");
+    private static final PseudoClass PC_ARMED   = PseudoClass.getPseudoClass("armed");
+    private static final Duration   SIM_PRESS_MS = Duration.millis(120);
+
     private enum FilterTab { LABELS, TAGS }
 
     private final StackPane leftStack;
     private final StackPane filterSheet;
     private final StackPane sortSheet;
     private final Node blurTarget;
+
+    // список кейсов (ListView или любой Node), чтобы вешать/снимать класс скрытия скроллбара
+    private final Node casesList;
 
     private final SmoothScrollSupport smoothScroll;
     private final UiBlur blur;
@@ -76,17 +98,33 @@ public final class TestCasesSheets {
     private VBox chipsScrollContent;
     private Region chipsBottomSpacer;
 
-    // ВАЖНО: overlay должен уметь скрываться/показываться (как в старом контроллере)
+    // overlay должен уметь скрываться/показываться
     private VBox filterApplyOverlay;
+
+    // ✅ реальный корень "карточки" модалки внутри sheet (включает и content, и overlay)
+    private Node filterCardRoot;
+    private Node sortCardRoot;
 
     private Runnable onApplyFilters = () -> {};
     private Runnable onSortChanged = () -> {};
+
+    // ✅ Узлы-тогглы, по которым мы умеем "пробросить клик" / или не дать reopen (press->release)
+    private Node filterToggleNode;
+    private Node sortToggleNode;
+    private Node extraToggleNode; // ✅ третий: btnTrash (и т.п.)
+
+    // ✅ дополнительные "оверлеи/карточки", клики внутри которых НЕ считаются outside
+    private final List<Node> extraInsideRoots = new ArrayList<>();
+
+    // ✅ дополнительные closers: закрыть trash overlay "тем же триггером"
+    private final List<BooleanSupplier> outsideClosers = new ArrayList<>();
 
     public TestCasesSheets(
             StackPane leftStack,
             StackPane filterSheet,
             StackPane sortSheet,
             Node blurTarget,
+            Node casesList,
             SmoothScrollSupport smoothScroll,
             List<String> sortKeys
     ) {
@@ -94,6 +132,7 @@ public final class TestCasesSheets {
         this.filterSheet = filterSheet;
         this.sortSheet = sortSheet;
         this.blurTarget = blurTarget;
+        this.casesList = casesList;
         this.smoothScroll = smoothScroll;
 
         this.sortKeys = (sortKeys == null) ? List.of() : sortKeys;
@@ -102,18 +141,55 @@ public final class TestCasesSheets {
         if (blurTarget != null) this.blur.setTargets(blurTarget);
     }
 
+    // порядок как (filterBtn, sortBtn, extraBtnTrash)
+    public void setOutsideCloseConsumeTargets(Node... nodes) {
+        filterToggleNode = null;
+        sortToggleNode = null;
+        extraToggleNode = null;
+
+        if (nodes == null) return;
+        if (nodes.length > 0) filterToggleNode = nodes[0];
+        if (nodes.length > 1) sortToggleNode = nodes[1];
+        if (nodes.length > 2) extraToggleNode = nodes[2];
+    }
+
+    // ✅ регистрируем "ещё один корень", клики внутри которого не должны закрывать
+    public void addOutsideInsideRoot(Node root) {
+        if (root == null) return;
+        extraInsideRoots.add(root);
+    }
+
+    // ✅ регистрируем "что закрыть" на outside-click/ESC/переключениях
+    // возвращает true если реально что-то закрыли (важно для btnTrash: чтобы не словить reopen)
+    public void addOutsideCloser(BooleanSupplier closer) {
+        if (closer == null) return;
+        outsideClosers.add(closer);
+    }
+
+    private boolean runOutsideClosers() {
+        boolean changed = false;
+        for (BooleanSupplier r : outsideClosers) {
+            try {
+                if (r.getAsBoolean()) changed = true;
+            } catch (Exception ignored) {}
+        }
+        return changed;
+    }
+
     public void init() {
         if (filterSheet != null) {
             filterSheet.setVisible(false);
             filterSheet.setManaged(false);
             filterSheet.setOpacity(0.0);
             filterSheet.setTranslateY(0);
+            filterSheet.setPickOnBounds(true);
         }
         if (sortSheet != null) {
             sortSheet.setVisible(false);
             sortSheet.setManaged(false);
             sortSheet.setOpacity(0.0);
             sortSheet.setTranslateY(0);
+            sortSheet.setPickOnBounds(true);
         }
 
         if (leftStack != null) {
@@ -121,6 +197,190 @@ public final class TestCasesSheets {
                 if (filterOpen || sortOpen) applySheetHeightNow();
             });
         }
+
+        Platform.runLater(() -> {
+            if (leftStack == null) return;
+            var scene = leftStack.getScene();
+            if (scene == null) return;
+
+            // ✅ ESC: закрываем sheet и/или trash overlay теми же триггерами
+            scene.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+                if (e.getCode() != KeyCode.ESCAPE) return;
+
+                boolean any = false;
+
+                if (filterOpen) {
+                    toggleFilter();
+                    any = true;
+                } else if (sortOpen) {
+                    toggleSort();
+                    any = true;
+                }
+
+                // trash overlay и прочее
+                if (runOutsideClosers()) any = true;
+
+                if (any) e.consume();
+            });
+
+            // ✅ ГЛОБАЛЬНОЕ закрытие по клику вне модалки/оверлея
+            scene.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+
+                Node t = (e.getTarget() instanceof Node n) ? n : null;
+                if (t == null) return;
+
+                // 1) если открыт FILTER/SORT — твоя логика (плюс закрытие extra overlay тем же триггером)
+                if (filterOpen || sortOpen) {
+
+                    // внутри карточки — не закрываем
+                    if (filterOpen && isInside(t, filterCardRoot)) return;
+                    if (sortOpen && isInside(t, sortCardRoot)) return;
+
+                    Node hitToggle = hitTestToggleAt(e.getSceneX(), e.getSceneY());
+
+                    if (filterOpen) {
+                        toggleFilter();
+
+                        // ✅ закрываем доп.оверлеи тем же триггером
+                        boolean extraClosed = runOutsideClosers();
+
+                        if (hitToggle != null && hitToggle == sortToggleNode) {
+                            e.consume();
+                            fireLaterWithPressFx(hitToggle);
+                        } else if (hitToggle != null && hitToggle == filterToggleNode) {
+                            e.consume();
+                            pressFxOnlyLater(hitToggle);
+                        } else if (hitToggle != null && hitToggle == extraToggleNode) {
+                            // если клик был по btnTrash, и мы что-то закрыли "на press",
+                            // нужно не дать его onAction открыть обратно на release
+                            if (extraClosed) {
+                                e.consume();
+                                pressFxOnlyLater(hitToggle);
+                            }
+                        }
+                        return;
+                    }
+
+                    if (sortOpen) {
+                        toggleSort();
+
+                        boolean extraClosed = runOutsideClosers();
+
+                        if (hitToggle != null && hitToggle == filterToggleNode) {
+                            e.consume();
+                            fireLaterWithPressFx(hitToggle);
+                        } else if (hitToggle != null && hitToggle == sortToggleNode) {
+                            e.consume();
+                            pressFxOnlyLater(hitToggle);
+                        } else if (hitToggle != null && hitToggle == extraToggleNode) {
+                            if (extraClosed) {
+                                e.consume();
+                                pressFxOnlyLater(hitToggle);
+                            }
+                        }
+                        return;
+                    }
+
+                    return;
+                }
+
+                // 2) если sheet'ы НЕ открыты — возможно открыт trash overlay.
+                if (outsideClosers.isEmpty()) return;
+
+                // если клик внутри зарегистрированных "оверлеев" — не закрываем
+                for (Node root : extraInsideRoots) {
+                    if (isInside(t, root)) return;
+                }
+
+                Node hitToggle = hitTestToggleAt(e.getSceneX(), e.getSceneY());
+
+                // клики по btnTrash: если overlay закрываем "на press", не даём reopen на release
+                boolean closed = runOutsideClosers();
+
+                if (hitToggle != null && hitToggle == extraToggleNode && closed) {
+                    e.consume();
+                    pressFxOnlyLater(hitToggle);
+                }
+            });
+        });
+    }
+
+    private Node hitTestToggleAt(double sceneX, double sceneY) {
+        Node a = filterToggleNode;
+        if (isHit(a, sceneX, sceneY)) return a;
+
+        Node b = sortToggleNode;
+        if (isHit(b, sceneX, sceneY)) return b;
+
+        Node c = extraToggleNode;
+        if (isHit(c, sceneX, sceneY)) return c;
+
+        return null;
+    }
+
+    private static boolean isHit(Node n, double sceneX, double sceneY) {
+        if (n == null) return false;
+        if (!n.isVisible()) return false;
+
+        Bounds b = n.localToScene(n.getBoundsInLocal());
+        if (b == null) return false;
+
+        return b.contains(sceneX, sceneY);
+    }
+
+    private static void pressFxOnlyLater(Node n) {
+        if (n == null) return;
+
+        Platform.runLater(() -> {
+            if (n instanceof ButtonBase bb) {
+                bb.pseudoClassStateChanged(PC_ARMED, true);
+                bb.pseudoClassStateChanged(PC_PRESSED, true);
+
+                bb.requestFocus();
+
+                PauseTransition pt = new PauseTransition(SIM_PRESS_MS);
+                pt.setOnFinished(ev -> {
+                    bb.pseudoClassStateChanged(PC_PRESSED, false);
+                    bb.pseudoClassStateChanged(PC_ARMED, false);
+                });
+                pt.play();
+            }
+        });
+    }
+
+    private static void fireLaterWithPressFx(Node n) {
+        if (n == null) return;
+
+        Platform.runLater(() -> {
+            if (n instanceof ButtonBase bb) {
+                bb.pseudoClassStateChanged(PC_ARMED, true);
+                bb.pseudoClassStateChanged(PC_PRESSED, true);
+
+                bb.requestFocus();
+
+                bb.fire();
+
+                PauseTransition pt = new PauseTransition(SIM_PRESS_MS);
+                pt.setOnFinished(ev -> {
+                    bb.pseudoClassStateChanged(PC_PRESSED, false);
+                    bb.pseudoClassStateChanged(PC_ARMED, false);
+                });
+                pt.play();
+            }
+        });
+    }
+
+    private void clearSceneFocusToLeftStack() {
+        if (leftStack == null) return;
+
+        Platform.runLater(() -> {
+            if (leftStack.getScene() != null) {
+                leftStack.requestFocus();
+                return;
+            }
+            var p = leftStack.getParent();
+            if (p != null) p.requestFocus();
+        });
     }
 
     public void setOnApplyFilters(Runnable r) {
@@ -142,10 +402,15 @@ public final class TestCasesSheets {
     public void toggleFilter() {
         if (filterSheet == null || leftStack == null) return;
 
+        // ✅ открываем фильтр -> закрываем доп.оверлеи тем же триггером
+        if (!filterOpen) runOutsideClosers();
+
         if (!filterOpen && sortOpen) closeSortInstant();
 
         boolean show = !filterOpen;
         filterOpen = show;
+
+        updateCasesScrollHidden();
 
         if (filterAnim != null) {
             filterAnim.stop();
@@ -153,6 +418,8 @@ public final class TestCasesSheets {
         }
 
         if (show) {
+            clearSceneFocusToLeftStack();
+
             blur.setActive(true);
             showFilterAnimated();
         } else {
@@ -164,10 +431,15 @@ public final class TestCasesSheets {
     public void toggleSort() {
         if (sortSheet == null || leftStack == null) return;
 
+        // ✅ открываем сорт -> закрываем доп.оверлеи тем же триггером
+        if (!sortOpen) runOutsideClosers();
+
         if (!sortOpen && filterOpen) closeFilterInstant();
 
         boolean show = !sortOpen;
         sortOpen = show;
+
+        updateCasesScrollHidden();
 
         if (sortAnim != null) {
             sortAnim.stop();
@@ -175,6 +447,8 @@ public final class TestCasesSheets {
         }
 
         if (show) {
+            clearSceneFocusToLeftStack();
+
             blur.setActive(true);
             showSortAnimated();
         } else {
@@ -252,6 +526,8 @@ public final class TestCasesSheets {
             filterSheet.setManaged(false);
             filterSheet.setTranslateY(0);
             filterSheet.setOpacity(0.0);
+
+            updateCasesScrollHidden();
         });
         filterAnim.play();
     }
@@ -313,6 +589,8 @@ public final class TestCasesSheets {
             sortSheet.setManaged(false);
             sortSheet.setTranslateY(0);
             sortSheet.setOpacity(0.0);
+
+            updateCasesScrollHidden();
         });
         sortAnim.play();
     }
@@ -333,6 +611,8 @@ public final class TestCasesSheets {
         filterSheet.setTranslateY(0);
         filterSheet.setOpacity(0.0);
 
+        updateCasesScrollHidden();
+
         if (!sortOpen) blur.setActive(false);
     }
 
@@ -351,6 +631,8 @@ public final class TestCasesSheets {
         sortSheet.setTranslateY(0);
         sortSheet.setOpacity(0.0);
 
+        updateCasesScrollHidden();
+
         if (!filterOpen) blur.setActive(false);
     }
 
@@ -364,7 +646,7 @@ public final class TestCasesSheets {
         if (sortSheet != null && sortSheet.isVisible()) sortSheet.setMaxHeight(base - 14);
     }
 
-    // ===================== FILTER UI (как в старом контроллере) =====================
+    // ===================== FILTER UI =====================
 
     private void buildFilterUi() {
         filterSheet.getChildren().clear();
@@ -410,7 +692,6 @@ public final class TestCasesSheets {
         header.getChildren().addAll(labels, tags, spacer, resetBtn);
 
         chipsPane = new FlowPane(8, 8);
-        chipsPane.getStyleClass().add("tc-filter-chips");
         chipsPane.setPadding(new Insets(10, 12, 10, 12));
 
         chipsBottomSpacer = new Region();
@@ -462,8 +743,13 @@ public final class TestCasesSheets {
 
         filterApplyOverlay = overlay;
 
-        filterSheet.getChildren().addAll(content, overlay);
+        StackPane card = new StackPane(content, overlay);
         StackPane.setAlignment(content, Pos.TOP_LEFT);
+
+        filterSheet.getChildren().add(card);
+        filterCardRoot = card;
+
+        UiScroll.clipRoundedSheet(filterSheet, FILTER_SHEET_RADIUS);
 
         labels.setOnAction(e -> {
             saveCurrentScrollPosition();
@@ -481,7 +767,6 @@ public final class TestCasesSheets {
             rebuildChipsAndRestoreScroll();
         });
 
-        // если высота кнопки станет известна позже — пересчитаем spacer
         applyBtn.heightProperty().addListener((obs, ov, nv) -> updateFilterBottomSpacerNow());
 
         updateFilterButtonsState();
@@ -518,12 +803,10 @@ public final class TestCasesSheets {
         boolean dirty = isDraftDirty();
         boolean hasAny = !(draftLabels.isEmpty() && draftTags.isEmpty());
 
-        // Reset: только когда реально есть выбранные фильтры
         resetBtn.setVisible(hasAny);
         resetBtn.setManaged(hasAny);
         resetBtn.setDisable(!hasAny);
 
-        // Apply: только когда есть изменения относительно applied
         applyBtn.setVisible(dirty);
         applyBtn.setManaged(dirty);
         applyBtn.setDisable(!dirty);
@@ -547,7 +830,6 @@ public final class TestCasesSheets {
     }
 
     private void discardDraft() {
-        // поведение как в старом контроллере: просто сброс черновика и позиции скролла
         draftLabels.clear();
         draftTags.clear();
         labelsScrollV = 0.0;
@@ -665,8 +947,11 @@ public final class TestCasesSheets {
 
         root.getChildren().add(list);
 
-        sortSheet.getChildren().add(root);
+        StackPane card = new StackPane(root);
         StackPane.setAlignment(root, Pos.TOP_LEFT);
+
+        sortSheet.getChildren().add(card);
+        sortCardRoot = card;
     }
 
     // ===================== helpers =====================
@@ -704,5 +989,29 @@ public final class TestCasesSheets {
         if (!filterOpen) return;
         rebuildChipsAndRestoreScroll();
         updateFilterButtonsState();
+    }
+
+    private void updateCasesScrollHidden() {
+        if (casesList == null) return;
+
+        boolean hide = filterOpen || sortOpen;
+        var classes = casesList.getStyleClass();
+
+        if (hide) {
+            if (!classes.contains(CASES_SCROLL_HIDDEN_CLASS)) classes.add(CASES_SCROLL_HIDDEN_CLASS);
+        } else {
+            classes.remove(CASES_SCROLL_HIDDEN_CLASS);
+        }
+    }
+
+    private static boolean isInside(Node target, Node container) {
+        if (target == null || container == null) return false;
+
+        Node cur = target;
+        while (cur != null) {
+            if (cur == container) return true;
+            cur = cur.getParent();
+        }
+        return false;
     }
 }

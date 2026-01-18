@@ -3,41 +3,109 @@
 /* =====================================================================
   1) Глобальные токены темы (.root) — переменные и базовая типографика
 ===================================================================== */
+/* .root — глобальные CSS-токены темы (цвета/шрифты), используются во всём приложении. */
 .root {
 
-    /* ---- Палитра фона приложения (градиент фона всего окна) ---- */
+    /* =====================================================================
+      ОГЛАВЛЕНИЕ (ориентиры по блокам)
+        1) Токены темы (.root) и светлая тема (.root.theme-light)
+        2) Базовые ресеты/фокус/курсор
+        3) Каркас приложения (app-root/header/footer/accent)
+        4) Общие компоненты (кнопки, чипы, плитки, модалки)
+        5) Иконки (icon-btn + SVGPath)
+        6) Drawer-навигация (overlay/drawer/menu/settings)
+        7) ToggleSwitch (custom control)
+        8) TESTCASES — Левая и Правая зоны
+
+        8.1) TESTCASES: Основные элементы
+        8.1.1) TESTCASES: Основа экрана
+        8.1.2) TESTCASES: Основные кнопки
+        8.1.3) TESTCASES: Модалка подтверждения удаления карточки
+        8.1.4) TESTCASES: Дизейбл базовых кнопок
+
+        8.2)    TESTCASES: Левая зона
+        8.2.1)  TESTCASES (Левая зона): Поиск
+        8.2.2)  TESTCASES (Левая зона): Кнопка открытия папки
+        8.2.3)  TESTCASES (Левая зона): Список
+        8.2.4)  TESTCASES (Левая зона): Список - Удаление
+        8.2.5)  TESTCASES (Левая зона): Фильтры
+        8.2.6)  TESTCASES (Левая зона - Фильтры): Табы Метки / Теги
+        8.2.7)  TESTCASES (Левая зона - Фильтры): Кнопка Сбросить
+        8.2.8)  TESTCASES (Левая зона - Фильтры): Чипы
+        8.2.9)  TESTCASES (Левая зона - Фильтры): Кнопка Сохранить в фильтрах
+        8.2.10) TESTCASES (Левая зона - Фильтры): Скролл бар
+        8.2.11) TESTCASES (Левая зона): Сортировка
+        8.2.12) TESTCASES (Правая зона): Скролл бар списка кейсов
+        8.2.13) TESTCASES (Правая зона): Скролл бар списка кейсов - Скрытие при открытии модалок фильтра и сортировки
+
+        8.3)    TESTCASES: Правая зона
+        8.3.1)  TESTCASES (Правая зона): Код и Номер
+        8.3.2)  TESTCASES (Правая зона): Кнопка редактирования кода и Маленькие кнопки
+        8.3.3)  TESTCASES (Правая зона): Превью названия карточки
+        8.3.4)  TESTCASES (Правая зона): Название карточки
+        8.3.5)  TESTCASES (Правая зона): Метки/Теги
+        8.3.6)  TESTCASES (Правая зона): Описание
+        8.3.7)  TESTCASES (Правая зона): Шаги
+        8.3.8)  TESTCASES (Правая зона): Сохранение карточки
+        8.3.9)  TESTCASES (Правая зона): Кнопка Удаление карточки
+     ===================================================================== */
+
+
+    /* Токены для базовых кнопок*/
+    -fx-base-button-dark: #393736;
+    -fx-base-button-border-dark: #676361;
+
+    /* Токены для кнопок в подкатегориях*/
+    /* Основной цвет*/
+    -fx-button2-dark: rgb(97, 95, 92);
+    /* Рамки*/
+    -fx-button2-border-dark: #95908e;
+    -fx-button2-border-hover-dark: rgba(149, 144, 142, 0.7);
+
+    /* Токены для контейнеров 2-го уровня*/
+    -fx-background-level-2-dark: #393736;
+    -fx-background-border-level-2-dark: #676361;
+
+
+
+    /* Токены фона инпутов TestCases. */
+    -fx-input-dark: #393736;
+    /* Токены текста плейсхолдеров*/
+    -fx-placeholder-dark: rgba(255, 255, 255, 0.3);
+
+    /* Токены фона окна приложения (градиент top → bottom). */
     -fx-bg-top: #2e2e2d;
     -fx-bg-bottom: -fx-bg-top;
 
-    /* ---- Текст (основной/приглушённый/в шапке) ---- */
+    /* Токены текста: основной, приглушённый, текст в шапке. */
     -fx-text-color:   #f2f4f7;
     -fx-muted-color: #c3b3a9;
     -fx-header-text: #918880;
 
-    /* ---- Акцент (основной и сильный) ---- */
+    /* Токены акцента: базовый и усиленный (подсветки/акцентные линии). */
     -fx-accent:           #7f1d1d;
     -fx-accent-strong:    #f50049;
+    -fx-accent-dark: #b50538;
+    -fx-accent-strong-dark:    #f50049;
 
-    /* ---- Поверхности (полупрозрачные слои для hover/pressed и стекла) ---- */
+
+    /* Токены поверхностей (hover/pressed и «стекло»). */
     -fx-surface:      rgba(255,255,255,0.06);
     -fx-surface-2:    rgba(255,255,255,0.08);
 
-    /* ---- Контуры ---- */
+    /* Токены контуров (рамки). */
     -fx-border: rgba(255,255,255,0.12);
     -fx-border-strong: rgba(255,255,255,0.20);
 
-    /* ---- Тени ---- */
+    /* Токены теней. */
     -fx-shadow: rgba(0,0,0,0.40);
 
-
-    /* ---- База (шрифт и размер по умолчанию) ---- */
+    /* Базовая типографика приложения. */
     -fx-text-fill:   -fx-text-color;
     -fx-font-family: "Segoe UI", Inter, Arial, sans-serif;
     -fx-font-size: 13px;
 
-    /* =================================================================
-      ToggleSwitch tokens (dark)
-    ================================================================= */
+    /* ToggleSwitch tokens (dark) — цвета для кастомного тумблера темы. */
     -fx-switch-off-bg:    rgba(255,255,255,0.07);
     -fx-switch-off-text:  rgba(255,255,255,0.72);
     -fx-switch-on-text:   rgba(255,255,255,0.92);
@@ -45,44 +113,68 @@
     -fx-switch-ripple:    rgba(255,255,255,0.40);
     -fx-switch-shadow:    rgba(0,0,0,0.50);
 
-    /* icon tokens */
+    /* Токены для SVG-иконок (заливка через .svg-path). */
     -fx-icon-primary: -fx-text-color;
     -fx-icon-muted:   -fx-muted-color;
     -fx-icon-accent:  -fx-accent-strong;
     -fx-icon-status:  -fx-text-color;
 
-    /* ---- Border для icon-button в header ---- */
+    /* Токен рамки для  (кнопки-иконки в header/toolbar). */
     -fx-icon-btn-border: rgba(255,255,255,0.22);
 }
 
 /* =====================================================================
   LIGHT THEME OVERRIDES (класс .theme-light на .root)
 ===================================================================== */
+/* .root.theme-light — переопределения глобальных токенов для светлой темы. */
 .root.theme-light {
 
-    /* ---- Палитра фона приложения ---- */
+    /* Токены для базовых кнопок*/
+    -fx-base-button-light: #f1f1f1;
+    -fx-base-button-border-light: #bfbab9;
+
+    /* Токены для кнопок в подкатегориях*/
+    /* Основной цвет*/
+    -fx-button2-light: rgb(232, 230, 227);
+    /* Рамки*/
+    -fx-button2-border-light: rgb(193, 170, 145);
+    -fx-button2-border-hover-light: rgba(193, 170, 145, 0.7);
+
+    /* Токены для контейнеров 2-го уровня*/
+    -fx-background-level-2-light: #f1f1f1;
+    -fx-background-border-level-2-light: #bfbab9;
+
+
+    /* Токены фона инпутов TestCases в светлой теме. */
+    -fx-input-light: #f1f1f1;
+    /* Токены текста плейсхолдеров*/
+    -fx-placeholder-light: rgba(0, 0, 0, 0.32);
+
+
+    /* Токены фона окна приложения (градиент light). */
     -fx-bg-top:       #f3f4f6;
     -fx-bg-bottom:    #eceff3;
 
-    /* ---- Текст ---- */
+    /* Токены текста в светлой теме. */
     -fx-text-color:   #141820;
     -fx-muted-color:  #566070;
     -fx-header-text: -fx-muted-color;
 
-    /* ---- Акцент ---- */
+    /* Токены акцента (оставлены одинаковыми для dark/light). */
     -fx-accent:           #7f1d1d;
     -fx-accent-strong:    #f50049;
+    -fx-accent-light: #c5043b;
+    -fx-accent-strong-light:    #f50049;
 
-    /* ---- Поверхности ---- */
+
+    /* Токены поверхностей в светлой теме. */
     -fx-surface:      rgba(0,0,0,0.04);
     -fx-surface-2:    rgba(0,0,0,0.06);
 
-    /* ---- База ---- */
+    /* База: синхронизация текста в светлой теме. */
     -fx-text-fill:   -fx-text-color;
 
-    /* =================================================================
-      ToggleSwitch tokens (light)
-    ================================================================= */
+    /* ToggleSwitch tokens (light) — цвета тумблера темы. */
     -fx-switch-off-bg:    rgba(0,0,0,0.06);
     -fx-switch-off-text:  rgba(0,0,0,0.70);
     -fx-switch-on-text:   rgba(255,255,255,0.92);
@@ -90,41 +182,32 @@
     -fx-switch-ripple:    rgba(255,255,255,0.55);
     -fx-switch-shadow:    rgba(0,0,0,0.22);
 
-    /* icon tokens */
+    /* Токены SVG-иконок в светлой теме. */
     -fx-icon-primary: -fx-text-color;
     -fx-icon-muted:   -fx-muted-color;
     -fx-icon-accent:  -fx-accent-strong;
     -fx-icon-status:  -fx-text-color;
 
-    /* ---- Border для icon-button в header (light) ---- */
+    /* Токен рамки для icon-btn в светлой теме. */
     -fx-icon-btn-border: rgba(0,0,0,0.22);
 }
 
-/* ВАЖНО: light-стили drawer-item НЕ тут, а рядом с drawer-item */
-
-/* Theme chooser (в правом drawer): контейнер вокруг тумблера/текстов */
+/* .drawer-theme-chooser — контейнер выбора темы в правом drawer (отступы вокруг ToggleSwitch/лейблов). */
 .drawer-theme-chooser {
     -fx-padding: 4 6 8 6;
 }
 
-/* Фон только у главного корня приложения */
+/* .app-root — корневой фон приложения (градиент по токенам темы). */
 .app-root {
     -fx-background-color: linear-gradient(to bottom, -fx-bg-top, -fx-bg-bottom);
     -fx-background-insets: 0;
 }
 
-/* Внутренние контейнеры контента не должны перерисовывать фон */
-#contentStack .app-root {
-    -fx-background-color: transparent;
-    -fx-background-insets: 0;
-}
-
-
 /* =====================================================================
   2) Базовые/общие правила и ресеты
 ===================================================================== */
 
-/* Focus reset */
+/* :focused reset — отключение системной подсветки фокуса у базовых контролов. */
 .button:focused,
 .toggle-button:focused,
 .hyperlink:focused,
@@ -134,7 +217,7 @@
     -fx-faint-focus-color: transparent;
 }
 
-/* cursor “рука” */
+/* cursor hand — курсор «рука» для кликабельных элементов. */
 .button,
 .toggle-button,
 .hyperlink,
@@ -143,19 +226,18 @@
     -fx-cursor: hand;
 }
 
-/* базовая геометрия кнопок */
+/* .button — базовая геометрия всех кнопок (скругление/паддинги/вес шрифта). */
 .button {
     -fx-background-radius: 12;
     -fx-padding: 10 14;
     -fx-font-weight: 600;
 }
 
-
 /* =====================================================================
   3) Каркас приложения: шапка/футер + акцентные линии
 ===================================================================== */
 
-/* Шапка */
+/* .app-header — шапка приложения (контейнер header-строки). */
 .app-header {
     -fx-padding: 10 12;
     -fx-alignment: CENTER_LEFT;
@@ -165,22 +247,26 @@
 
     -fx-effect: none;
 }
+
+/* .app-header * — запрет эффектов у всех вложенных нод в header (чтобы не «грязнило»). */
 .app-header * { -fx-effect: none; }
 
-/* Шапка (light) */
+/* .root.theme-light .app-header — шапка в светлой теме. */
 .root.theme-light .app-header {
     -fx-background-color: rgba(0, 0, 0, 0.14);
     -fx-background-insets: 0;
     -fx-effect: none;
 }
 
-/* Заголовки в header */
+/* #title — главный заголовок приложения в header (Label id="title"). */
 #title {
     -fx-text-fill: -fx-header-text;
     -fx-font-size: 18px;
     -fx-font-weight: 800;
     -fx-alignment: CENTER_RIGHT;
 }
+
+/* .screen-title — заголовок текущего экрана в header (Label styleClass="screen-title"). */
 .screen-title {
     -fx-text-fill: -fx-header-text;
     -fx-font-size: 13px;
@@ -188,7 +274,7 @@
     -fx-alignment: CENTER_RIGHT;
 }
 
-/* Emboss (если используется точечно) */
+/* .emboss — декоративный «объёмный» эффект (используется точечно, если нужно). */
 .emboss {
     -fx-effect:
             dropshadow(gaussian, rgba(0,0,0,0.70), 22, 0.35, 0, 4),
@@ -196,14 +282,14 @@
             innershadow(gaussian, rgba(255,255,255,0.10), 2, 0.40, 0, -2);
 }
 
-/* Акцентные линии */
+/* .fheader-accent, .ffooter-accent — акцентные линии под header и над footer. */
 .fheader-accent,
 .ffooter-accent {
     -fx-background-insets: 0, 0;
     -fx-background-radius: 0, 0;
 }
 
-/* Header accent */
+/* .fheader-accent — линия акцента под шапкой (dark). */
 .fheader-accent {
     -fx-min-height: 2px;
     -fx-max-height: 2px;
@@ -211,13 +297,15 @@
             rgba(0, 0, 0, 0.40),
             linear-gradient(to right, -fx-accent-strong, rgba(245, 0, 73, 0.0));
 }
+
+/* .root.theme-light .fheader-accent — линия акцента под шапкой (light). */
 .root.theme-light .fheader-accent {
     -fx-background-color:
             rgba(0, 0, 0, 0.14),
             linear-gradient(to right, -fx-accent-strong, rgba(245, 0, 73, 0.0));
 }
 
-/* Footer accent */
+/* .ffooter-accent — линия акцента над футером (dark). */
 .ffooter-accent {
     -fx-min-height: 1px;
     -fx-max-height: 1px;
@@ -225,50 +313,60 @@
             rgba(0, 0, 0, 0.40),
             linear-gradient(to right, -fx-accent-strong, rgba(245, 0, 73, 0.0));
 }
+
+/* .root.theme-light .ffooter-accent — линия акцента над футером (light). */
 .root.theme-light .ffooter-accent {
     -fx-background-color:
             rgba(0, 0, 0, 0.14),
             linear-gradient(to right, -fx-accent-strong, rgba(245, 0, 73, 0.0));
 }
 
-/* Футер */
+/* .footer — футер приложения (контейнер нижней строки). */
 .footer {
     -fx-padding: 8 12;
     -fx-background-color: rgba(0, 0, 0, 0.4);
     -fx-background-insets: 0;
     -fx-effect: none;
 }
+
+/* .root.theme-light .footer — футер в светлой теме. */
 .root.theme-light .footer {
     -fx-background-color: rgba(0, 0, 0, 0.14);
     -fx-background-insets: 0;
     -fx-effect: none;
 }
-.footer-left  { -fx-text-fill: -fx-muted-color; -fx-font-size: 12px; }
-.footer-right { -fx-text-fill: -fx-muted-color; -fx-font-size: 12px; }
 
+/* .footer-left — левый текст в футере (версия/служебное). */
+.footer-left  { -fx-text-fill: -fx-muted-color; -fx-font-size: 12px; }
+
+/* .footer-right — правый текст в футере (если используется). */
+.footer-right { -fx-text-fill: -fx-muted-color; -fx-font-size: 12px; }
 
 /* =====================================================================
   4) Главная: заголовок и плитки
 ===================================================================== */
 
+/* .hero-subtitle — подзаголовок на главном экране (Home). */
 .hero-subtitle {
     -fx-text-fill: -fx-header-text;
     -fx-font-size: 16px;
     -fx-font-weight: 700;
 }
 
-/* контейнер плиток (тень на контейнере) */
+/* .product-nav — контейнер плиток на Home (даёт общую тень/паддинги). */
 .product-nav {
     -fx-background-color: transparent;
     -fx-background-insets: 0;
     -fx-padding: 0;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.22), 10, 0.18, 0, 2);
 }
+
+/* .root.theme-light .product-nav — контейнер плиток на Home (light тень). */
 .root.theme-light .product-nav {
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 8, 0.16, 0, 2);
 }
 
-/* product-button (dark) */
+/* .button.product-button — плитка-продукт на Home (основная большая кнопка). */
 .button.product-button {
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.22), rgba(255,255,255,0.10)),
@@ -290,12 +388,16 @@
 
     -fx-effect: none;
 }
+
+/* .button.product-button:hover — hover состояния плитки на Home. */
 .button.product-button:hover {
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.28), rgba(255,255,255,0.14)),
             rgba(255,255,255,0.08);
     -fx-border-color: rgba(255,255,255,0.36);
 }
+
+/* .button.product-button:pressed — pressed состояния плитки на Home. */
 .button.product-button:pressed {
     -fx-translate-y: 1;
     -fx-background-color:
@@ -305,7 +407,7 @@
     -fx-effect: none;
 }
 
-/* product-button (light) */
+/* .root.theme-light .button.product-button — плитка на Home в светлой теме. */
 .root.theme-light .button.product-button {
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.96), rgba(255,255,255,0.78)),
@@ -313,6 +415,8 @@
     -fx-border-color: #f50049;
     -fx-effect: none;
 }
+
+/* .root.theme-light .button.product-button:hover — hover плитки в светлой теме. */
 .root.theme-light .button.product-button:hover {
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.96), rgba(255,255,255,0.78)),
@@ -326,6 +430,8 @@
     -fx-border-color: rgba(245, 0, 73, 0.65);
     -fx-effect: none;
 }
+
+/* .root.theme-light .button.product-button:pressed — pressed плитки в светлой теме. */
 .root.theme-light .button.product-button:pressed {
     -fx-translate-y: 1;
     -fx-background-color:
@@ -335,11 +441,11 @@
     -fx-effect: none;
 }
 
-
 /* =====================================================================
   5) Иконки: icon-btn + покраска SVGPath
 ===================================================================== */
 
+/* .icon-btn — универсальная кнопка-иконка (header, правые кнопки, внутри инпутов и т.п.). */
 .icon-btn {
     -fx-padding: 0;
 
@@ -358,11 +464,29 @@
     -fx-graphic-text-gap: 0;
 }
 
+/* .icon-btn:hover — hover для кнопки-иконки. */
 .icon-btn:hover   { -fx-background-color: -fx-surface; }
+
+/* .icon-btn:pressed — pressed для кнопки-иконки. */
 .icon-btn:pressed { -fx-background-color: -fx-surface-2; }
+
+/* .icon-btn:disabled — disabled для кнопки-иконки. */
 .icon-btn:disabled{ -fx-opacity: 0.55; -fx-effect: none; }
 
-/* size helpers (ONE source of truth) */
+/* .icon-btn.xs — очень маленькая кнопка-иконка (например, grip/drag). */
+.icon-btn.xs {
+    -fx-min-width: 22;
+    -fx-pref-width: 22;
+    -fx-max-width: 22;
+
+    -fx-min-height: 22;
+    -fx-pref-height: 22;
+    -fx-max-height: 22;
+
+    -fx-padding: 0;
+}
+
+/* .icon-btn.sm — маленькая кнопка-иконка (например, header). */
 .icon-btn.sm {
     -fx-min-width: 28;
     -fx-pref-width: 28;
@@ -375,45 +499,55 @@
     -fx-padding: 0;
 }
 
+/* .icon-btn.wide — широкая кнопка-иконка (например, back). */
 .icon-btn.wide {
     -fx-min-width: 52;
     -fx-pref-width: 52;
     -fx-max-width: 52;
 }
 
-/* FIX: wide + sm (btnBack) */
+/* .icon-btn.sm.wide — спец-фикс размеров для кнопки Back в header. */
 .icon-btn.sm.wide {
     -fx-min-width: 54;
     -fx-pref-width: 54;
     -fx-max-width: 54;
 }
 
+/* .icon-btn .svg-path — дефолтная заливка SVGPath внутри icon-btn. */
 .icon-btn .svg-path {
     -fx-fill: -fx-icon-primary;
 }
 
-/* danger */
+/* .icon-btn.danger — опасная кнопка (например, Back/Close/Remove). */
 .icon-btn.danger {
     -fx-border-color: rgba(245, 0, 73, 0.70);
     -fx-background-color: rgba(245, 0, 73, 0.10);
 }
+
+/* .icon-btn.danger:hover — hover для опасной кнопки. */
 .icon-btn.danger:hover   { -fx-background-color: rgba(245, 0, 73, 0.16); }
+
+/* .icon-btn.danger:pressed — pressed для опасной кнопки. */
 .icon-btn.danger:pressed { -fx-background-color: rgba(245, 0, 73, 0.22); }
+
+/* .icon-btn.danger .svg-path — заливка иконки у опасной кнопки. */
 .icon-btn.danger .svg-path { -fx-fill: -fx-accent-strong; }
-
-
 
 /* =====================================================================
   6) Navigation drawer (overlay, drawer, nav, item, combo)
 ===================================================================== */
 
+/* .drawer-overlay — затемняющий оверлей поверх контента при открытом drawer. */
 .drawer-overlay {
     -fx-background-color: rgba(34, 33, 33, 0.8);
 }
+
+/* .root.theme-light .drawer-overlay — оверлей в светлой теме. */
 .root.theme-light .drawer-overlay {
     -fx-background-color: rgba(174, 174, 174, 0.6);
 }
 
+/* .drawer — контейнер drawer (левый/правый), фон + рамка + отступы. */
 .drawer {
     -fx-background-color: rgba(0, 0, 0, 0.14);
     -fx-padding: 12 14 12 14;
@@ -421,20 +555,24 @@
     -fx-border-color: rgba(81, 79, 77, 0.45);
     -fx-border-width: 0 1 0 0;
 }
-.drawer-right {
-    -fx-border-width: 0 0 0 1;
-}
+
+/* .drawer-right — правый drawer (меняем сторону рамки). */
+.drawer-right { -fx-border-width: 0 0 0 1; }
+
+/* .root.theme-light .drawer — drawer в светлой теме. */
 .root.theme-light .drawer {
     -fx-background-color: rgba(0, 0, 0, 0.04);
     -fx-border-color: rgba(0, 0, 0, 0.14);
     -fx-border-width: 0 1 0 0;
 }
+
+/* .root.theme-light .drawer-right — правый drawer в светлой теме. */
 .root.theme-light .drawer-right {
     -fx-border-width: 0 0 0 1;
     -fx-border-color: rgba(0, 0, 0, 0.14);
 }
 
-/* nav container */
+/* .drawer-nav — «карта» навигации внутри drawer (фон, скругление, тень). */
 .drawer-nav {
     -fx-background-color: rgba(62, 60, 59);
     -fx-background-radius: 12;
@@ -443,12 +581,14 @@
 
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.22), 10, 0.18, 0, 2);
 }
+
+/* .root.theme-light .drawer-nav — навигационная карта в светлой теме. */
 .root.theme-light .drawer-nav {
     -fx-background-color: rgb(211, 207, 207);
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 8, 0.16, 0, 2);
 }
 
-/* drawer-item (dark) */
+/* .button.drawer-item — кнопка пункта меню в drawer (dark). */
 .button.drawer-item {
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.22), rgba(255,255,255,0.10)),
@@ -470,12 +610,16 @@
 
     -fx-effect: none;
 }
+
+/* .button.drawer-item:hover — hover пункта меню в drawer. */
 .button.drawer-item:hover {
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.28), rgba(255,255,255,0.14)),
             rgba(255,255,255,0.08);
     -fx-border-color: rgba(255,255,255,0.36);
 }
+
+/* .button.drawer-item:pressed — pressed пункта меню в drawer. */
 .button.drawer-item:pressed {
     -fx-translate-y: 1;
     -fx-background-color:
@@ -485,7 +629,7 @@
     -fx-effect: none;
 }
 
-/* drawer-item (light) */
+/* .root.theme-light .button.drawer-item — пункт меню в drawer (light). */
 .root.theme-light .button.drawer-item {
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.96), rgba(255,255,255,0.78)),
@@ -493,6 +637,8 @@
     -fx-border-color: rgba(255,255,255,0.90);
     -fx-effect: none;
 }
+
+/* .root.theme-light .button.drawer-item:hover — hover пункта меню (light). */
 .root.theme-light .button.drawer-item:hover {
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.96), rgba(255,255,255,0.78)),
@@ -506,6 +652,8 @@
     -fx-border-color: rgba(0,0,0,0.10);
     -fx-effect: none;
 }
+
+/* .root.theme-light .button.drawer-item:pressed — pressed пункта меню (light). */
 .root.theme-light .button.drawer-item:pressed {
     -fx-translate-y: 1;
     -fx-background-color:
@@ -515,7 +663,7 @@
     -fx-effect: none;
 }
 
-/* drawer ComboBox (dark) */
+/* .drawer-combo — ComboBox внутри drawer (выбор языка и т.п.), dark. */
 .combo-box.drawer-combo,
 .combo-box-base.drawer-combo {
     -fx-background-color:
@@ -532,6 +680,7 @@
     -fx-effect: none;
 }
 
+/* .combo-box.drawer-combo .list-cell — отображаемое значение ComboBox в drawer. */
 .combo-box.drawer-combo .list-cell {
     -fx-text-fill: -fx-text-color;
     -fx-font-size: 13px;
@@ -539,14 +688,17 @@
     -fx-padding: 6 12;
     -fx-background-color: transparent;
 }
+
+/* .combo-box.drawer-combo .arrow-button — кнопка-стрелка ComboBox. */
 .combo-box.drawer-combo .arrow-button {
     -fx-background-color: transparent;
     -fx-padding: 6 8;
 }
-.combo-box.drawer-combo .arrow {
-    -fx-background-color: -fx-text-color;
-}
 
+/* .combo-box.drawer-combo .arrow — цвет стрелки ComboBox. */
+.combo-box.drawer-combo .arrow { -fx-background-color: -fx-text-color; }
+
+/* .drawer-combo:hover — hover ComboBox в drawer. */
 .combo-box.drawer-combo:hover,
 .combo-box-base.drawer-combo:hover {
     -fx-background-color:
@@ -554,6 +706,8 @@
             rgba(255,255,255,0.08);
     -fx-border-color: rgba(255,255,255,0.36);
 }
+
+/* .drawer-combo:pressed — pressed ComboBox в drawer. */
 .combo-box.drawer-combo:pressed,
 .combo-box-base.drawer-combo:pressed {
     -fx-background-color:
@@ -563,6 +717,7 @@
     -fx-effect: none;
 }
 
+/* .combo-box-popup .list-view — выпадающий список ComboBox (popup) в dark. */
 .combo-box-popup .list-view {
     -fx-background-color: rgba(62, 60, 59, 0.98);
     -fx-background-radius: 12;
@@ -570,6 +725,8 @@
     -fx-padding: 6;
     -fx-effect: none;
 }
+
+/* .combo-box-popup .list-cell — строки в popup-списке ComboBox. */
 .combo-box-popup .list-view .list-cell {
     -fx-text-fill: -fx-text-color;
     -fx-font-size: 13px;
@@ -579,14 +736,14 @@
     -fx-padding: 10 12;
     -fx-background-radius: 10;
 }
-.combo-box-popup .list-view .list-cell:hover {
-    -fx-background-color: rgba(255,255,255,0.08);
-}
-.combo-box-popup .list-view .list-cell:selected {
-    -fx-background-color: rgba(255,255,255,0.12);
-}
 
-/* drawer ComboBox (light) */
+/* hover строки popup ComboBox. */
+.combo-box-popup .list-view .list-cell:hover { -fx-background-color: rgba(255,255,255,0.08); }
+
+/* selected строки popup ComboBox. */
+.combo-box-popup .list-view .list-cell:selected { -fx-background-color: rgba(255,255,255,0.12); }
+
+/* .root.theme-light .drawer-combo — ComboBox в drawer (light). */
 .root.theme-light .combo-box.drawer-combo,
 .root.theme-light .combo-box-base.drawer-combo {
     -fx-background-color:
@@ -595,6 +752,8 @@
     -fx-border-color: rgba(255,255,255,0.90);
     -fx-effect: none;
 }
+
+/* .root.theme-light .drawer-combo:hover — hover ComboBox (light). */
 .root.theme-light .combo-box.drawer-combo:hover,
 .root.theme-light .combo-box-base.drawer-combo:hover {
     -fx-background-color:
@@ -609,21 +768,23 @@
     -fx-border-color: rgba(0,0,0,0.10);
     -fx-effect: none;
 }
-.root.theme-light .combo-box.drawer-combo .arrow {
-    -fx-background-color: -fx-text-color;
-}
+
+/* .root.theme-light .drawer-combo .arrow — цвет стрелки ComboBox в светлой теме. */
+.root.theme-light .combo-box.drawer-combo .arrow { -fx-background-color: -fx-text-color; }
+
+/* .root.theme-light .combo-box-popup .list-view — popup-список ComboBox в light. */
 .root.theme-light .combo-box-popup .list-view {
     -fx-background-color: rgba(211, 207, 207, 0.98);
     -fx-effect: none;
 }
-.root.theme-light .combo-box-popup .list-view .list-cell:hover {
-    -fx-background-color: rgba(0,0,0,0.06);
-}
-.root.theme-light .combo-box-popup .list-view .list-cell:selected {
-    -fx-background-color: rgba(0,0,0,0.08);
-}
 
-/* label рядом с ToggleSwitch в drawer */
+/* hover строки popup ComboBox в light. */
+.root.theme-light .combo-box-popup .list-view .list-cell:hover { -fx-background-color: rgba(0,0,0,0.06); }
+
+/* selected строки popup ComboBox в light. */
+.root.theme-light .combo-box-popup .list-view .list-cell:selected { -fx-background-color: rgba(0,0,0,0.08); }
+
+/* .drawer-theme-label — подпись рядом с ToggleSwitch в drawer (например “Тёмная тема”). */
 .drawer-theme-label {
     -fx-text-fill: -fx-text-color;
     -fx-font-size: 13px;
@@ -634,13 +795,14 @@
     -fx-line-spacing: 0;
 }
 
-
 /* =====================================================================
   7) ToggleSwitch (кастомный контрол для смены темы)
 ===================================================================== */
+
+/* .toggle-switch — корень кастомного ToggleSwitch (курсор). */
 .toggle-switch { -fx-cursor: hand; }
 
-/* track (dark) */
+/* .toggle-switch .track — дорожка переключателя (dark). */
 .toggle-switch .track {
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.22), rgba(255,255,255,0.10)),
@@ -654,12 +816,16 @@
 
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.22), 10, 0.18, 0, 2);
 }
+
+/* hover дорожки ToggleSwitch (dark). */
 .toggle-switch:hover .track {
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.28), rgba(255,255,255,0.14)),
             rgba(255,255,255,0.08);
     -fx-border-color: rgba(255,255,255,0.36);
 }
+
+/* selected дорожки ToggleSwitch (dark). */
 .toggle-switch:selected .track {
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.22), rgba(255,255,255,0.10)),
@@ -668,31 +834,37 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.22), 10, 0.18, 0, 2);
 }
 
-/* thumb */
+/* .toggle-switch .thumb — бегунок переключателя (knob). */
 .toggle-switch .thumb {
     -fx-background-radius: 999;
     -fx-background-insets: 0;
     -fx-background-color: -fx-switch-thumb;
     -fx-effect: dropshadow(gaussian, -fx-switch-shadow, 10, 0.25, 0, 2);
 }
+
+/* selected бегунка ToggleSwitch. */
 .toggle-switch:selected .thumb { -fx-background-color: -fx-switch-thumb; }
 
-/* text */
+/* .toggle-switch .toggle-text — текст внутри переключателя (ON/OFF). */
 .toggle-switch .toggle-text {
     -fx-font-size: 11px;
     -fx-font-weight: 700;
     -fx-text-fill: -fx-switch-off-text;
 }
+
+/* selected текста ToggleSwitch. */
 .toggle-switch:selected .toggle-text { -fx-text-fill: -fx-switch-on-text; }
 
-/* ripple */
+/* .toggle-switch .toggle-ripple — эффект ripple при клике. */
 .toggle-switch .toggle-ripple { -fx-fill: -fx-switch-ripple; }
+
+/* .root.theme-light .toggle-switch .toggle-ripple — ripple в светлой теме. */
 .root.theme-light .toggle-switch .toggle-ripple {
     -fx-fill: rgba(0, 0, 0, 0.35);
     -fx-blend-mode: multiply;
 }
 
-/* glint */
+/* .toggle-switch .glint — декоративный блик поверх трека. */
 .toggle-switch .glint {
     -fx-background-radius: 999;
     -fx-background-insets: 0;
@@ -703,10 +875,10 @@
     );
 }
 
-/* icons */
+/* .toggle-switch .toggle-icon — SVG-иконки внутри тумблера. */
 .toggle-switch .toggle-icon { -fx-fill: -fx-icon-primary; }
 
-/* track (light) */
+/* .root.theme-light .toggle-switch .track — дорожка ToggleSwitch в light. */
 .root.theme-light .toggle-switch .track {
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.96), rgba(255,255,255,0.78)),
@@ -714,12 +886,16 @@
     -fx-border-color: rgba(255,255,255,0.90);
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 8, 0.16, 0, 2);
 }
+
+/* hover дорожки ToggleSwitch в light. */
 .root.theme-light .toggle-switch:hover .track {
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.99), rgba(255,255,255,0.82)),
             rgba(0,0,0,0.03);
     -fx-border-color: rgba(255,255,255,0.95);
 }
+
+/* selected дорожки ToggleSwitch в light. */
 .root.theme-light .toggle-switch:selected .track {
     -fx-background-color:
             linear-gradient(to bottom, rgba(255,255,255,0.96), rgba(255,255,255,0.78)),
@@ -728,36 +904,52 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 8, 0.16, 0, 2);
 }
 
-
 /* =====================================================================
-  8) TEST CASES SCREEN (2-zones layout)
+|||
+|||                  8) TESTCASES — Левая и Правая зоны
+|||
 ===================================================================== */
 
+/* =====================================================================
+                     8.1) TESTCASES: Основные элементы
+===================================================================== */
+
+/* ----------------- 8.1.1) TESTCASES: Основа экрана ----------------- */
+
+/* Корневой контейнер экран (наследование единого фона). */
 .tc-root { -fx-background-color: transparent; }
 
-/* панели */
+/* Главные Зоны: Левая и Правая */
 .tc-left,
 .tc-right {
     -fx-background-color: rgba(0,0,0,0.28);
     -fx-background-radius: 18;
-    -fx-padding: 14;
+    -fx-padding: 0;
     -fx-border-color: rgba(255,255,255,0.12);
     -fx-border-radius: 18;
 }
+
+/* Главные Зоны: Левая и Правая. В светлой теме. */
 .root.theme-light .tc-left,
 .root.theme-light .tc-right {
     -fx-background-color: rgba(0,0,0,0.10);
     -fx-border-color: rgba(0,0,0,0.14);
+    -fx-padding: 0;
 }
 
-/* кнопки экрана */
+/* ----------------- 8.1.2) TESTCASES: Основные кнопки ----------------- */
+
+/* Основные кнопки на экране */
 .tc-btn {
-    -fx-background-color: rgba(255,255,255,0.06);
-    -fx-text-fill: -fx-text-color;
-    -fx-border-color: rgba(255,255,255,0.16);
-    -fx-border-radius: 12;
+    -fx-background-color: -fx-base-button-dark;
+    -fx-background-insets: 1;
     -fx-background-radius: 12;
+
+    -fx-border-color: -fx-base-button-border-dark;
+    -fx-border-radius: 12;
+
     -fx-font-weight: 700;
+    -fx-text-fill: -fx-text-color;
 
     -fx-min-height: 32px;
     -fx-max-height: 32px;
@@ -765,84 +957,230 @@
     -fx-padding: 0 12;
     -fx-alignment: CENTER;
 }
+
+/* Основные кнопки на экране в светлой теме. */
 .root.theme-light .tc-btn {
-    -fx-background-color: rgba(0,0,0,0.06);
-    -fx-border-color: rgba(0,0,0,0.16);
+    -fx-background-color: -fx-base-button-light;
+    -fx-border-color: -fx-base-button-border-light;
 }
 
-/* primary */
-.tc-primary {
-    -fx-background-color: rgba(245, 0, 73, 0.16);
-    -fx-text-fill: -fx-text-color;
-    -fx-border-color: rgba(245, 0, 73, 0.55);
-    -fx-border-radius: 12;
+/* Ховер */
+.tc-btn:hover {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    -fx-base-button-dark,
+                    rgb(83, 81, 80)
+            );
+
+    -fx-border-color: -fx-base-button-border-dark;
+    -fx-background-insets: 1;
     -fx-background-radius: 12;
-    -fx-font-weight: 800;
+
 }
 
-.tc-btnlike-title {
+/* Ховер в светлой теме*/
+.root.theme-light .tc-btn:hover {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    -fx-base-button-light,
+                    rgb(228, 228, 228)
+            );
+    -fx-border-color: -fx-base-button-border-light;
+}
+
+/* Нажатие */
+.tc-btn:pressed {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    rgb(83, 81, 80),
+                    -fx-base-button-dark
+            );
+    -fx-background-insets: 1;
+    -fx-background-radius: 12;
+    -fx-border-color: -fx-base-button-border-dark;
+    -fx-translate-y: 1;
+}
+
+.root.theme-light .tc-btn:pressed {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    rgb(210, 210, 210),
+                    -fx-base-button-light
+            );
+
+    -fx-border-color: -fx-base-button-border-light;
+    -fx-translate-y: 1;
+}
+
+/* ----------------- 8.1.3) TESTCASES: Модалка подтверждения удаления карточки ----------------- */
+
+/* Затемнение правой зоны при подтверждении удаления*/
+.tc-right-dim,
+.tc-left-dim {
+    -fx-background-color: rgba(30, 29, 29, 0.85);
+    -fx-background-radius: 16;
+}
+
+/* Затемнение правой зоны при подтверждении удаления. В светлдой теме */
+.root.theme-light .tc-right-dim,
+.root.theme-light .tc-left-dim {
+    -fx-background-color: rgba(178, 179, 179, 0.85);
+    -fx-background-radius: 16;
+}
+
+/* Модалка удаления - Основной контейнер */
+.tc-right-confirm,
+.tc-left-confirm {
+    -fx-background-color: rgba(62, 60, 59, 0.98);
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-border-color: rgba(255,255,255,0.18);
+    -fx-padding: 14;
+}
+
+/* Модалка удаления - Основной контейнер. В светлой теме */
+.root.theme-light .tc-right-confirm,
+.root.theme-light .tc-left-confirm {
+    -fx-background-color: rgba(241,241,241,0.98);
+    -fx-border-color: rgba(0,0,0,0.14);
+}
+
+/* Модалка удаления - Заголовок */
+.tc-delete-title {
+    -fx-text-alignment: center;
     -fx-text-fill: -fx-text-color;
-    -fx-font-weight: 700;
-    -fx-font-size: 13px;
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+    -fx-padding: 0 6 2 6;
+    -fx-alignment: CENTER;
 }
 
-/* поля */
+/* Модалка удаления - Нижняя подсказка */
+.tc-delete-hint {
+    -fx-text-alignment: center;
+    -fx-text-fill: rgba(255,255,255,0.55);
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-text-alignment: CENTER;
+    -fx-alignment: CENTER;
+}
+
+/* Модалка удаления - Нижняя подсказка. В светлой теме */
+.root.theme-light .tc-delete-hint {
+    -fx-text-fill: rgba(0,0,0,0.55);
+}
+
+/* Модалка удаления - Кнопка Подтверждение */
+.tc-danger-btn {
+    -fx-background-color: -fx-accent-dark;
+    -fx-border-color: -fx-accent-dark;
+    -fx-text-fill: rgb(255,255,255);
+}
+
+/* Модалка удаления - Кнопка Подтверждение. В светлой теме */
+.root.theme-light .tc-danger-btn {
+    -fx-background-color: -fx-accent-light;
+    -fx-border-color: -fx-accent-light;
+    -fx-text-fill: rgb(255,255,255);
+}
+
+/* Модалка удаления - Ховер кнопки Подтверждение */
+.tc-danger-btn:hover {
+    -fx-background-color: linear-gradient(to bottom, -fx-accent-dark, rgb(152, 1, 26));
+    -fx-border-color: -fx-accent-dark;
+}
+
+/* Модалка удаления - Ховер кнопки Подтверждение. В светлой теме */
+.root.theme-light .tc-danger-btn:hover {
+    -fx-background-color: linear-gradient(to bottom, -fx-accent-light, rgb(228, 15, 68));
+    -fx-border-color: -fx-accent-light;
+}
+
+/* ----------------- 8.1.4) TESTCASES: Дизейбл базовых кнопок ----------------- */
+
+/* Универсальный модификатор: disabled-кнопка выглядит как базовая (эталон Trash->Delete) */
+.button.tc-disabled-base:disabled {
+    -fx-opacity: 1.0;
+    -fx-effect: none;
+
+    -fx-background-color: -fx-base-button-dark;
+    -fx-border-color: -fx-base-button-border-dark;
+
+    -fx-text-fill: rgba(242,244,247,0.55);
+}
+
+/* Светлая тема */
+.root.theme-light .button.tc-disabled-base:disabled {
+    -fx-background-color: -fx-base-button-light;
+    -fx-border-color: -fx-base-button-border-light;
+
+    -fx-text-fill: rgba(20,20,20,0.55);
+}
+
+/* ✅ Защита: disabled не должен менять вид от hover/pressed правил других классов (.tc-filter-apply/.tc-save-btn/.tc-btn) */
+.button.tc-disabled-base:disabled:hover,
+.button.tc-disabled-base:disabled:pressed {
+    -fx-background-color: -fx-base-button-dark;
+    -fx-border-color: -fx-base-button-border-dark;
+}
+
+.root.theme-light .button.tc-disabled-base:disabled:hover,
+.root.theme-light .button.tc-disabled-base:disabled:pressed {
+    -fx-background-color: -fx-base-button-light;
+    -fx-border-color: -fx-base-button-border-light;
+}
+
+
+/* =====================================================================
+                     8.2) TESTCASES: Левая зона
+===================================================================== */
+
+/* ----------------- 8.2.1) TESTCASES (Левая зона): Поиск ----------------- */
+
+/* Поля ввода (Левая зона: Поиск / Правая зона: Код и Номер)*/
 .tc-search {
+    -fx-background-color: -fx-input-dark;
+    -fx-background-radius: 12;
+    -fx-background-insets: 1;
+
+    -fx-border-color: -fx-base-button-border-dark;
+    -fx-border-radius: 12;
+
+    -fx-text-fill: -fx-text-color;
+    -fx-prompt-text-fill: -fx-placeholder-dark;
+
     -fx-min-height: 32px;
     -fx-max-height: 32px;
-
-    -fx-background-color: rgba(255,255,255,0.06);
-    -fx-text-fill: -fx-text-color;
-    -fx-prompt-text-fill: rgba(255,255,255,0.35);
-    -fx-border-color: rgba(255,255,255,0.14);
-    -fx-border-radius: 12;
-    -fx-background-radius: 12;
 
     -fx-padding: 0 12;
 }
 
-/* подсветка как у private */
-.tc-search.tc-priv-edit {
-    -fx-border-color: #f50049;
-    -fx-border-width: 1;
-}
-.root.theme-light .tc-search.tc-priv-edit {
-    -fx-border-color: #f50049;
-    -fx-border-width: 1;
-}
-
-/* multiline */
-.tc-area {
-    -fx-background-color: rgba(255,255,255,0.06);
+/* Поля ввода (Левая зона: Поиск / Правая зона: Код и Номер). В светлой теме*/
+.root.theme-light .tc-search {
+    -fx-background-color: -fx-input-light;
+    -fx-background-insets: 1;
+    -fx-border-color: -fx-base-button-border-light;
     -fx-text-fill: -fx-text-color;
-    -fx-prompt-text-fill: rgba(255,255,255,0.35);
-    -fx-border-color: rgba(255,255,255,0.14);
-    -fx-border-radius: 12;
-    -fx-background-radius: 12;
-    -fx-padding: 10 12;
+    -fx-prompt-text-fill: -fx-placeholder-light;
 }
 
-/* light overrides */
-.root.theme-light .tc-search,
-.root.theme-light .tc-field,
-.root.theme-light .tc-area {
-    -fx-background-color: rgba(0,0,0,0.05);
-    -fx-prompt-text-fill: rgba(0,0,0,0.35);
-    -fx-border-color: rgba(0,0,0,0.14);
+/* Селект */
+.tc-search:focused {
+    -fx-border-color: rgb(147, 142, 142);
 }
 
-.tc-inline-strip { -fx-background-color: rgba(255,255,255,0.14); }
-.root.theme-light .tc-inline-strip { -fx-background-color: rgba(0,0,0,0.16); }
-
-.tc-inline-title {
-    -fx-text-fill: -fx-text-color;
-    -fx-font-weight: 800;
-    -fx-font-size: 12px;
-    -fx-padding: 0 8;
-    -fx-min-height: 18px;
+/* Селект в светлой теме */
+.root.theme-light .tc-search:focused {
+    -fx-border-color: -fx-button2-border-light;
 }
 
-/* фикс размеров icon-btn в левой зоне (оставил, чтобы ничего не сломать) */
+/* ----------------- 8.2.2) TESTCASES (Левая зона): Кнопка открытия папки ----------------- */
+
+/* Иконка папки - задание формы */
 .tc-left .button.icon-btn,
 .tc-left .button.icon-btn.sm {
     -fx-min-width: 32px;
@@ -857,69 +1195,265 @@
     -fx-border-radius: 12;
 }
 
-/* лист */
-.tc-list { -fx-background-color: transparent; }
-.tc-list .list-cell {
-    -fx-background-color: rgba(255,255,255,0.04);
-    -fx-text-fill: -fx-text-color;
-    -fx-background-radius: 12;
-    -fx-border-color: rgba(255,255,255,0.10);
-    -fx-border-radius: 12;
-    -fx-padding: 10 12;
-}
-.tc-list .list-cell:filled:selected {
-    -fx-background-color: rgba(245, 0, 73, 0.12);
-    -fx-border-color: rgba(245, 0, 73, 0.35);
-}
+/* ----------------- 8.2.3) TESTCASES (Левая зона): Список ----------------- */
 
-
-/* =====================================================================
-  8.1) TESTCASES: sheets (cases/filter) + base (без дублей)
-===================================================================== */
-
-/* базовый шаблон (если будешь переиспользовать) */
-.tc-sheet-base {
-    -fx-border-width: 1;
-    -fx-background-radius: 16;
-    -fx-border-radius: 16;
-    -fx-padding: 14;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 18, 0.25, 0, -6);
-}
-
-/* контейнер списка кейсов */
+/* Контейнер списка кейсов для левой темы / Контейнер для содержания карточки для правой темы */
 .tc-cases-sheet {
-    -fx-background-color: rgba(112, 110, 110, 0.2);
-    -fx-border-color: rgba(255,255,255,0.14);
+    -fx-background-color: -fx-background-level-2-dark;
+    -fx-border-color: -fx-background-border-level-2-dark;
     -fx-background-radius: 16;
     -fx-border-radius: 16;
 }
 
-/* модалка фильтра */
-.tc-filter-sheet {
-    -fx-background-color: rgba(159, 129, 103, 0.2);
+/* Контейнер списка кейсов в светлой теме. */
+.root.theme-light .tc-cases-sheet {
+    -fx-background-color: -fx-background-level-2-light;
+    -fx-border-color: -fx-background-border-level-2-light;
+}
+
+/* Список кейсов (фон прозрачный). */
+.tc-list {
+    -fx-background-color: transparent;
+}
+
+/* Список кейсов 2-ой слой с правым отступом (фон прозрачный) */
+.tc-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 0 2 0 0;
+    -fx-border-color: transparent;
+}
+
+/* Ячейки в списке кейсов */
+.tc-case-row {
+    -fx-padding: 5 4 5 3;
+    -fx-background-color: rgba(255,255,255,0.03);
+    -fx-border-color:
+            transparent,
+            rgba(255,255,255,0.10);
+    -fx-border-width: 0 0 0 4, 1;
+
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-background-insets: 0 4 0 0;
+    -fx-border-insets:     0 4 0 0;
+    -fx-alignment: CENTER_LEFT;
+}
+
+/* Ячейки в списке кейсов. В светлой теме */
+.root.theme-light .tc-case-row {
+    -fx-background-color: rgba(0, 0, 0, 0.06);
+
+    -fx-border-color:
+            transparent,
+            rgba(0,0,0,0.20);
+    -fx-border-width: 0 0 0 4, 1;
+}
+
+/* Ховер */
+.tc-list .list-cell:filled:hover .tc-case-row {
+    -fx-background-color: rgba(255,255,255,0.06);
+    -fx-border-color:
+            transparent,
+            rgba(255,255,255,0.14);
+}
+
+/* hover строки кейса (light). */
+.root.theme-light .tc-list .list-cell:filled:hover .tc-case-row {
+    -fx-background-color: rgb(236, 234, 233);
+    -fx-border-color:
+            transparent,
+            rgba(0,0,0,0.14);
+}
+
+/* Селект в списке кейсов - прозрачная заливка */
+.tc-list .list-cell:filled:selected,
+.tc-list .list-cell:filled:selected:focused {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+}
+
+/* Селект в списке кейсов - акцент слева */
+.tc-list .list-cell:filled:selected .tc-case-row {
+    -fx-background-color: rgba(255,255,255,0.06);
+
+    -fx-border-color:
+            rgba(245, 0, 73, 0.70),
+            rgba(255,255,255,0.18);
+    -fx-border-width: 0 0 0 4, 1;
+    -fx-border-radius: 10;
+
+    -fx-effect: none;
+}
+
+/* Селект в списке кейсов - акцент слева. В светлой теме */
+.root.theme-light .tc-list .list-cell:filled:selected .tc-case-row {
+    -fx-background-color: rgba(0,0,0,0.04);
+
+    -fx-border-color:
+            rgba(245, 0, 73, 0.70),
+            rgba(0,0,0,0.16);
+    -fx-border-width: 0 0 0 4, 1;
+    -fx-border-radius: 10;
+
+    -fx-effect: none;
+}
+
+/* Текст в списке кейсов */
+.tc-case-title {
+    -fx-text-fill: -fx-text-color;
+    -fx-font-size: 13px;
+    -fx-text-overrun: ellipsis;
+    -fx-wrap-text: false;
+}
+
+/* ----------------- 8.2.4) TESTCASES (Левая зона): Список - Удаление ----------------- */
+/* Чекбокса для удаления в списке*/
+.tc-trash-check {
+    -fx-padding: 0;
+}
+
+/* Рамка чекбокса */
+.tc-trash-check .box {
+    -fx-background-color: -fx-background-level-2-dark;
+    -fx-background-insets: 0;
+    -fx-background-radius: 10;
+
+    -fx-border-color: -fx-background-border-level-2-dark;
+    -fx-border-width: 1.6;
+    -fx-border-radius: 10;
+
+    -fx-min-width: 27px;
+    -fx-min-height: 27px;
+    -fx-pref-width: 27px;
+    -fx-pref-height: 27px;
+
+    -fx-padding: 6px;
+    -fx-effect: none;
+}
+
+/* Рамка чекбокса в светлой теме */
+.root.theme-light .tc-trash-check .box {
+    -fx-background-color: -fx-background-level-2-light;
+    -fx-border-color: -fx-background-border-level-2-light;
+}
+
+/* hover */
+.tc-trash-check:hover .box {
+    -fx-background-color: -fx-button2-dark;
+    -fx-border-color: -fx-button2-border-hover-dark;
+}
+
+/* hover в светлой теме*/
+.root.theme-light .tc-trash-check:hover .box {
+    -fx-background-color: -fx-button2-light;
+    -fx-border-color: -fx-button2-border-hover-light;
+}
+
+/* pressed */
+.tc-trash-check:pressed .box {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    rgb(83, 81, 80),
+                    -fx-background-level-2-dark
+            );
+    -fx-border-color: -fx-background-border-level-2-dark;
+}
+
+/* pressed в светлой теме*/
+.root.theme-light .tc-trash-check:pressed .box {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    rgb(220, 220, 220),
+                    -fx-background-level-2-light
+            );
+    -fx-border-color: -fx-background-border-level-2-light;
+}
+
+/* selected Чекбокс при выборе */
+.tc-trash-check:selected .box {
+    -fx-border-color: rgba(245, 0, 73, 0.70);
+}
+
+/* selected Чекбокс при выборе. В светлой теме */
+.root.theme-light .tc-trash-check:selected .box {
+    -fx-border-color: rgba(245, 0, 73, 0.70);
+}
+
+/* Галочка в чекбоксе */
+.tc-trash-check .mark {
+    -fx-background-color: rgba(255,255,255,0.45);
+
+    -fx-shape: "M3.2 9.1 L6.7 12.4 L13.1 5.0 L12.0 3.9 L6.7 9.9 L4.3 7.6 Z";
+    -fx-scale-shape: false;
+
+    -fx-scale-x: 1.15;
+    -fx-scale-y: 1.15;
+}
+
+/* Галочка в чекбоксе. В светлой теме */
+.root.theme-light .tc-trash-check .mark {
+    -fx-background-color: rgba(0,0,0,0.35);
+}
+
+/* selected Галочка в чекбоксе */
+.tc-trash-check:selected .mark {
+    -fx-background-color: -fx-accent-strong;
+}
+
+/* selected Галочка в чекбоксе при выборе. В светлой теме */
+.root.theme-light .tc-trash-check:selected .mark {
+    -fx-background-color: -fx-accent-strong;
+}
+
+
+
+/* Стеклянная подложка оверлея для кнопки Удалить и чекбокса */
+.tc-trash-glass {
+    -fx-background-color: rgba(83, 80, 79, 0.90);
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(255,255,255,0.14);
+    -fx-border-radius: 16;
+
+    /* было 10 12 10 12 */
+    -fx-padding: 8 10 8 10;
+}
+
+/* Стеклянная подложка оверлея для кнопки Удалить и чекбокса. В светлой теме */
+.root.theme-light .tc-trash-glass {
+    -fx-background-color: rgba(193, 193, 193, 0.9);
+    -fx-border-color: rgba(0,0,0,0.14);
+}
+
+/* ----------------- 8.2.5) TESTCASES (Левая зона): Фильтры ----------------- */
+
+/* Контейнер для фильтров и сортировки */
+.tc-sheet-filter-sort {
+    -fx-background-color: rgba(159, 129, 103, 0.20);
     -fx-border-color: rgba(255,255,255,0.18);
     -fx-background-radius: 16;
     -fx-border-radius: 16;
 }
-.root.theme-light .tc-filter-sheet {
-    -fx-background-color: rgba(221, 209, 198, 0.2);
+
+/* Контейнер для фильтров и сортировки в светлой теме. */
+.root.theme-light .tc-sheet-filter-sort {
+    -fx-background-color: rgba(221, 209, 198, 0.20);
     -fx-border-color: rgba(175, 158, 138, 0.75);
     -fx-background-radius: 16;
     -fx-border-radius: 16;
 }
 
+/* ----------------- 8.2.6) TESTCASES (Левая зона - Фильтры): Табы Метки / Теги ----------------- */
 
-/* =====================================================================
-  8.2) TESTCASES: Filter modal (header/tabs/chips/apply)
-===================================================================== */
-
-.tc-filter-header { -fx-background-color: transparent; }
-
-/* tabs */
+/* Табы (Labels/Tags) */
 .tc-filter-tab {
-    -fx-background-color: rgb(97, 95, 92);
-    -fx-border-color: rgba(255,255,255,0.16);
+    -fx-background-color: -fx-button2-dark;
     -fx-background-radius: 999;
+    -fx-background-insets: 1;
+
+    -fx-border-color: rgb(255, 255, 255);
+    -fx-border-width: 1;
     -fx-border-radius: 999;
 
     -fx-min-height: 32px;
@@ -932,27 +1466,89 @@
     -fx-font-weight: 700;
     -fx-alignment: CENTER;
 }
+
+/* Табы (Labels/Tags) в светлой теме. */
 .root.theme-light .tc-filter-tab {
-    -fx-background-color: rgb(218, 216, 216);
+    -fx-background-color: -fx-button2-light;
+    -fx-background-insets: 1;
+    -fx-border-color: rgb(255, 255, 255);
+    -fx-border-width: 2;
+}
+
+/* Ховер */
+.tc-filter-tab:hover {
+    -fx-background-color: -fx-button2-dark;
+    -fx-border-color: rgb(255, 255, 255);
+    -fx-background-insets: 1;
+    -fx-background-radius: 999;
+    -fx-effect:
+            innershadow(gaussian, rgba(255,255,255,0.10), 36, 0.50, 0, -4),
+            innershadow(gaussian, rgba(255,255,255,0.05), 14, 0.35, 0,  1),
+            innershadow(gaussian, rgba(0,0,0,0.12),       22, 0.40, 0,  4);
+}
+
+/* Ховер в светлой теме*/
+.root.theme-light .tc-filter-tab:hover {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    -fx-button2-light,
+                    rgb(244, 241, 240)
+            );
     -fx-border-color: rgb(255, 255, 255);
 }
 
+/* Селект табов */
 .tc-filter-tab:selected {
-    -fx-background-color: rgb(163, 25, 55);
-    -fx-border-color: rgba(245, 0, 73, 0.45);
+    -fx-background-color: -fx-accent-dark;
+    -fx-border-color: -fx-accent-dark;
+    -fx-background-insets: 1;
+    -fx-background-radius: 999;
 }
+
+/* Селект табов в светлой теме. */
 .root.theme-light .tc-filter-tab:selected {
-    -fx-background-color: rgb(163, 25, 55);
-    -fx-border-color: rgba(245, 0, 73, 0.45);
+    -fx-background-color: -fx-accent-light;
+    -fx-border-color: -fx-accent-light;
     -fx-text-fill: rgb(255, 255, 255);
 }
 
-/* reset */
+/* Hover селект табов */
+.tc-filter-tab:selected:hover {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    -fx-accent-dark,
+                    rgb(152, 1, 26)
+            );
+    -fx-border-color: -fx-accent-dark;
+
+}
+
+/* Hover селект табов в светлой теме */
+.root.theme-light .tc-filter-tab:selected:hover {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    -fx-accent-light,
+                    rgb(228, 15, 68)
+            );
+    -fx-border-color: -fx-accent-light;
+    -fx-text-fill: rgb(255, 255, 255);
+
+}
+
+/* ----------------- 8.2.7) TESTCASES (Левая зона - Фильтры): Кнопка Сбросить ----------------- */
+
+/*  Кнопка Сбросить */
 .tc-filter-reset {
-    -fx-background-color: rgb(97, 95, 92);
-    -fx-border-color: rgb(163, 25, 55);
+    -fx-background-color: -fx-button2-dark;
+    -fx-background-insets: 1;
     -fx-background-radius: 999;
+
+    -fx-border-color: -fx-accent-dark;
     -fx-border-radius: 999;
+    -fx-border-width: 2;
 
     -fx-min-height: 32px;
     -fx-pref-height: 32px;
@@ -964,16 +1560,44 @@
     -fx-font-weight: 700;
     -fx-alignment: CENTER;
 }
+
+/* Кнопка Сбросить в светлой теме. */
 .root.theme-light .tc-filter-reset {
-    -fx-background-color: rgb(218, 216, 216);
-    -fx-border-color: rgb(163, 25, 55);
+    -fx-background-color: -fx-button2-light;
+    -fx-border-color: -fx-accent-light;
 }
 
-/* chips */
+/* Ховер */
+.tc-filter-reset:hover {
+    -fx-background-color: -fx-button2-dark;
+    -fx-border-color: -fx-accent-dark;
+    -fx-background-insets: 1;
+    -fx-background-radius: 999;
+    -fx-effect:
+            innershadow(gaussian, rgba(255,255,255,0.10), 36, 0.50, 0, -4),
+            innershadow(gaussian, rgba(255,255,255,0.05), 14, 0.35, 0,  1),
+            innershadow(gaussian, rgba(0,0,0,0.12),       22, 0.40, 0,  4);
+}
+
+/* Ховер в светлой теме*/
+.root.theme-light .tc-filter-reset:hover {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    -fx-button2-light,
+                    rgb(244, 241, 240)
+            );
+    -fx-border-color: -fx-accent-light;
+}
+
+/* ----------------- 8.2.8) TESTCASES (Левая зона - Фильтры): Чипы ----------------- */
+
+/* Чипы в фильтрах */
 .tc-filter-chip {
-    -fx-background-color: rgb(97, 95, 92);
-    -fx-border-color: rgba(255,255,255,0.14);
+    -fx-background-color: -fx-button2-dark;
+    -fx-border-color: -fx-button2-border-dark;
     -fx-border-width: 1;
+    -fx-background-insets: 1;
 
     -fx-background-radius: 999;
     -fx-border-radius: 999;
@@ -984,61 +1608,114 @@
 
     -fx-effect: null;
 }
+
+/* Чипы в фильтрах. В светлой теме. */
 .root.theme-light .tc-filter-chip {
-    -fx-background-color: rgb(232, 230, 227);
-    -fx-border-color: rgba(175, 158, 138, 0.75);
+    -fx-background-color: -fx-button2-light;
+    -fx-border-color: -fx-button2-border-light;
+    -fx-background-insets: 1;
 }
 
-/* selected */
+/* Ховер */
+.tc-filter-chip:hover {
+    -fx-background-color: -fx-button2-dark;
+    -fx-border-color: -fx-button2-border-hover-dark;
+    -fx-background-insets: 1;
+    -fx-background-radius: 999;
+    -fx-effect:
+            innershadow(gaussian, rgba(255,255,255,0.10), 36, 0.50, 0, -4),
+            innershadow(gaussian, rgba(255,255,255,0.05), 14, 0.35, 0,  1),
+            innershadow(gaussian, rgba(0,0,0,0.12),       22, 0.40, 0,  4);
+}
+
+/* Ховер в светлой теме*/
+.root.theme-light .tc-filter-chip:hover {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    -fx-button2-light,
+                    rgb(244, 241, 240)
+            );
+    -fx-border-color: -fx-button2-border-hover-light;
+    -fx-background-insets: 1;
+    -fx-background-radius: 999;
+}
+
+/* Селект */
 .tc-filter-chip:selected {
-    -fx-border-color: rgba(245, 0, 73, 0.75);
+    -fx-border-color: -fx-accent-strong-dark;
     -fx-border-width: 1;
-    -fx-effect:
-            innershadow(gaussian, rgba(245, 0, 73, 0.42), 14, 0.35, 0, 0),
-            innershadow(gaussian, rgba(0, 0, 0, 0.40), 10, 0.30, 0, 1);
 }
+
+/* Селект в светлой теме. */
 .root.theme-light .tc-filter-chip:selected {
-    -fx-border-color: rgba(245, 0, 73, 0.65);
+    -fx-border-color: -fx-accent-strong-light;
     -fx-border-width: 1;
-    -fx-effect:
-            innershadow(gaussian, rgba(245, 0, 73, 0.22), 14, 0.30, 0, 0),
-            innershadow(gaussian, rgba(255, 255, 255, 0.70), 10, 0.25, 0, -1);
 }
 
-/* bottom + apply */
-.tc-filter-bottom { -fx-background-color: transparent; }
+/* ----------------- 8.2.9) TESTCASES (Левая зона - Фильтры): Кнопка Сохранить в фильтрах ----------------- */
 
+/* кнопка «Сохранить/Apply» в модалке фильтра. */
 .tc-filter-apply {
-    -fx-background-color: rgb(163, 25, 55);
-    -fx-border-color: rgba(245, 0, 73, 0.45);
+    -fx-background-color: -fx-accent-dark;
     -fx-background-radius: 14;
-    -fx-border-radius: 14;
-    -fx-padding: 12 12 12 12;
+    -fx-background-insets: 1;
+
+    -fx-border-color: -fx-accent-dark;
+    -fx-border-radius: 16;
+
     -fx-text-fill: rgb(255, 255, 255);
     -fx-font-weight: 800;
 }
 
+/* Hover селект табов */
+.tc-filter-apply:hover {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    -fx-accent-dark,
+                    rgb(152, 1, 26)
+            );
+    -fx-border-color: -fx-accent-dark;
 
-/* =====================================================================
-  8.3) TESTCASES: Filter modal scroll (tc-filter-scroll)
-===================================================================== */
+}
 
+/* Hover селект табов в светлой теме */
+.root.theme-light .tc-filter-apply:hover {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    -fx-accent-light,
+                    rgb(228, 15, 68)
+            );
+    -fx-border-color: -fx-accent-light;
+
+}
+
+/* ----------------- 8.2.10) TESTCASES (Левая зона - Фильтры): Скролл бар ----------------- */
+
+/* Скролл бар внутри модалки фильтра (прозрачный фон). */
 .tc-filter-scroll {
     -fx-background-color: transparent;
     -fx-background: transparent;
     -fx-padding: 0;
 }
-.tc-filter-scroll > .viewport {
-    -fx-background-color: transparent;
-}
+
+/* viewport Скролл бар фильтра (прозрачный). */
+.tc-filter-scroll > .viewport { -fx-background-color: transparent; }
+
+/* общий сброс для скроллбаров в фильтре. */
 .tc-filter-scroll .scroll-bar {
     -fx-background-color: transparent;
     -fx-background-insets: 0;
     -fx-padding: 0;
 }
+
+/* размеры скроллбаров в фильтре. */
 .tc-filter-scroll .scroll-bar:vertical { -fx-pref-width: 10px; -fx-opacity: 1; }
 .tc-filter-scroll .scroll-bar:horizontal{ -fx-pref-height: 10px; -fx-opacity: 1; }
 
+/* трек скроллбара (прозрачный). */
 .tc-filter-scroll .scroll-bar .track {
     -fx-background-color: transparent;
     -fx-background-insets: 0;
@@ -1047,6 +1724,7 @@
     -fx-border-color: transparent;
 }
 
+/* ползунок скроллбара в фильтре (dark). */
 .tc-filter-scroll .scroll-bar:vertical .thumb,
 .tc-filter-scroll .scroll-bar:horizontal .thumb {
     -fx-background-color: rgba(255,255,255,0.30);
@@ -1054,9 +1732,12 @@
     -fx-background-radius: 5px;
     -fx-padding: 0;
 }
+
+/* hover/pressed ползунка в фильтре. */
 .tc-filter-scroll .scroll-bar .thumb:hover  { -fx-background-color: rgba(255,255,255,0.40); }
 .tc-filter-scroll .scroll-bar .thumb:pressed{ -fx-background-color: rgba(255,255,255,0.52); }
 
+/* скрываем кнопки increment/decrement у скроллбара в фильтре. */
 .tc-filter-scroll .scroll-bar .increment-button,
 .tc-filter-scroll .scroll-bar .decrement-button {
     -fx-background-color: transparent;
@@ -1065,6 +1746,8 @@
     -fx-pref-height: 0; -fx-min-height: 0; -fx-max-height: 0;
     -fx-pref-width: 0;  -fx-min-width: 0;  -fx-max-width: 0;
 }
+
+/* скрываем стрелки increment/decrement у скроллбара в фильтре. */
 .tc-filter-scroll .scroll-bar .increment-arrow,
 .tc-filter-scroll .scroll-bar .decrement-arrow {
     -fx-shape: "";
@@ -1072,45 +1755,32 @@
     -fx-background-color: transparent;
 }
 
-/* rounding helpers */
+/* .thumb.thumb-at-* — скругление ползунка, когда он у верхней/нижней границы. */
 .tc-filter-scroll .scroll-bar:vertical .thumb.thumb-at-top    { -fx-background-radius: 5 14 5 5; }
 .tc-filter-scroll .scroll-bar:vertical .thumb.thumb-at-bottom { -fx-background-radius: 5 5 14 5; }
 .tc-filter-scroll .scroll-bar:vertical .thumb.thumb-at-top.thumb-at-bottom { -fx-background-radius: 5 14 14 5; }
 
-/* light */
+/* .root.theme-light .tc-filter-scroll .thumb — ползунок скроллбара в фильтре (light). */
 .root.theme-light .tc-filter-scroll .scroll-bar:vertical .thumb,
 .root.theme-light .tc-filter-scroll .scroll-bar:horizontal .thumb {
     -fx-background-color: rgba(0,0,0,0.22);
 }
+
+/* hover/pressed ползунка в фильтре (light). */
 .root.theme-light .tc-filter-scroll .scroll-bar .thumb:hover  { -fx-background-color: rgba(0,0,0,0.30); }
 .root.theme-light .tc-filter-scroll .scroll-bar .thumb:pressed{ -fx-background-color: rgba(0,0,0,0.38); }
 
+/* ----------------- 8.2.11) TESTCASES (Левая зона): Сортировка ----------------- */
 
-/* =====================================================================
-  8.4) TESTCASES: Sort
-===================================================================== */
-
-.button.tc-sort-btn {
-    -fx-min-height: 32px;
-    -fx-max-height: 32px;
-
-    -fx-min-width: 160px;
-    -fx-pref-width: 160px;
-    -fx-max-width: infinity;
-
-    -fx-padding: 0 10 0 12;
-
-    -fx-font-weight: 800;
-    -fx-alignment: CENTER_LEFT;
-    -fx-graphic-text-gap: 8px;
-
-    -fx-text-overrun: ellipsis;
-}
+/* Кнопка сортировки */
+.button.tc-sort-btn {-fx-alignment: CENTER_LEFT;}
+/* Иконка в кнопке сортировки. установка цвета в темной теме - белый */
 .button.tc-sort-btn .svg-path { -fx-fill: -fx-icon-primary; }
 
-.button.tc-sort-item {
-    -fx-background-color: rgb(97, 95, 92);
-    -fx-border-color: rgba(255,255,255,0.14);
+/* Кнопки в контейнере сортировки */
+.tc-sort-item {
+    -fx-background-color: -fx-button2-dark;
+    -fx-border-color: -fx-button2-border-dark;
     -fx-border-width: 1;
     -fx-background-radius: 12;
     -fx-border-radius: 12;
@@ -1118,30 +1788,260 @@
     -fx-padding: 10 12;
     -fx-alignment: CENTER_LEFT;
     -fx-font-weight: 800;
+
+    -fx-text-fill: -fx-text-color;
+    -fx-background-insets: 1;
+
 }
-.root.theme-light .button.tc-sort-item {
-    -fx-background-color: rgb(232, 230, 227);
-    -fx-border-color: rgba(175, 158, 138, 0.75);
+
+/* Кнопки в контейнере сортировки. В светлой теме. */
+.root.theme-light .tc-sort-item {
+    -fx-background-color: -fx-button2-light;
+    -fx-border-color: -fx-button2-border-light;
+
 }
 
-.button.tc-sort-item:hover { -fx-background-color: rgba(255, 255, 255, 0.24); }
-.root.theme-light .button.tc-sort-item:hover { -fx-background-color: rgba(244, 244, 244, 0.42); }
+/* Ховер */
+.tc-sort-item:hover {
+    -fx-background-color: -fx-button2-dark;
+    -fx-border-color: -fx-button2-border-hover-dark;
 
-.button.tc-sort-item.selected { -fx-border-color: rgba(245, 0, 73, 0.55); }
-.root.theme-light .button.tc-sort-item.selected { -fx-border-color: rgba(245, 0, 73, 0.55); }
+    -fx-background-insets: 1;
+    -fx-background-radius: 12;
 
+
+    -fx-effect:
+            innershadow(gaussian, rgba(255,255,255,0.10), 36, 0.50, 0, -4),
+            innershadow(gaussian, rgba(255,255,255,0.05), 14, 0.35, 0,  1),
+            innershadow(gaussian, rgba(0,0,0,0.12),       22, 0.40, 0,  4);
+}
+
+/* Ховер в светлой теме*/
+.root.theme-light .tc-sort-item:hover {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    -fx-button2-light,
+                    rgb(244, 241, 240)
+            );
+    -fx-border-color: -fx-button2-border-hover-light;
+
+    -fx-background-insets: 1;
+    -fx-background-radius: 12;
+}
+
+/* Нажатие на кнопку в сортировке*/
+.tc-sort-item:pressed { -fx-background-color: -fx-surface-2; }
+
+/* Селект кнопки в сортировке */
+.tc-sort-item.selected { -fx-border-color: -fx-accent-strong-dark; }
+.root.theme-light .tc-sort-item.selected { -fx-border-color: -fx-accent-strong-light; }
+
+/* красим текст внутри HBox-graphic, чтобы Label не жил своей жизнью */
+.tc-sort-item .label { -fx-text-fill: -fx-text-color; }
+
+/* .tc-sort-check — контейнер чек-иконки в пункте сортировки. */
 .tc-sort-check { -fx-padding: 0; }
+
+/* .tc-sort-check .svg-path — цвет чек-иконки. */
 .tc-sort-check .svg-path { -fx-fill: -fx-accent-strong; }
+
+/* .tc-sort-check.off — скрытая чек-иконка для невыбранных пунктов. */
 .tc-sort-check.off { -fx-opacity: 0; }
 
-.button.tc-sort-item .label { -fx-text-fill: rgb(255,255,255); }
-.root.theme-light .button.tc-sort-item .label { -fx-text-fill: rgb(0, 0, 0); }
+/* ----------------- 8.2.12) TESTCASES (Правая зона): Скролл бар списка кейсов ----------------- */
 
+/* Сброс фона скроллбара */
+.tc-list .scroll-bar { -fx-background-color: transparent; }
+
+/* Размеры скроллбара */
+.tc-list .scroll-bar:vertical { -fx-pref-width: 10px; -fx-opacity: 1; }
+.tc-list .scroll-bar:horizontal{ -fx-pref-height: 10px; -fx-opacity: 1; }
+
+/* Трек скроллбара */
+.tc-list .scroll-bar .track {
+    -fx-background-color: transparent;
+    -fx-background-radius: 999;
+}
+
+/* Ползунок скроллбара */
+.tc-list .scroll-bar:vertical .thumb,
+.tc-list .scroll-bar:horizontal .thumb {
+    -fx-background-color: rgba(255,255,255,0.28);
+    -fx-background-insets: 2;
+    -fx-background-radius: 999;
+}
+
+/* Ползунок скроллбара. В светлой теме */
+.root.theme-light .tc-list .scroll-bar:vertical .thumb,
+.root.theme-light .tc-list .scroll-bar:horizontal .thumb {
+    -fx-background-color: rgba(0,0,0,0.18);
+}
+
+/* hover/pressed ползунка скроллбара */
+.tc-list .scroll-bar .thumb:hover  { -fx-background-color: rgba(255,255,255,0.40); }
+.tc-list .scroll-bar .thumb:pressed{ -fx-background-color: rgba(255,255,255,0.52); }
+
+/* hover/pressed ползунка скроллбара. В светлой теме */
+.root.theme-light .tc-list .scroll-bar .thumb:hover  { -fx-background-color: rgba(0,0,0,0.30); }
+.root.theme-light .tc-list .scroll-bar .thumb:pressed{ -fx-background-color: rgba(0,0,0,0.38); }
+
+/* Скрытие кнопки increment/decrement у скроллбара */
+.tc-list .scroll-bar .increment-button,
+.tc-list .scroll-bar .decrement-button {
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+}
+
+/* Скрытие стрелки increment/decrement у скроллбара */
+.tc-list .scroll-bar .increment-arrow,
+.tc-list .scroll-bar .decrement-arrow {
+    -fx-shape: "";
+    -fx-padding: 0;
+}
+
+/* Горизонтальный скроллбар - скрытие элемента */
+.tc-list .scroll-bar:horizontal {
+    -fx-opacity: 0;
+    -fx-pref-height: 0px;
+    -fx-min-height: 0px;
+    -fx-max-height: 0px;
+    -fx-padding: 0;
+}
+
+/* Дочерние части горизонтального скроллбара - скрытие элементов */
+.tc-list .scroll-bar:horizontal .track,
+.tc-list .scroll-bar:horizontal .thumb,
+.tc-list .scroll-bar:horizontal .increment-button,
+.tc-list .scroll-bar:horizontal .decrement-button,
+.tc-list .scroll-bar:horizontal .increment-arrow,
+.tc-list .scroll-bar:horizontal .decrement-arrow {
+    -fx-opacity: 0;
+    -fx-padding: 0;
+}
+
+/* ----------------- 8.2.13) TESTCASES (Правая зона): Скролл бар списка кейсов - Скрытие при открытии модалок фильтра и сортировки----------------- */
+
+/* Когда открыты модлалки фильтров и сортировки - скроллбар списка кейсов скрываем полностью (но wheel-scroll работает). */
+.tc-cases-scroll-hidden .scroll-bar:vertical,
+.tc-cases-scroll-hidden .scroll-bar:horizontal {
+    -fx-opacity: 0;
+    -fx-padding: 0;
+
+    -fx-min-width: 0;
+    -fx-pref-width: 0;
+    -fx-max-width: 0;
+
+    -fx-min-height: 0;
+    -fx-pref-height: 0;
+    -fx-max-height: 0;
+}
+
+/* Скрытие остальных элементов. */
+.tc-cases-scroll-hidden .scroll-bar .increment-button,
+.tc-cases-scroll-hidden .scroll-bar .decrement-button,
+.tc-cases-scroll-hidden .scroll-bar .track,
+.tc-cases-scroll-hidden .scroll-bar .thumb {
+    -fx-opacity: 0;
+    -fx-padding: 0;
+}
 
 /* =====================================================================
-  8.5) TESTCASES: Title field
+                     8.3) TESTCASES: Правая зона
 ===================================================================== */
 
+/* ----------------- 8.3.1) TESTCASES (Правая зона): Код и Номер ----------------- */
+
+/* Поля ввода Кода и Номера */
+.tc-top-mini:focused {
+    -fx-border-color: rgba(255,255,255,0.14);
+    -fx-border-width: 1;
+}
+
+/* Поля ввода Кода и Номера в светлой теме. */
+.root.theme-light .tc-top-mini:focused {
+    -fx-border-color: rgba(0,0,0,0.14);
+    -fx-border-width: 1;
+}
+
+/* Подсветка полей Код и Номер при ошибке валидации */
+.tc-input-glow.tc-invalid-glow {
+    -fx-effect: dropshadow(gaussian, rgba(245, 0, 73, 0.88), 14, 0.45, 0, 0);
+}
+
+/* Подсветка полей Код и Номер при ошибке валидации. В светлой теме. */
+.root.theme-light .tc-input-glow.tc-invalid-glow {
+    -fx-effect: dropshadow(gaussian, rgba(245, 0, 73, 0.80), 16, 0.45, 0, 0);
+}
+
+/* Красная рамка + подсветка для правых полей (Код/Номер), т.к. они имеют класс tc-search */
+.tc-search.tc-invalid-glow {
+    -fx-border-color: rgba(245, 0, 73, 0.88);
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(245, 0, 73, 0.88), 14, 0.45, 0, 0);
+}
+
+.root.theme-light .tc-search.tc-invalid-glow {
+    -fx-border-color: rgba(245, 0, 73, 0.80);
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(245, 0, 73, 0.80), 16, 0.45, 0, 0);
+}
+
+
+/* ----------------- 8.3.2) TESTCASES (Правая зона): Кнопка редактирования кода и Маленькие кнопки ----------------- */
+
+/* Кнопка - редактировать код. */
+.tc-right .button.icon-btn
+{
+    -fx-min-width: 32px;
+    -fx-pref-width: 32px;
+    -fx-max-width: 32px;
+
+    -fx-min-height: 32px;
+    -fx-pref-height: 32px;
+    -fx-max-height: 32px;
+
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+}
+
+/* Маленькие кнопки: Закрытие карточки/ Добавление меток и тегов/ Добавление шагов */
+.tc-right .button.icon-btn.sm {
+    -fx-min-width: 28px;
+    -fx-pref-width: 28px;
+    -fx-max-width: 28px;
+
+    -fx-min-height: 28px;
+    -fx-pref-height: 28px;
+    -fx-max-height: 28px;
+
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+}
+
+/* ----------------- 8.3.3) TESTCASES (Правая зона): Превью названия карточки ----------------- */
+
+/* Превью названия карточки - текст*/
+.tc-inline-title {
+    -fx-text-fill: -fx-text-color;
+    -fx-font-weight: 800;
+    -fx-font-size: 12px;
+    -fx-padding: 0 8;
+    -fx-min-height: 18px;
+}
+
+/* Линия под превью названия карточки */
+.tc-inline-strip { -fx-background-color: rgba(255,255,255,0.14); }
+
+/* Линия под превью названия карточки. В светлой теме. */
+.root.theme-light .tc-inline-strip { -fx-background-color: rgba(0,0,0,0.16); }
+
+/* ----------------- 8.3.4) TESTCASES (Правая зона): Название карточки ----------------- */
+
+/* Название плейсхолдер - поле не активно */
+.tc-title-placeholder { -fx-text-fill: -fx-muted-color; }
+
+/* Название карточки - поле активно */
 .tc-title-field {
     -fx-background-color: transparent;
     -fx-background-insets: 0;
@@ -1166,143 +2066,70 @@
     -fx-line-spacing: 2px;
 }
 
+/* Название карточки - поле активно. В светлой теме. */
 .root.theme-light .tc-title-field {
     -fx-border-color: transparent transparent rgba(0,0,0,0.18) transparent;
     -fx-prompt-text-fill: rgba(0,0,0,0.35);
 }
 
+/* Линия под названием карточки - поле активно */
 .tc-title-field:focused {
     -fx-border-color: #f50049;
     -fx-border-width: 0 0 1 0;
 }
-.root.theme-light .tc-title-field:focused {
-    -fx-border-color: #f50049;
+
+/* Линия под названием карточки - read-only */
+.tc-title-field.tc-ro-select:focused {
+    -fx-border-color: transparent transparent rgba(255,255,255,0.18) transparent;
     -fx-border-width: 0 0 1 0;
 }
 
-.tc-title-placeholder {
-    -fx-text-fill: -fx-muted-color;
+/* Линия под названием карточки - read-only. В светлой теме*/
+.root.theme-light .tc-title-field.tc-ro-select:focused {
+    -fx-border-color: transparent transparent rgba(0,0,0,0.18) transparent;
+    -fx-border-width: 0 0 1 0;
 }
 
-/* =====================================================================
-  8.6) TESTCASES: Save button (RIGHT ZONE)
-===================================================================== */
+/* ----------------- 8.3.5) TESTCASES (Правая зона): Метки/Теги ----------------- */
 
-.tc-save-btn {
-    -fx-min-height: 36;
-    -fx-pref-height: 36;
-    -fx-background-color: rgb(163, 25, 55);
-    -fx-border-color: rgba(245, 0, 73, 0.45);
-    -fx-background-radius: 14;
-    -fx-border-radius: 14;
-    -fx-text-fill: white;
-}
-.tc-save-btn:hover { -fx-background-color: #97072b; }
-.tc-save-btn:pressed { -fx-translate-y: 1; }
-
-
-/* =====================================================================
-  8.7) TESTCASES: ListView scrollbar (как у tc-filter-scroll)
-===================================================================== */
-
-.tc-list .scroll-bar { -fx-background-color: transparent; }
-
-.tc-list .scroll-bar:vertical { -fx-pref-width: 10px; -fx-opacity: 1; }
-.tc-list .scroll-bar:horizontal{ -fx-pref-height: 10px; -fx-opacity: 1; }
-
-.tc-list .scroll-bar .track {
-    -fx-background-color: transparent;
-    -fx-background-radius: 999;
-}
-
-.tc-list .scroll-bar:vertical .thumb,
-.tc-list .scroll-bar:horizontal .thumb {
-    -fx-background-color: rgba(255,255,255,0.28);
-    -fx-background-insets: 2;
-    -fx-background-radius: 999;
-}
-.tc-list .scroll-bar .thumb:hover  { -fx-background-color: rgba(255,255,255,0.40); }
-.tc-list .scroll-bar .thumb:pressed{ -fx-background-color: rgba(255,255,255,0.52); }
-
-.tc-list .scroll-bar .increment-button,
-.tc-list .scroll-bar .decrement-button {
-    -fx-padding: 0;
-    -fx-background-color: transparent;
-}
-.tc-list .scroll-bar .increment-arrow,
-.tc-list .scroll-bar .decrement-arrow {
-    -fx-shape: "";
-    -fx-padding: 0;
-}
-
-/* light */
-.root.theme-light .tc-list .scroll-bar:vertical .thumb,
-.root.theme-light .tc-list .scroll-bar:horizontal .thumb {
-    -fx-background-color: rgba(0,0,0,0.18);
-}
-.root.theme-light .tc-list .scroll-bar .thumb:hover  { -fx-background-color: rgba(0,0,0,0.30); }
-.root.theme-light .tc-list .scroll-bar .thumb:pressed{ -fx-background-color: rgba(0,0,0,0.38); }
-
-
-/* =====================================================================
-  8.8) TESTCASES: метки в RIGHT ZONE (FlowPane: поле + чипы)
-===================================================================== */
-
+/* Контейнер для меток/тегов. Отступ Меток от тегов */
 .tc-tag-flow {
-    -fx-padding: 0 0 2 0;
-}
+    -fx-padding: 0 0 2 0; }
 
-/* оставил (на случай если где-то ещё используется рядом-стоящая кнопка) */
-.tc-tag-add-btn {
-    -fx-pref-width: 32;
-    -fx-pref-height: 32;
-}
+/* Поле ввода меток/тегов - Поле не активно */
+.tc-tag-input {
+    -fx-padding: 0 34 0 10;
+    -fx-min-height: 32px;
+    -fx-max-height: 32px;
 
-/* chip */
-.tc-tag-chip {
-    -fx-background-color: rgba(255,255,255,0.06);
-    -fx-background-radius: 12;
+    -fx-background-color: rgba(255, 255, 255, 0);
+    -fx-text-fill: -fx-text-color;
+    -fx-prompt-text-fill: rgba(255,255,255,0.35);
     -fx-border-color: rgba(255,255,255,0.14);
     -fx-border-radius: 12;
-    -fx-pref-height: 32;
-
-    -fx-padding: 0 2 0 8;
-    -fx-spacing: 2;
-}
-.root.theme-light .tc-tag-chip {
-    -fx-background-color: rgba(0,0,0,0.06);
-    -fx-border-color: rgba(0,0,0,0.12);
+    -fx-background-radius: 12;
 }
 
-.tc-tag-chip-text {
-    -fx-text-fill: -fx-text-color;
-    -fx-font-size: 12px;
-    -fx-font-weight: 700;
+/* Поле ввода меток/тегов - Поле не активно. В светлой теме */
+.root.theme-light .tc-tag-input {
+    -fx-background-color: rgba(0,0,0,0.05);
+    -fx-prompt-text-fill: rgba(0,0,0,0.35);
+    -fx-border-color: rgba(0,0,0,0.14);
 }
 
-.tc-tag-chip-text {
-    -fx-text-fill: -fx-text-color;
-    -fx-font-size: 12px;
-    -fx-font-weight: 700;
-
-    -fx-text-overrun: ellipsis;   /* ВОТ ЭТО */
-    -fx-wrap-text: false;         /* и это */
+/* Поле ввода меток/тегов - Поле активно */
+.tc-tag-input:focused {
+    -fx-border-color: rgba(245, 0, 73, 0.78);
+    -fx-border-width: 1;
 }
 
-.tc-tag-chip-close {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
-    -fx-padding: 0;
-
-    -fx-pref-width: 22;
-    -fx-pref-height: 22;
-    -fx-min-width: 22;
-    -fx-min-height: 22;
+/* Поле ввода меток/тегов - Поле активно. В светлой теме */
+.root.theme-light .tc-tag-input:focused {
+    -fx-border-color: rgba(245, 0, 73, 0.70);
+    -fx-border-width: 1;
 }
 
-/* input wrap + button inside */
-.tc-tag-input-wrap { -fx-background-color: transparent; }
-
+/* Кнопка Добавить - Поле ввода меток/тегов */
 .tc-tag-add-in {
     -fx-pref-width: 32;
     -fx-pref-height: 32;
@@ -1316,48 +2143,98 @@
     -fx-translate-x: -2;
 }
 
-/* резерв справа под кнопку */
-.tc-tag-input {
-    -fx-padding: 0 34 0 10;
+/* Чипы для меток/тегов */
+.tc-tag-chip {
+    -fx-background-color: rgba(255,255,255,0.06);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(255,255,255,0.14);
+    -fx-border-radius: 12;
+    -fx-min-height: 32px;
+    -fx-max-height: 32px;
+
+    -fx-padding: 0 2 0 8;
+    -fx-spacing: 2;
 }
 
-/* =====================================================================
-  8.x) TESTCASES: TextArea internals (tc-area) — прозрачные слои + скроллбар как tc-filter-scroll
-===================================================================== */
+/* Чипы для меток/тегов. В светлой теме. */
+.root.theme-light .tc-tag-chip {
+    -fx-background-color: rgba(0,0,0,0.06);
+    -fx-border-color: rgba(0,0,0,0.12);
+}
 
-/* чтобы не было синей/белой подсветки фокуса */
+/* Чипы для меток/тегов — текст внутри чипа */
+.tc-tag-chip-text {
+    -fx-text-fill: -fx-text-color;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+
+    -fx-text-overrun: ellipsis;
+    -fx-wrap-text: false;
+}
+
+/* .Чипы для меток/тегов — кнопка «крестик» удаления чипа */
+.tc-tag-chip-close {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+
+    -fx-pref-width: 22;
+    -fx-pref-height: 22;
+    -fx-min-width: 22;
+    -fx-min-height: 22;
+}
+
+/* ----------------- 8.3.6) TESTCASES (Правая зона): Описание ----------------- */
+
+/* Описание в карточке */
 .tc-area {
+    -fx-background-color: rgba(255,255,255,0.06);
+    -fx-text-fill: -fx-text-color;
+    -fx-prompt-text-fill: rgba(255,255,255,0.35);
+    -fx-border-color: rgba(255,255,255,0.14);
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 10 12;
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
 }
 
-/* внутренний ScrollPane, viewport и content у TextArea делаем полностью прозрачными,
-   иначе будет "вторая" подложка поверх твоего rgba */
+/* Описание в карточке. В светлой теме. */
+.root.theme-light .tc-area {
+    -fx-background-color: rgba(0,0,0,0.05);
+    -fx-prompt-text-fill: rgba(0,0,0,0.35);
+    -fx-border-color: rgba(0,0,0,0.14);
+}
+
+/* .tc-area .scroll-pane — внутренний ScrollPane TextArea: делаем фон прозрачным. */
 .tc-area .scroll-pane {
     -fx-background-color: transparent;
     -fx-background-insets: 0;
     -fx-padding: 0;
 }
-.tc-area .scroll-pane > .viewport {
-    -fx-background-color: transparent;
-}
+
+/* .tc-area .viewport — viewport TextArea прозрачный. */
+.tc-area .scroll-pane > .viewport { -fx-background-color: transparent; }
+
+/* .tc-area .content — content TextArea прозрачный. */
 .tc-area .content {
     -fx-background-color: transparent;
     -fx-background-insets: 0;
     -fx-padding: 0;
 }
 
-/* скроллбар внутри TextArea — в стиле tc-filter-scroll */
+/* .tc-area .scroll-bar — внутренний скроллбар TextArea (общий сброс). */
 .tc-area .scroll-bar {
     -fx-background-color: transparent;
     -fx-background-insets: 0;
     -fx-padding: 0;
 }
 
-/* размеры как у tc-filter-scroll */
+/* размеры скроллбаров внутри TextArea. */
 .tc-area .scroll-bar:vertical { -fx-pref-width: 10px; -fx-opacity: 1; }
 .tc-area .scroll-bar:horizontal{ -fx-pref-height: 10px; -fx-opacity: 1; }
 
+/* .tc-area .track — трек скроллбара внутри TextArea. */
 .tc-area .scroll-bar .track {
     -fx-background-color: transparent;
     -fx-background-insets: 0;
@@ -1366,6 +2243,7 @@
     -fx-border-color: transparent;
 }
 
+/* .tc-area .thumb — ползунок скроллбара внутри TextArea (dark). */
 .tc-area .scroll-bar:vertical .thumb,
 .tc-area .scroll-bar:horizontal .thumb {
     -fx-background-color: rgba(255,255,255,0.30);
@@ -1374,9 +2252,11 @@
     -fx-padding: 0;
 }
 
+/* hover/pressed ползунка внутри TextArea. */
 .tc-area .scroll-bar .thumb:hover  { -fx-background-color: rgba(255,255,255,0.40); }
 .tc-area .scroll-bar .thumb:pressed{ -fx-background-color: rgba(255,255,255,0.52); }
 
+/* скрываем кнопки increment/decrement у скроллбара внутри TextArea. */
 .tc-area .scroll-bar .increment-button,
 .tc-area .scroll-bar .decrement-button {
     -fx-background-color: transparent;
@@ -1385,6 +2265,8 @@
     -fx-pref-height: 0; -fx-min-height: 0; -fx-max-height: 0;
     -fx-pref-width: 0;  -fx-min-width: 0;  -fx-max-width: 0;
 }
+
+/* скрываем стрелки increment/decrement у скроллбара внутри TextArea. */
 .tc-area .scroll-bar .increment-arrow,
 .tc-area .scroll-bar .decrement-arrow {
     -fx-shape: "";
@@ -1392,27 +2274,35 @@
     -fx-background-color: transparent;
 }
 
-/* optional: те же rounding helpers, если хочешь как в tc-filter-scroll */
+/* скругление ползунка в крайних позициях внутри TextArea. */
 .tc-area .scroll-bar:vertical .thumb.thumb-at-top    { -fx-background-radius: 5 14 5 5; }
 .tc-area .scroll-bar:vertical .thumb.thumb-at-bottom { -fx-background-radius: 5 5 14 5; }
 .tc-area .scroll-bar:vertical .thumb.thumb-at-top.thumb-at-bottom { -fx-background-radius: 5 14 14 5; }
 
-/* light: как у tc-filter-scroll (твои значения) */
+/* .root.theme-light .tc-area .thumb — ползунок скроллбара TextArea (light). */
 .root.theme-light .tc-area .scroll-bar:vertical .thumb,
 .root.theme-light .tc-area .scroll-bar:horizontal .thumb {
     -fx-background-color: rgba(0,0,0,0.22);
 }
+
+/* hover/pressed ползунка TextArea (light). */
 .root.theme-light .tc-area .scroll-bar .thumb:hover  { -fx-background-color: rgba(0,0,0,0.30); }
 .root.theme-light .tc-area .scroll-bar .thumb:pressed{ -fx-background-color: rgba(0,0,0,0.38); }
 
-/* =====================================================================
-  TEST CASES: STEPS (RIGHT ZONE)
-===================================================================== */
+/* ----------------- 8.3.7) TESTCASES (Правая зона): Шаги ----------------- */
 
-/* контейнер блока шагов */
+/* Заголовок шагов */
+.tc-btnlike-title {
+    -fx-text-fill: -fx-muted-color;
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+}
+
+
+/* .tc-steps-block — контейнер блока шагов в RIGHT ZONE (зарезервирован под расширения). */
 .tc-steps-block {}
 
-/* ----- STEP CARD ----- */
+/* .tc-step-card — карточка одного шага (фон/рамка/паддинги). */
 .tc-step-card {
     -fx-background-color: -fx-surface;
     -fx-background-radius: 14;
@@ -1425,17 +2315,16 @@
     -fx-alignment: TOP_LEFT;
 }
 
+/* .root.theme-light .tc-step-card — карточка шага в светлой теме. */
 .root.theme-light .tc-step-card {
     -fx-background-color: rgba(0,0,0,0.04);
     -fx-border-color: rgba(0,0,0,0.10);
 }
 
-/* left column (index + drag) */
-.tc-step-left {
-    -fx-alignment: TOP_CENTER;
-}
+/* .tc-step-left — левый столбик шага (индекс + кнопка drag). */
+.tc-step-left { -fx-alignment: TOP_CENTER; }
 
-/* index chip — КАК icon-btn (скругление 12 + рамка) */
+/* .tc-step-index — бейдж номера шага слева. */
 .tc-step-index {
     -fx-min-width: 22;
     -fx-pref-width: 22;
@@ -1455,10 +2344,7 @@
     -fx-font-weight: 800;
 }
 
-
-
-/* drag handle button (under index)
-   ВАЖНО: НЕ делаем background transparent — иначе пропадает рамка icon-btn */
+/* .tc-step-drag — кнопка «grip» для перетаскивания шага. */
 .tc-step-drag {
     -fx-opacity: 0.75;
 
@@ -1469,23 +2355,25 @@
     -fx-faint-focus-color: transparent;
 }
 
+/* .tc-step-row:hover .tc-step-drag — показываем drag ярче при наведении на строку шага. */
 .tc-step-row:hover .tc-step-drag { -fx-opacity: 1.0; }
 
+/* hover кнопки drag (dark). */
 .tc-step-drag:hover {
     -fx-background-color: rgba(255,255,255,0.08);
     -fx-border-color: transparent;
 }
 
+/* hover кнопки drag (light). */
 .root.theme-light .tc-step-drag:hover { -fx-background-color: rgba(0,0,0,0.06); }
 
+/* pressed кнопки drag (без изменения фона). */
 .tc-step-drag:pressed {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
 }
 
-
-/* ----- text area inside step ----- */
-/* Убираем “прямую черту” (нижний border) и “лишние линии” внутри TextArea */
+/* .tc-step-area — TextArea внутри зоны шага (Step/Data/Expected), компактный однострочный вид. */
 .tc-step-area {
     -fx-background-color: transparent;
     -fx-background-insets: 0;
@@ -1495,32 +2383,29 @@
     -fx-prompt-text-fill: rgba(242,244,247,0.45);
 
     -fx-font-size: 13px;
-
-    /* компактнее, без ощущения “лишней строки” */
     -fx-padding: 2 4 2 4;
 
-    /* убрать линию снизу */
     -fx-border-color: transparent;
     -fx-border-width: 0;
     -fx-border-insets: 0;
 
-    /* убрать фокус-ободки */
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
+
     -fx-pref-row-count: 1;
 }
 
-.root.theme-light .tc-step-area {
-    -fx-prompt-text-fill: rgba(20,20,20,0.42);
-}
+/* placeholder tc-step-area в светлой теме. */
+.root.theme-light .tc-step-area { -fx-prompt-text-fill: rgba(20,20,20,0.42); }
 
-/* убрать фон/линии внутренних узлов TextArea */
+/* .tc-step-area .content — прозрачный content у TextArea шага. */
 .tc-step-area .content {
     -fx-background-color: transparent;
     -fx-background-insets: 0;
     -fx-padding: 0;
 }
 
+/* .tc-step-area .scroll-pane/... — прозрачные внутренности TextArea шага. */
 .tc-step-area .scroll-pane,
 .tc-step-area .scroll-pane .viewport,
 .tc-step-area .scroll-pane .content {
@@ -1528,67 +2413,41 @@
     -fx-border-color: transparent;
 }
 
-/* delete button */
+/* .tc-step-del — кнопка удаления шага. */
 .tc-step-del {
     -fx-background-color: transparent;
     -fx-padding: 4;
     -fx-opacity: 0.85;
 }
 
+/* hover кнопки удаления шага (dark). */
 .tc-step-del:hover {
     -fx-background-color: rgba(255,255,255,0.08);
     -fx-background-radius: 10;
     -fx-opacity: 1.0;
 }
 
-.root.theme-light .tc-step-del:hover {
-    -fx-background-color: rgba(0,0,0,0.06);
-}
+/* hover кнопки удаления шага (light). */
+.root.theme-light .tc-step-del:hover { -fx-background-color: rgba(0,0,0,0.06); }
 
-/* size helpers */
-.icon-btn.xs {
-    -fx-min-width: 22;
-    -fx-pref-width: 22;
-    -fx-max-width: 22;
-
-    -fx-min-height: 22;
-    -fx-pref-height: 22;
-    -fx-max-height: 22;
-
-    -fx-padding: 0;
-}
-
-.icon-btn.sm {
-    -fx-min-width: 28;
-    -fx-pref-width: 28;
-    -fx-max-width: 28;
-
-    -fx-min-height: 28;
-    -fx-pref-height: 28;
-    -fx-max-height: 28;
-
-    -fx-padding: 0;
-}
-
-
-/* ===== Step zones in row (left -> right) ===== */
-
+/* .tc-step-zones-row — строка зон шага (Step | Data | Expected). */
 .tc-step-zones-row {
     -fx-padding: 0;
     -fx-spacing: 0;
 }
 
-.tc-step-zone {
-    -fx-padding: 0;
-}
+/* .tc-step-zone — контейнер одной зоны шага (ячейка). */
+.tc-step-zone { -fx-padding: 0; }
 
+/* .tc-step-zone-title — заголовок зоны шага (например “Шаг”, “Данные”, “Ожид.”). */
 .tc-step-zone-title {
     -fx-text-fill: -fx-muted-color;
     -fx-font-size: 11px;
     -fx-font-weight: 800;
-    -fx-padding: 0 0 0 7; /* было 2, ставим как у .tc-step-area слева */
+    -fx-padding: 0 0 0 7;
 }
 
+/* .tc-step-zone-vsep — вертикальный разделитель между зонами шага. */
 .tc-step-zone-vsep {
     -fx-min-width: 1;
     -fx-pref-width: 1;
@@ -1596,7 +2455,69 @@
     -fx-background-color: rgba(255,255,255,0.14);
 }
 
-.root.theme-light .tc-step-zone-vsep {
-    -fx-background-color: rgba(0,0,0,0.14);
+/* .root.theme-light .tc-step-zone-vsep — разделитель зон шага в светлой теме. */
+.root.theme-light .tc-step-zone-vsep { -fx-background-color: rgba(0,0,0,0.14); }
+
+/* ----------------- 8.3.8) TESTCASES (Правая зона): Сохранение карточки ----------------- */
+
+/* Кнопка Сохранение карточки */
+.tc-save-btn {
+    -fx-min-height: 36;
+    -fx-pref-height: 36;
+    -fx-background-color: rgb(163, 25, 55);
+    -fx-border-color: rgba(245, 0, 73, 0.45);
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-text-fill: white;
 }
 
+.tc-save-hint {
+    -fx-font-size: 11px;
+    -fx-opacity: 0.85;
+
+    /* ✅ DARK theme (default): подсказка светлая */
+    -fx-text-fill: rgba(255,255,255,0.55);
+}
+
+/* ✅ LIGHT theme: подсказка тёмная */
+.root.theme-light .tc-save-hint {
+    -fx-text-fill: rgba(0,0,0,0.55);
+}
+
+
+/* hover кнопки Сохранение карточки. */
+.tc-save-btn:hover { -fx-background-color: #97072b; }
+
+/* pressed кнопки Сохранение карточки. */
+.tc-save-btn:pressed { -fx-translate-y: 1; }
+
+/* ----------------- 8.3.9) TESTCASES (Правая зона): Кнопка Удаление карточки ----------------- */
+
+/* Кнопка удалить карточку */
+.tc-delete-btn {
+    -fx-background-color: -fx-background-level-2-dark;
+    -fx-border-color: -fx-background-border-level-2-dark;
+    -fx-min-height: 26;
+    -fx-pref-height: 26;
+    -fx-max-height: 26;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+
+    -fx-min-width: 26;
+    -fx-pref-width: 26;
+    -fx-max-width: 26;
+}
+
+/* Кнопка удалить карточку. В светлой теме*/
+.root.theme-light .tc-delete-btn{
+    -fx-background-color: -fx-background-level-2-light;
+    -fx-border-color: -fx-background-border-level-2-light;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+}
+
+/* Иконка. Кнопка удалить карточку - изменение коэффициента увеличения*/
+.tc-delete-btn .svg-path {
+    -fx-scale-x: 1;
+    -fx-scale-y: 1;
+}

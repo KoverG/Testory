@@ -50,6 +50,17 @@ public final class StepsEditor {
 
     private final List<StepRow> draftSteps = new ArrayList<>();
 
+    // ✅ NEW: change notifier (для dirty-gate в контроллере)
+    private Runnable onChanged;
+    private boolean suppressChanged = false;
+
+    public void setOnChanged(Runnable r) { this.onChanged = r; }
+
+    private void fireChanged() {
+        if (suppressChanged) return;
+        if (onChanged != null) onChanged.run();
+    }
+
     public StepsEditor(VBox stepsBox, String iconGrip, String iconClose) {
         this.stepsBox = stepsBox;
         this.iconGrip = iconGrip;
@@ -107,33 +118,40 @@ public final class StepsEditor {
     public void reset() {
         draftSteps.clear();
         if (stepsBox != null) stepsBox.getChildren().clear();
+        fireChanged();
     }
 
     public void setSteps(List<TestCaseDraft.StepDraft> steps) {
-        reset();
+        suppressChanged = true;
+        try {
+            reset();
 
-        if (steps == null || steps.isEmpty()) {
-            addDraftStep("");
-            return;
+            if (steps == null || steps.isEmpty()) {
+                addDraftStep("");
+                return;
+            }
+
+            for (TestCaseDraft.StepDraft st : steps) {
+                addDraftStep("");
+                StepRow last = draftSteps.isEmpty() ? null : draftSteps.get(draftSteps.size() - 1);
+                if (last == null) continue;
+
+                String step = (st == null || st.step == null) ? "" : st.step;
+                String data = (st == null || st.data == null) ? "" : st.data;
+                String exp  = (st == null || st.expected == null) ? "" : st.expected;
+
+                last.taStep.setText(step);
+                last.taData.setText(data);
+                last.taExpected.setText(exp);
+            }
+
+            renumberDraftSteps();
+        } finally {
+            suppressChanged = false;
         }
 
-        for (TestCaseDraft.StepDraft st : steps) {
-            addDraftStep("");
-            StepRow last = draftSteps.isEmpty() ? null : draftSteps.get(draftSteps.size() - 1);
-            if (last == null) continue;
-
-            String step = (st == null || st.step == null) ? "" : st.step;
-            String data = (st == null || st.data == null) ? "" : st.data;
-            String exp  = (st == null || st.expected == null) ? "" : st.expected;
-
-            last.taStep.setText(step);
-            last.taData.setText(data);
-            last.taExpected.setText(exp);
-        }
-
-        renumberDraftSteps();
+        // setSteps сам по себе не должен делать dirty, поэтому fireChanged() тут НЕ вызываем
     }
-
 
     public void addDraftStep(String initialText) {
         if (stepsBox == null) return;
@@ -245,6 +263,11 @@ public final class StepsEditor {
 
         StepRow stepRow = new StepRow(row, idx, taStep, taData, taExpected);
 
+        // ✅ NEW: любые правки в текстовых областях шагов -> changed
+        taStep.textProperty().addListener((o, ov, nv) -> fireChanged());
+        taData.textProperty().addListener((o, ov, nv) -> fireChanged());
+        taExpected.textProperty().addListener((o, ov, nv) -> fireChanged());
+
         del.setOnAction(e -> {
             stepsBox.getChildren().remove(stepRow.root);
             draftSteps.remove(stepRow);
@@ -253,6 +276,7 @@ public final class StepsEditor {
             } else {
                 renumberDraftSteps();
             }
+            fireChanged();
         });
 
         installStepDragAndDrop(stepRow, drag);
@@ -264,6 +288,8 @@ public final class StepsEditor {
         draftSteps.add(stepRow);
 
         renumberDraftSteps();
+
+        fireChanged();
     }
 
     private void installStepDragAndDrop(StepRow stepRow, Button handle) {
@@ -326,6 +352,8 @@ public final class StepsEditor {
 
             ev.setDropCompleted(true);
             ev.consume();
+
+            fireChanged();
         };
 
         attachDnD(stepRow.root, onOver, onDropped);

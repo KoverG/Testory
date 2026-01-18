@@ -90,7 +90,10 @@ public final class TestCaseIndexStore {
 
     private static void writeUtf8(Path file, String text) {
         try {
-            Files.writeString(file, text, StandardCharsets.UTF_8);
+            // UTF-8 BOM для Excel
+            String bom = "\uFEFF";
+            Files.writeString(file, bom + text, StandardCharsets.UTF_8);
         } catch (IOException ignored) {}
     }
+
 }
