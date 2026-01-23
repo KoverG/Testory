@@ -61,10 +61,11 @@ yarn-error.log*
 .apt_generated
 .sts4-cache
 
-# =====================================================================
 # Local / private runtime data (НЕ коммитить)
-# =====================================================================
 config/app-setting.json
+config/labels.json
+config/tags.json
+
 private-config.json
 test_resources/
 

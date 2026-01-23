@@ -326,9 +326,6 @@ public class TestCasesController {
         rightPaneCtl.init();
         rightPaneCtl.setOnSaved(this::reloadFromDisk);
 
-        // ✅ NEW: инициализируем модалку удаления + вешаем handlers на btnDeleteRight
-        initDeleteConfirm();
-
         // ✅ NEW: пересчитывать save-gate при любых изменениях в правой форме (title/desc/labels/tags/steps)
         rightPaneCtl.setOnUserChanged(() -> Platform.runLater(this::updateSaveGateUi));
 
@@ -392,7 +389,7 @@ public class TestCasesController {
         // save-gate
         rightPaneCtl.setCanSaveSupplier(this::updateSaveGateAndReturn);
 
-        // ✅ NEW: init delete confirm (separate class)
+        // ✅ NEW: init delete confirm (separate class) — ОДИН РАЗ (убрал дубликат)
         initDeleteConfirm();
 
         installRightInlineTitle();
@@ -521,6 +518,9 @@ public class TestCasesController {
         if (btnDeleteRight == null || deleteLayer == null || deleteModal == null) return;
         if (btnDeleteConfirm == null || btnDeleteCancel == null) return;
 
+        // ✅ защита от повторной инициализации (чтобы не навесить handlers дважды)
+        if (deleteConfirm != null) return;
+
         // ⚠️ ВАЖНО: порядок кнопок (cancel, confirm) — чтобы не перепутать обработчики
         deleteConfirm = new RightDeleteConfirm(
                 rightPane,
@@ -553,7 +553,6 @@ public class TestCasesController {
 
             reloadFromDisk();
         });
-
     }
 
     private void refreshDeleteAvailability() {
@@ -579,7 +578,6 @@ public class TestCasesController {
 
         // ===================== LEFT TRASH DELETE =====================
         boolean anyChecked = hasAnyTrashChecked();
-        boolean trashOpen = trashOverlay != null && trashOverlay.isOpen();
 
         if (trashOverlay != null) {
             // ✅ disabled, если ничего не выбрано

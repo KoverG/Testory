@@ -1,12 +1,190 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx/23"
-      xmlns:fx="http://javafx.com/fxml/1"
-      spacing="10" styleClass="page-root">
-    <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
-    <Label text="Cycles" styleClass="h1"/>
-    <Label text="Экран-заглушка. Здесь будет список циклов и прохождение циклов." styleClass="muted"/>
-</VBox>
+<BorderPane xmlns="http://javafx.com/javafx/23"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="app.domain.cycles.CyclesController"
+            fx:id="root"
+            styleClass="cy-root">
+
+    <!-- Как в эталоне: внешний padding всего экрана -->
+    <padding>
+        <Insets top="14" right="14" bottom="14" left="14"/>
+    </padding>
+
+    <center>
+        <!-- Как в эталоне: две зоны в HBox со spacing 14 -->
+        <HBox spacing="14">
+
+            <!-- =========================================================
+                 LEFT ZONE: 1-в-1 по структуре с TestCases
+            ========================================================== -->
+            <VBox fx:id="leftMain"
+                  spacing="10"
+                  prefWidth="390"
+                  styleClass="cy-left">
+
+                <!-- ROOT STACK (LEFT): padding внутри зоны, чтобы cy-left оставался рамкой/фоном -->
+                <StackPane fx:id="leftStack"
+                           VBox.vgrow="ALWAYS"
+                           maxWidth="Infinity"
+                           maxHeight="Infinity"
+                           styleClass="cy-left-stack">
+                    <padding>
+                        <Insets top="14" right="14" bottom="14" left="14"/>
+                    </padding>
+
+                    <!-- Весь контент левой зоны -->
+                    <VBox spacing="10" maxWidth="Infinity" maxHeight="Infinity">
+
+                        <!-- Первая строка: Поиск + кнопка папки + кнопка Create -->
+                        <HBox spacing="10">
+
+                            <StackPane HBox.hgrow="ALWAYS">
+                                <TextField fx:id="tfSearch"
+                                           maxWidth="Infinity"
+                                           promptText="%tc.search.placeholder"
+                                           styleClass="tc-search"/>
+
+                                <!-- svg кнопка очистки поиска (как на экране TestCases) -->
+                                <Button fx:id="btnSearch"
+                                        focusTraversable="false"
+                                        userData="14"
+                                        styleClass="icon-btn,tc-tag-add-in"
+                                        StackPane.alignment="CENTER_RIGHT"/>
+                            </StackPane>
+
+                            <Button fx:id="btnFolder"
+                                    focusTraversable="false"
+                                    userData="14"
+                                    styleClass="icon-btn"/>
+
+                            <Button fx:id="btnCreate"
+                                    text="%tc.btn.create"
+                                    maxWidth="Infinity"
+                                    styleClass="cy-btn"/>
+                        </HBox>
+
+                        <!-- Вторая строка: Trash + Filter + Sort -->
+                        <HBox spacing="10">
+
+                            <Button fx:id="btnTrash"
+                                    focusTraversable="false"
+                                    userData="14"
+                                    styleClass="icon-btn"/>
+
+                            <Button fx:id="btnFilter"
+                                    text="%tc.btn.filter"
+                                    focusTraversable="false"
+                                    maxWidth="Infinity"
+                                    HBox.hgrow="ALWAYS"
+                                    styleClass="cy-btn"/>
+
+                            <Button fx:id="btnSort"
+                                    text="%tc.btn.sort"
+                                    focusTraversable="false"
+                                    maxWidth="Infinity"
+                                    HBox.hgrow="ALWAYS"
+                                    styleClass="cy-btn"/>
+                        </HBox>
+
+                        <!-- Контейнер списка + overlays (как tc-leftStack в эталоне) -->
+                        <StackPane VBox.vgrow="ALWAYS" maxWidth="Infinity" maxHeight="Infinity">
+
+                            <!-- Sheet под список: СДЕЛАНО 1-в-1 как в TestCases -->
+                            <VBox fx:id="casesSheet"
+                                  maxWidth="Infinity"
+                                  maxHeight="Infinity"
+                                  styleClass="tc-cases-sheet"
+                                  StackPane.alignment="BOTTOM_CENTER">
+
+                                <ListView fx:id="lvLeft"
+                                          styleClass="tc-list"
+                                          VBox.vgrow="ALWAYS"/>
+                            </VBox>
+
+                            <!-- overlays: filter / sort / trash (каркас оставляем как был) -->
+                            <StackPane fx:id="filterSheet"
+                                       visible="false"
+                                       managed="false"
+                                       maxWidth="Infinity"
+                                       maxHeight="Infinity"
+                                       styleClass="cy-overlay-sheet"
+                                       StackPane.alignment="BOTTOM_CENTER"/>
+
+                            <StackPane fx:id="sortSheet"
+                                       visible="false"
+                                       managed="false"
+                                       maxWidth="Infinity"
+                                       maxHeight="Infinity"
+                                       styleClass="cy-overlay-sheet"
+                                       StackPane.alignment="BOTTOM_CENTER"/>
+
+                            <StackPane fx:id="trashOverlay"
+                                       visible="false"
+                                       managed="false"
+                                       maxWidth="Infinity"
+                                       maxHeight="Infinity"
+                                       styleClass="cy-overlay-sheet"
+                                       StackPane.alignment="BOTTOM_CENTER"/>
+
+                        </StackPane>
+
+                    </VBox>
+                </StackPane>
+
+            </VBox>
+
+            <!-- =========================================================
+                 RIGHT ZONE
+            ========================================================== -->
+            <StackPane fx:id="rightRoot"
+                       visible="false"
+                       managed="false"
+                       HBox.hgrow="ALWAYS"
+                       maxWidth="Infinity"
+                       maxHeight="Infinity"
+                       styleClass="cy-right-root">
+
+                <VBox fx:id="rightPlaceholder"
+                      spacing="10"
+                      maxWidth="Infinity"
+                      maxHeight="Infinity"
+                      styleClass="cy-right-placeholder">
+                    <padding>
+                        <Insets top="14" right="14" bottom="14" left="14"/>
+                    </padding>
+
+                    <HBox spacing="8" alignment="CENTER_LEFT">
+                        <Label fx:id="lblRightTitle"
+                               text="Cycle"
+                               styleClass="cy-h1"/>
+
+                        <Region HBox.hgrow="ALWAYS"/>
+
+                        <!-- переключает список слева -->
+                        <Button fx:id="btnToggleLeftList"
+                                text="Кейсы"
+                                focusTraversable="false"
+                                styleClass="cy-btn,sm"/>
+
+                        <Button fx:id="btnCloseRight"
+                                focusTraversable="false"
+                                userData="14"
+                                styleClass="icon-btn,sm"/>
+                    </HBox>
+
+                    <Label fx:id="lblRightHint"
+                           text="Select a cycle on the left"
+                           styleClass="cy-muted"/>
+                </VBox>
+
+            </StackPane>
+
+        </HBox>
+    </center>
+
+</BorderPane>

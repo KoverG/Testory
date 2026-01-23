@@ -1,0 +1,280 @@
+/* =========================================================
+   CYCLES SCREEN (isolated)
+   ========================================================= */
+
+/* ----------------- 8.1) CYCLES: Root / Screen background -----------------
+   В эталоне фон задаёт .app-root (Shell), а экран-руты прозрачные.
+   Поэтому .cy-root НЕ должен рисовать свой фон. */
+.cy-root {
+    -fx-background-color: transparent;
+}
+
+/* =====================================================================
+   8.2) CYCLES (Левая зона)
+   ===================================================================== */
+
+/* ----------------- 8.2.1) CYCLES (Левая зона): Каркас ----------------- */
+
+/* Внешняя карточка левой зоны (как .tc-left) */
+.cy-left {
+    -fx-background-color: rgba(0,0,0,0.28);
+    -fx-background-radius: 18;
+    -fx-padding: 0;
+
+    -fx-border-color: rgba(255,255,255,0.12);
+    -fx-border-radius: 18;
+}
+
+/* Внешняя карточка левой зоны (light) */
+.root.theme-light .cy-left {
+    -fx-background-color: rgba(0,0,0,0.10);
+    -fx-border-color: rgba(0,0,0,0.14);
+    -fx-padding: 0;
+}
+
+/* Подложки-обёртки слева — прозрачные, чтобы не ломать общий фон */
+.cy-left-root,
+.cy-left-stack {
+    -fx-background-color: transparent;
+}
+
+/* ----------------- 8.2.2) CYCLES (Левая зона): Поиск / Кнопки ----------------- */
+
+/* Поле поиска (как .tc-search) */
+.cy-search {
+    -fx-background-color: -fx-input-dark;
+    -fx-background-radius: 12;
+    -fx-background-insets: 1;
+
+    -fx-border-color: -fx-base-button-border-dark;
+    -fx-border-radius: 12;
+
+    -fx-text-fill: -fx-text-color;
+    -fx-prompt-text-fill: -fx-placeholder-dark;
+
+    -fx-min-height: 32px;
+    -fx-max-height: 32px;
+
+    -fx-padding: 0 12;
+}
+
+/* Поле поиска (light) */
+.root.theme-light .cy-search {
+    -fx-background-color: -fx-input-light;
+    -fx-background-insets: 1;
+    -fx-border-color: -fx-base-button-border-light;
+    -fx-text-fill: -fx-text-color;
+    -fx-prompt-text-fill: -fx-placeholder-light;
+}
+
+/* Фокус */
+.cy-search:focused {
+    -fx-border-color: rgb(147, 142, 142);
+}
+
+.root.theme-light .cy-search:focused {
+    -fx-border-color: -fx-button2-border-light;
+}
+
+/* Иконка-кнопка (форма как в эталоне для .tc-left .button.icon-btn) */
+.cy-left .button.icon-btn,
+.cy-left .button.icon-btn.sm {
+    -fx-min-width: 32px;
+    -fx-pref-width: 32px;
+    -fx-max-width: 32px;
+
+    -fx-min-height: 32px;
+    -fx-pref-height: 32px;
+    -fx-max-height: 32px;
+
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+}
+
+/* Базовая кнопка левой зоны (как .tc-btn) */
+.cy-btn {
+    -fx-background-color: -fx-base-button-dark;
+    -fx-background-insets: 1;
+    -fx-background-radius: 12;
+
+    -fx-border-color: -fx-base-button-border-dark;
+    -fx-border-radius: 12;
+
+    -fx-font-weight: 700;
+    -fx-text-fill: -fx-text-color;
+
+    -fx-min-height: 32px;
+    -fx-max-height: 32px;
+
+    -fx-padding: 0 12;
+    -fx-alignment: CENTER;
+}
+
+/* Базовая кнопка (light) */
+.root.theme-light .cy-btn {
+    -fx-background-color: -fx-base-button-light;
+    -fx-border-color: -fx-base-button-border-light;
+}
+
+/* Hover (как в эталоне) */
+.cy-btn:hover {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    -fx-base-button-dark,
+                    rgb(83, 81, 80)
+            );
+
+    -fx-border-color: -fx-base-button-border-dark;
+    -fx-background-insets: 1;
+    -fx-background-radius: 12;
+}
+
+.root.theme-light .cy-btn:hover {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    -fx-base-button-light,
+                    rgb(228, 228, 228)
+            );
+    -fx-border-color: -fx-base-button-border-light;
+}
+
+/* Pressed (как в эталоне) */
+.cy-btn:pressed {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    rgb(83, 81, 80),
+                    -fx-base-button-dark
+            );
+    -fx-background-insets: 1;
+    -fx-background-radius: 12;
+    -fx-border-color: -fx-base-button-border-dark;
+    -fx-translate-y: 1;
+}
+
+.root.theme-light .cy-btn:pressed {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    rgb(210, 210, 210),
+                    -fx-base-button-light
+            );
+
+    -fx-border-color: -fx-base-button-border-light;
+    -fx-translate-y: 1;
+}
+
+/* ----------------- 8.2.3) CYCLES (Левая зона): Список ----------------- */
+
+/* Контейнер списка (как .tc-cases-sheet) */
+.cy-cases-sheet {
+    -fx-background-color: -fx-background-level-2-dark;
+    -fx-border-color: -fx-background-border-level-2-dark;
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+}
+
+/* Контейнер списка (light) */
+.root.theme-light .cy-cases-sheet {
+    -fx-background-color: -fx-background-level-2-light;
+    -fx-border-color: -fx-background-border-level-2-light;
+}
+
+/* Список (фон прозрачный) — как .tc-list */
+.cy-list {
+    -fx-background-color: transparent;
+}
+
+/* В эталоне прозрачность/отступы задаются .tc-list .list-cell.
+   Повторяем. */
+.cy-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 0 2 0 0;
+    -fx-border-color: transparent;
+}
+
+/* Эквивалент .tc-case-row, но без вложенного узла:
+   оформляем сам list-cell, чтобы получить “карточки” в списке. */
+.cy-list .list-cell:filled {
+    -fx-padding: 5 6 5 3;
+
+    -fx-background-color: rgba(255,255,255,0.03);
+    -fx-background-radius: 10;
+    -fx-background-insets: 0 4 0 0;
+
+    -fx-border-color:
+            transparent,
+            rgba(255,255,255,0.10);
+    -fx-border-width: 0 0 0 4, 1;
+    -fx-border-radius: 10;
+    -fx-border-insets: 0 4 0 0;
+
+    -fx-alignment: CENTER_LEFT;
+}
+
+/* list-cell (light) */
+.root.theme-light .cy-list .list-cell:filled {
+    -fx-background-color: rgba(0, 0, 0, 0.06);
+
+    -fx-border-color:
+            transparent,
+            rgba(0,0,0,0.20);
+    -fx-border-width: 0 0 0 4, 1;
+}
+
+/* Hover (как .tc-list ... .tc-case-row) */
+.cy-list .list-cell:filled:hover {
+    -fx-background-color: rgba(255,255,255,0.06);
+
+    -fx-border-color:
+            transparent,
+            rgba(255,255,255,0.14);
+}
+
+.root.theme-light .cy-list .list-cell:filled:hover {
+    -fx-background-color: rgb(236, 234, 233);
+
+    -fx-border-color:
+            transparent,
+            rgba(0,0,0,0.14);
+}
+
+/* Selected — аккуратно, чтобы не спорить с дефолтным selection paint */
+.cy-list .list-cell:filled:selected {
+    -fx-background-insets: 0 4 0 0;
+}
+
+/* =====================================================================
+   8.3) CYCLES (Оверлеи): filter / sort / trash (пока каркас)
+   ===================================================================== */
+
+.cy-overlay-sheet {
+    -fx-background-color: rgba(0,0,0,0.45);
+}
+
+.root.theme-light .cy-overlay-sheet {
+    -fx-background-color: rgba(0,0,0,0.22);
+}
+
+/* =====================================================================
+   8.4) CYCLES (Правая зона): placeholder (минимально, без фантазий)
+   ===================================================================== */
+
+.cy-right-root,
+.cy-right {
+    -fx-background-color: transparent;
+}
+
+.cy-right-placeholder {
+    -fx-background-color: rgba(0,0,0,0.20);
+    -fx-background-radius: 18;
+    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-border-radius: 18;
+}
+
+.root.theme-light .cy-right-placeholder {
+    -fx-background-color: rgba(0,0,0,0.08);
+    -fx-border-color: rgba(0,0,0,0.12);
+}
