@@ -2,6 +2,9 @@ package app.domain.cycles;
 
 import app.domain.cycles.ui.CyclesScreen;
 import app.domain.cycles.ui.CyclesViewRefs;
+import app.domain.cycles.ui.right.CycleCardMenuButton;
+import app.domain.cycles.ui.right.EnvironmentChip;
+import app.domain.cycles.ui.right.TaskLinkChip;
 import app.ui.UiScroll;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -26,11 +29,15 @@ public class CyclesController {
     @FXML private Button btnSearch;
     @FXML private Button btnFolder;
     @FXML private Button btnCreate;
+
+    // ✅ toggle (теперь: переключение списка Cycle/Cases)
+    @FXML private Object tgThemeLeft;
+
     @FXML private Button btnTrash;
     @FXML private Button btnFilter;
     @FXML private Button btnSort;
 
-    @FXML private VBox casesSheet;          // ✅ нужно для 1-в-1 trash overlay как в TestCases
+    @FXML private VBox casesSheet;
     @FXML private ListView<Object> lvLeft;
 
     @FXML private StackPane filterSheet;
@@ -40,23 +47,48 @@ public class CyclesController {
     // right
     @FXML private StackPane rightRoot;
     @FXML private VBox rightPlaceholder;
-    @FXML private Label lblRightTitle;
+
+    @FXML private Label lblCycleCreatedAt;
+    @FXML private TaskLinkChip chipTaskLink;
+
+    // ✅ NEW: environment chip near task link chip
+    @FXML private EnvironmentChip chipEnvironment;
+
+    @FXML private TextField tfCycleTitle;
+
     @FXML private Label lblRightHint;
+
+    // menu button in first row
+    @FXML private CycleCardMenuButton btnMenuRight;
+
+    // ✅ NEW
+    @FXML private Button btnProfileRight;
+
     @FXML private Button btnCloseRight;
 
-    // ✅ новая кнопка по задаче
-    @FXML private Button btnToggleLeftList;
+    @FXML private Button btnRightAddCases;
+
+    // ✅ NEW: top delete-mode toggle button
+    @FXML private Button btnRightTrashCases;
+
+    @FXML private Label lblAddedCasesCount;
+    @FXML private VBox vbAddedCases;
+
+    // ✅ DELETE (right)
+    @FXML private Button btnDeleteRight;
+    @FXML private StackPane deleteLayer;
+    @FXML private VBox deleteModal;
+    @FXML private Button btnDeleteCancel;
+    @FXML private Button btnDeleteConfirm;
+
+    // SAVE
+    @FXML private Button btnSaveRight;
 
     private CyclesScreen screen;
 
     @FXML
     private void initialize() {
-        // ✅ ВАЖНО: Cycles имеет отдельный css (/ui/cycles.css). Подключаем его к корню экрана.
-        // MainApp добавляет только /ui/styles.css, поэтому без этого cy-стили могут "пропасть".
         attachCyclesStylesheet();
-
-        // ✅ 1-в-1 как на экране TestCases:
-        // клип нужен, чтобы и скроллбар, и контент списка обрезались по скруглению листа.
         installCasesSheetClip();
 
         CyclesViewRefs refs = new CyclesViewRefs(
@@ -67,6 +99,7 @@ public class CyclesController {
                 btnSearch,
                 btnFolder,
                 btnCreate,
+                tgThemeLeft,
                 btnTrash,
                 btnFilter,
                 btnSort,
@@ -77,10 +110,24 @@ public class CyclesController {
                 trashOverlay,
                 rightRoot,
                 rightPlaceholder,
-                lblRightTitle,
+                lblCycleCreatedAt,
+                chipTaskLink,
+                chipEnvironment,
+                tfCycleTitle,
                 lblRightHint,
+                btnMenuRight,
+                btnProfileRight,
                 btnCloseRight,
-                btnToggleLeftList
+                btnRightAddCases,
+                btnRightTrashCases,
+                lblAddedCasesCount,
+                vbAddedCases,
+                btnDeleteRight,
+                deleteLayer,
+                deleteModal,
+                btnDeleteCancel,
+                btnDeleteConfirm,
+                btnSaveRight
         );
 
         screen = new CyclesScreen(refs);
@@ -99,8 +146,6 @@ public class CyclesController {
         if (url == null) return;
 
         String css = url.toExternalForm();
-
-        // не дублируем
         if (!root.getStylesheets().contains(css)) {
             root.getStylesheets().add(css);
         }

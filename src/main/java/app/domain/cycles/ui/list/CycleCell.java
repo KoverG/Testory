@@ -4,6 +4,8 @@ import javafx.scene.control.ListCell;
 
 public class CycleCell extends ListCell<Object> {
 
+    private static final String UNTITLED = "(без названия)";
+
     @Override
     protected void updateItem(Object item, boolean empty) {
         super.updateItem(item, empty);
@@ -18,7 +20,12 @@ public class CycleCell extends ListCell<Object> {
             return;
         }
 
-        String title = it.title() == null ? "" : it.title().trim();
-        setText(title);
+        // Вариант 2: формируем UI строку в UI слое, не показываем id
+        String t = it.safeTitle();
+        String d = it.safeCreatedAtUi();
+
+        if (t.isBlank()) t = UNTITLED;     // если хочешь i18n — это можно позже заменить на I18n.t(...)
+        if (d.isBlank()) setText(t);
+        else setText(t + " " + d);
     }
 }

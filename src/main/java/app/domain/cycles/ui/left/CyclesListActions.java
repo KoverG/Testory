@@ -1,3 +1,4 @@
+// FILE: src/main/java/app/domain/cycles/ui/left/CyclesListActions.java
 package app.domain.cycles.ui.left;
 
 import app.domain.cycles.ui.CyclesViewRefs;
@@ -17,11 +18,31 @@ public final class CyclesListActions implements LeftPaneActions {
 
     @Override
     public void onCreate() {
-        // ✅ сценарий: "создать цикл" => сначала выбираем кейсы
-        switchToCasesPicker.run();
+        // "Создать":
+        // - если правая зона закрыта -> открываем create-card
+        // - если правая зона открыта:
+        //     - если открыт existing-cycle -> переключаемся на create-card (с replace-анимацией)
+        //     - если уже открыт create-card -> закрываем (сохраняем прежний toggle-UX)
+        if (right == null) return;
 
-        // ✅ и показываем правую карточку (анимация как в testcases)
-        right.openCreateCard();
+        if (right.isOpen()) {
+            String openedId = safeTrim(right.openedCycleId());
+            if (!openedId.isEmpty()) {
+                // был открыт existing -> открыть create с той же анимацией replace
+                right.openCreateCard();
+                try {
+                    if (v.lvLeft != null) v.lvLeft.getSelectionModel().clearSelection();
+                } catch (Exception ignored) {}
+            } else {
+                // уже открыт create -> toggle-close как раньше
+                right.close();
+            }
+        } else {
+            right.openCreateCard();
+            try {
+                if (v.lvLeft != null) v.lvLeft.getSelectionModel().clearSelection();
+            } catch (Exception ignored) {}
+        }
     }
 
     @Override
@@ -47,5 +68,9 @@ public final class CyclesListActions implements LeftPaneActions {
     @Override
     public void onOpenSelected() {
         v.lblRightHint.setText("Open selected cycle (stub)");
+    }
+
+    private static String safeTrim(String v) {
+        return v == null ? "" : v.trim();
     }
 }

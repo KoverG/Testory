@@ -1,5 +1,8 @@
 package app.domain.cycles.ui;
 
+import app.domain.cycles.ui.right.CycleCardMenuButton;
+import app.domain.cycles.ui.right.EnvironmentChip;
+import app.domain.cycles.ui.right.TaskLinkChip;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -19,13 +22,15 @@ public class CyclesViewRefs {
     public final Button btnSearch;
     public final Button btnFolder;
     public final Button btnCreate;
+
+    // ✅ left toggle (Cycle/Cases)
+    public final Object tgThemeLeft;
+
     public final Button btnTrash;
     public final Button btnFilter;
     public final Button btnSort;
 
-    // ✅ как в TestCasesController: нужно, чтобы trash-overlay считал ширину/спейсер
     public final VBox casesSheet;
-
     public final ListView<Object> lvLeft;
 
     public final StackPane filterSheet;
@@ -34,12 +39,42 @@ public class CyclesViewRefs {
 
     public final StackPane rightRoot;
     public final VBox rightPlaceholder;
-    public final Label lblRightTitle;
+
+    public final Label lblCycleCreatedAt;
+    public final TaskLinkChip chipTaskLink;
+
+    // ✅ NEW: environment chip (desktop + mobile icons)
+    public final EnvironmentChip chipEnvironment;
+
+    public final TextField tfCycleTitle;
+
     public final Label lblRightHint;
+
+    // ✅ кнопка меню (сама держит модалку/overlay внутри себя)
+    public final CycleCardMenuButton btnMenuRight;
+
+    // ✅ NEW: profile button in first row
+    public final Button btnProfileRight;
+
     public final Button btnCloseRight;
 
-    // ✅ новая кнопка по задаче
-    public final Button btnToggleLeftList;
+    public final Button btnRightAddCases;
+
+    // ✅ NEW: top trash toggle (delete-mode for rows)
+    public final Button btnRightTrashCases;
+
+    public final Label lblAddedCasesCount;
+
+    public final VBox vbAddedCases;
+
+    // ✅ DELETE (right)
+    public final Button btnDeleteRight;
+    public final StackPane deleteLayer;
+    public final VBox deleteModal;
+    public final Button btnDeleteCancel;
+    public final Button btnDeleteConfirm;
+
+    public final Button btnSaveRight;
 
     public CyclesViewRefs(
             BorderPane root,
@@ -49,6 +84,7 @@ public class CyclesViewRefs {
             Button btnSearch,
             Button btnFolder,
             Button btnCreate,
+            Object tgThemeLeft,
             Button btnTrash,
             Button btnFilter,
             Button btnSort,
@@ -59,31 +95,77 @@ public class CyclesViewRefs {
             StackPane trashOverlay,
             StackPane rightRoot,
             VBox rightPlaceholder,
-            Label lblRightTitle,
+            Label lblCycleCreatedAt,
+            TaskLinkChip chipTaskLink,
+            EnvironmentChip chipEnvironment,
+            TextField tfCycleTitle,
             Label lblRightHint,
+            CycleCardMenuButton btnMenuRight,
+            Button btnProfileRight,
             Button btnCloseRight,
-            Button btnToggleLeftList
+            Button btnRightAddCases,
+            Button btnRightTrashCases,
+            Label lblAddedCasesCount,
+            VBox vbAddedCases,
+            Button btnDeleteRight,
+            StackPane deleteLayer,
+            VBox deleteModal,
+            Button btnDeleteCancel,
+            Button btnDeleteConfirm,
+            Button btnSaveRight
     ) {
         this.root = root;
         this.leftStack = leftStack;
         this.leftMain = leftMain;
+
         this.tfSearch = tfSearch;
         this.btnSearch = btnSearch;
         this.btnFolder = btnFolder;
         this.btnCreate = btnCreate;
+
+        this.tgThemeLeft = tgThemeLeft;
+
         this.btnTrash = btnTrash;
         this.btnFilter = btnFilter;
         this.btnSort = btnSort;
+
         this.casesSheet = casesSheet;
         this.lvLeft = lvLeft;
+
         this.filterSheet = filterSheet;
         this.sortSheet = sortSheet;
         this.trashOverlay = trashOverlay;
+
         this.rightRoot = rightRoot;
         this.rightPlaceholder = rightPlaceholder;
-        this.lblRightTitle = lblRightTitle;
+
+        this.lblCycleCreatedAt = lblCycleCreatedAt;
+        this.chipTaskLink = chipTaskLink;
+
+        this.chipEnvironment = chipEnvironment;
+
+        this.tfCycleTitle = tfCycleTitle;
+
         this.lblRightHint = lblRightHint;
+
+        this.btnMenuRight = btnMenuRight;
+        this.btnProfileRight = btnProfileRight;
+
         this.btnCloseRight = btnCloseRight;
-        this.btnToggleLeftList = btnToggleLeftList;
+
+        this.btnRightAddCases = btnRightAddCases;
+        this.btnRightTrashCases = btnRightTrashCases;
+
+        this.lblAddedCasesCount = lblAddedCasesCount;
+
+        this.vbAddedCases = vbAddedCases;
+
+        this.btnDeleteRight = btnDeleteRight;
+        this.deleteLayer = deleteLayer;
+        this.deleteModal = deleteModal;
+        this.btnDeleteCancel = btnDeleteCancel;
+        this.btnDeleteConfirm = btnDeleteConfirm;
+
+        this.btnSaveRight = btnSaveRight;
     }
 }

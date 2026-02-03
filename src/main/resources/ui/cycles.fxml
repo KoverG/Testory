@@ -3,6 +3,10 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import app.ui.ToggleSwitch?>
+<?import app.domain.cycles.ui.right.CycleCardMenuButton?>
+<?import app.domain.cycles.ui.right.TaskLinkChip?>
+<?import app.domain.cycles.ui.right.EnvironmentChip?>
 
 <BorderPane xmlns="http://javafx.com/javafx/23"
             xmlns:fx="http://javafx.com/fxml/1"
@@ -10,46 +14,38 @@
             fx:id="root"
             styleClass="cy-root">
 
-    <!-- Как в эталоне: внешний padding всего экрана -->
     <padding>
         <Insets top="14" right="14" bottom="14" left="14"/>
     </padding>
 
     <center>
-        <!-- Как в эталоне: две зоны в HBox со spacing 14 -->
         <HBox spacing="14">
 
             <!-- =========================================================
-                 LEFT ZONE: 1-в-1 по структуре с TestCases
+                 LEFT ZONE
             ========================================================== -->
-            <VBox fx:id="leftMain"
-                  spacing="10"
-                  prefWidth="390"
-                  styleClass="cy-left">
+            <VBox spacing="10" prefWidth="390" styleClass="cy-left">
 
-                <!-- ROOT STACK (LEFT): padding внутри зоны, чтобы cy-left оставался рамкой/фоном -->
                 <StackPane fx:id="leftStack"
                            VBox.vgrow="ALWAYS"
                            maxWidth="Infinity"
-                           maxHeight="Infinity"
-                           styleClass="cy-left-stack">
+                           maxHeight="Infinity">
                     <padding>
                         <Insets top="14" right="14" bottom="14" left="14"/>
                     </padding>
 
-                    <!-- Весь контент левой зоны -->
-                    <VBox spacing="10" maxWidth="Infinity" maxHeight="Infinity">
+                    <VBox fx:id="leftMain"
+                          spacing="10"
+                          maxWidth="Infinity"
+                          maxHeight="Infinity">
 
-                        <!-- Первая строка: Поиск + кнопка папки + кнопка Create -->
+                        <!-- Первая строка: Поле ввода поиска + кнопка svg -->
                         <HBox spacing="10">
-
                             <StackPane HBox.hgrow="ALWAYS">
                                 <TextField fx:id="tfSearch"
                                            maxWidth="Infinity"
-                                           promptText="%tc.search.placeholder"
                                            styleClass="tc-search"/>
 
-                                <!-- svg кнопка очистки поиска (как на экране TestCases) -->
                                 <Button fx:id="btnSearch"
                                         focusTraversable="false"
                                         userData="14"
@@ -60,82 +56,75 @@
                             <Button fx:id="btnFolder"
                                     focusTraversable="false"
                                     userData="14"
-                                    styleClass="icon-btn"/>
+                                    styleClass="icon-btn,sm"/>
 
                             <Button fx:id="btnCreate"
                                     text="%tc.btn.create"
-                                    maxWidth="Infinity"
-                                    styleClass="cy-btn"/>
+                                    focusTraversable="false"
+                                    styleClass="tc-btn"/>
                         </HBox>
 
-                        <!-- Вторая строка: Trash + Filter + Sort -->
-                        <HBox spacing="10">
+                        <!-- Вторая строка: toggle + корзина + фильтр + сортировка -->
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <ToggleSwitch fx:id="tgThemeLeft"/>
 
                             <Button fx:id="btnTrash"
                                     focusTraversable="false"
                                     userData="14"
-                                    styleClass="icon-btn"/>
+                                    styleClass="icon-btn,sm"/>
+
+                            <Region HBox.hgrow="ALWAYS"/>
 
                             <Button fx:id="btnFilter"
                                     text="%tc.btn.filter"
                                     focusTraversable="false"
-                                    maxWidth="Infinity"
-                                    HBox.hgrow="ALWAYS"
-                                    styleClass="cy-btn"/>
+                                    styleClass="tc-btn"/>
 
                             <Button fx:id="btnSort"
                                     text="%tc.btn.sort"
                                     focusTraversable="false"
-                                    maxWidth="Infinity"
-                                    HBox.hgrow="ALWAYS"
-                                    styleClass="cy-btn"/>
+                                    styleClass="tc-btn"/>
                         </HBox>
 
-                        <!-- Контейнер списка + overlays (как tc-leftStack в эталоне) -->
-                        <StackPane VBox.vgrow="ALWAYS" maxWidth="Infinity" maxHeight="Infinity">
+                        <!-- Третья строка: лист -->
+                        <VBox fx:id="casesSheet"
+                              VBox.vgrow="ALWAYS"
+                              maxWidth="Infinity"
+                              maxHeight="Infinity"
+                              styleClass="tc-cases-sheet">
 
-                            <!-- Sheet под список: СДЕЛАНО 1-в-1 как в TestCases -->
-                            <VBox fx:id="casesSheet"
-                                  maxWidth="Infinity"
-                                  maxHeight="Infinity"
-                                  styleClass="tc-cases-sheet"
-                                  StackPane.alignment="BOTTOM_CENTER">
-
-                                <ListView fx:id="lvLeft"
-                                          styleClass="tc-list"
-                                          VBox.vgrow="ALWAYS"/>
-                            </VBox>
-
-                            <!-- overlays: filter / sort / trash (каркас оставляем как был) -->
-                            <StackPane fx:id="filterSheet"
-                                       visible="false"
-                                       managed="false"
-                                       maxWidth="Infinity"
-                                       maxHeight="Infinity"
-                                       styleClass="cy-overlay-sheet"
-                                       StackPane.alignment="BOTTOM_CENTER"/>
-
-                            <StackPane fx:id="sortSheet"
-                                       visible="false"
-                                       managed="false"
-                                       maxWidth="Infinity"
-                                       maxHeight="Infinity"
-                                       styleClass="cy-overlay-sheet"
-                                       StackPane.alignment="BOTTOM_CENTER"/>
-
-                            <StackPane fx:id="trashOverlay"
-                                       visible="false"
-                                       managed="false"
-                                       maxWidth="Infinity"
-                                       maxHeight="Infinity"
-                                       styleClass="cy-overlay-sheet"
-                                       StackPane.alignment="BOTTOM_CENTER"/>
-
-                        </StackPane>
+                            <ListView fx:id="lvLeft"
+                                      VBox.vgrow="ALWAYS"
+                                      maxWidth="Infinity"
+                                      maxHeight="Infinity"
+                                      styleClass="tc-list"/>
+                        </VBox>
 
                     </VBox>
-                </StackPane>
 
+                    <!-- overlays -->
+                    <StackPane fx:id="filterSheet"
+                               visible="false"
+                               managed="false"
+                               pickOnBounds="true"
+                               maxWidth="Infinity"
+                               maxHeight="Infinity"/>
+
+                    <StackPane fx:id="sortSheet"
+                               visible="false"
+                               managed="false"
+                               pickOnBounds="true"
+                               maxWidth="Infinity"
+                               maxHeight="Infinity"/>
+
+                    <StackPane fx:id="trashOverlay"
+                               visible="false"
+                               managed="false"
+                               pickOnBounds="false"
+                               maxWidth="Infinity"
+                               maxHeight="Infinity"/>
+
+                </StackPane>
             </VBox>
 
             <!-- =========================================================
@@ -149,8 +138,9 @@
                        maxHeight="Infinity"
                        styleClass="cy-right-root">
 
+                <!-- spacing=0, а расстояние между 1 и 2 строкой делаем через margin bottom=2 как в TestCases -->
                 <VBox fx:id="rightPlaceholder"
-                      spacing="10"
+                      spacing="0"
                       maxWidth="Infinity"
                       maxHeight="Infinity"
                       styleClass="cy-right-placeholder">
@@ -158,18 +148,39 @@
                         <Insets top="14" right="14" bottom="14" left="14"/>
                     </padding>
 
+                    <!-- 1-я строка -->
                     <HBox spacing="8" alignment="CENTER_LEFT">
-                        <Label fx:id="lblRightTitle"
-                               text="Cycle"
-                               styleClass="cy-h1"/>
+                        <VBox.margin>
+                            <Insets top="0" right="0" bottom="2" left="0"/>
+                        </VBox.margin>
+
+                        <!-- ✅ КНОПКА МЕНЮ -->
+                        <CycleCardMenuButton fx:id="btnMenuRight"
+                                             focusTraversable="false"
+                                             userData="14"
+                                             styleClass="icon-btn,sm"/>
+
+                        <Label text="%cy.right.createdAt"
+                               styleClass="cy-meta-label"/>
+
+                        <Label fx:id="lblCycleCreatedAt"
+                               text="—"
+                               styleClass="cy-meta-value"/>
+
+                        <!-- ✅ Task Link Chip (универсальный) -->
+                        <TaskLinkChip fx:id="chipTaskLink" minWidth="70"/>
+
+                        <!-- ✅ Environment Chip: тот же чип-стиль, но ширина теперь динамическая (без minWidth) -->
+                        <EnvironmentChip fx:id="chipEnvironment"
+                                         styleClass="cy-task-link-chip,cy-environment-chip"/>
 
                         <Region HBox.hgrow="ALWAYS"/>
 
-                        <!-- переключает список слева -->
-                        <Button fx:id="btnToggleLeftList"
-                                text="Кейсы"
+                        <!-- ✅ NEW: PROFILE BUTTON (same style as menu button) -->
+                        <Button fx:id="btnProfileRight"
                                 focusTraversable="false"
-                                styleClass="cy-btn,sm"/>
+                                userData="14"
+                                styleClass="icon-btn,sm"/>
 
                         <Button fx:id="btnCloseRight"
                                 focusTraversable="false"
@@ -177,10 +188,280 @@
                                 styleClass="icon-btn,sm"/>
                     </HBox>
 
+                    <!-- 2-я строка -->
+                    <TextField fx:id="tfCycleTitle"
+                               maxWidth="Infinity"
+                               promptText="%cy.right.title.placeholder"
+                               styleClass="tc-title-field"/>
+
+                    <!-- 3-я строка: зона как основной контент -->
+                    <StackPane VBox.vgrow="ALWAYS"
+                               maxWidth="Infinity"
+                               maxHeight="Infinity"
+                               styleClass="tc-cases-sheet">
+                        <VBox.margin>
+                            <Insets top="10" right="0" bottom="0" left="0"/>
+                        </VBox.margin>
+
+                        <ScrollPane fitToWidth="true"
+                                    hbarPolicy="NEVER"
+                                    vbarPolicy="AS_NEEDED"
+                                    styleClass="tc-filter-scroll"
+                                    StackPane.alignment="TOP_LEFT">
+                            <content>
+                                <VBox spacing="10" fillWidth="true" maxWidth="Infinity">
+                                    <padding>
+                                        <Insets top="12" right="12" bottom="12" left="12"/>
+                                    </padding>
+
+                                    <!-- 1-я строка: кнопка слева, счетчик справа -->
+                                    <HBox spacing="10"
+                                          alignment="CENTER_LEFT"
+                                          maxWidth="Infinity">
+                                        <Button fx:id="btnRightAddCases"
+                                                text="%cy.right.addCases"
+                                                focusTraversable="false"
+                                                styleClass="tc-btn"/>
+
+                                        <!-- ✅ NEW: toggle delete-mode button -->
+                                        <Button fx:id="btnRightTrashCases"
+                                                focusTraversable="false"
+                                                userData="14"
+                                                styleClass="icon-btn,sm"/>
+
+                                        <Region HBox.hgrow="ALWAYS"/>
+                                        <Label fx:id="lblAddedCasesCount"
+                                               text="%cy.right.cases.none"
+                                               styleClass="cy-meta-value"/>
+                                    </HBox>
+
+                                    <!-- список добавленных кейсов -->
+                                    <VBox fx:id="vbAddedCases"
+                                          spacing="8"
+                                          fillWidth="true"
+                                          maxWidth="Infinity"
+                                          styleClass="cy-added-cases-list"/>
+
+                                </VBox>
+                            </content>
+                        </ScrollPane>
+
+                        <!-- DELETE -->
+                        <Button fx:id="btnDeleteRight"
+                                focusTraversable="false"
+                                userData="14"
+                                styleClass="icon-btn,sm,tc-delete-btn"
+                                StackPane.alignment="BOTTOM_RIGHT">
+                            <StackPane.margin>
+                                <Insets right="10" bottom="10"/>
+                            </StackPane.margin>
+                        </Button>
+
+                    </StackPane>
+
                     <Label fx:id="lblRightHint"
-                           text="Select a cycle on the left"
+                           visible="false"
+                           managed="false"
+                           text=""
                            styleClass="cy-muted"/>
                 </VBox>
+
+                <!-- SAVE overlay -->
+                <VBox alignment="BOTTOM_CENTER"
+                      spacing="10"
+                      pickOnBounds="false"
+                      StackPane.alignment="BOTTOM_CENTER">
+
+                    <StackPane maxWidth="Infinity"
+                               pickOnBounds="false">
+
+                        <Button fx:id="btnSaveRight"
+                                text="%tc.btn.save"
+                                styleClass="tc-filter-apply,tc-save-btn"
+                                prefWidth="250"
+                                focusTraversable="false"
+                                StackPane.alignment="BOTTOM_CENTER">
+                            <StackPane.margin>
+                                <Insets bottom="18"/>
+                            </StackPane.margin>
+                        </Button>
+
+                    </StackPane>
+                </VBox>
+
+                <!-- ✅ MENU MODAL OVERLAY: без затемнения, модалка не растягивается по высоте -->
+                <StackPane fx:id="menuLayer"
+                           visible="false"
+                           managed="false"
+                           pickOnBounds="false"
+                           maxWidth="Infinity"
+                           maxHeight="Infinity"
+                           StackPane.alignment="TOP_LEFT">
+
+                    <!-- Прозрачный backdrop (для закрытия по клику вне модалки). Высота/позиция задаются из кода -->
+                    <Region maxWidth="Infinity"
+                            maxHeight="Infinity"
+                            StackPane.alignment="TOP_LEFT"/>
+
+                    <VBox fx:id="menuModal"
+                          alignment="CENTER"
+                          styleClass="tc-right-confirm"
+                          StackPane.alignment="TOP_LEFT"
+                          prefWidth="300"
+                          maxWidth="300"
+                          minHeight="-2"
+                          maxHeight="-2">
+
+                        <Label text="%cy.menu.title"
+                               wrapText="false"
+                               maxWidth="Infinity"
+                               styleClass="tc-delete-title">
+                            <VBox.margin>
+                                <Insets top="4"/>
+                            </VBox.margin>
+                        </Label>
+
+                        <Region prefHeight="20" minHeight="20" maxHeight="20"/>
+
+                        <VBox spacing="10" alignment="CENTER">
+                            <Button fx:id="btnMenuCopy"
+                                    text="%cy.menu.copy"
+                                    focusTraversable="false"
+                                    prefWidth="220"
+                                    minWidth="220"
+                                    maxWidth="220"
+                                    styleClass="tc-btn"/>
+
+                            <Button fx:id="btnMenuPause"
+                                    text="%cy.menu.pause"
+                                    focusTraversable="false"
+                                    prefWidth="220"
+                                    minWidth="220"
+                                    maxWidth="220"
+                                    styleClass="tc-btn"/>
+
+                            <Button fx:id="btnMenuStats"
+                                    text="%cy.menu.stats"
+                                    focusTraversable="false"
+                                    prefWidth="220"
+                                    minWidth="220"
+                                    maxWidth="220"
+                                    styleClass="tc-btn"/>
+
+                            <Button fx:id="btnMenuReport"
+                                    text="%cy.menu.report"
+                                    focusTraversable="false"
+                                    prefWidth="220"
+                                    minWidth="220"
+                                    maxWidth="220"
+                                    styleClass="tc-btn"/>
+
+                            <Button fx:id="btnMenuEdit"
+                                    text="%cy.menu.edit"
+                                    focusTraversable="false"
+                                    disable="true"
+                                    prefWidth="220"
+                                    minWidth="220"
+                                    maxWidth="220"
+                                    styleClass="tc-btn"/>
+
+                            <Button fx:id="btnMenuSource"
+                                    text="%cy.menu.source"
+                                    focusTraversable="false"
+                                    disable="true"
+                                    prefWidth="220"
+                                    minWidth="220"
+                                    maxWidth="220"
+                                    styleClass="tc-btn"/>
+
+                            <Button fx:id="btnMenuDelete"
+                                    text="%cy.menu.delete"
+                                    focusTraversable="false"
+                                    prefWidth="220"
+                                    minWidth="220"
+                                    maxWidth="220"
+                                    styleClass="tc-btn,tc-danger-btn"/>
+                        </VBox>
+
+                        <Region prefHeight="20" minHeight="20" maxHeight="20"/>
+
+                        <Label text="%cy.menu.hint"
+                               wrapText="true"
+                               maxWidth="Infinity"
+                               styleClass="tc-delete-hint">
+                            <VBox.margin>
+                                <Insets bottom="2"/>
+                            </VBox.margin>
+                        </Label>
+
+                    </VBox>
+                </StackPane>
+
+                <!-- DELETE CONFIRM OVERLAY -->
+                <StackPane fx:id="deleteLayer"
+                           visible="false"
+                           managed="false"
+                           pickOnBounds="true"
+                           maxWidth="Infinity"
+                           maxHeight="Infinity"
+                           StackPane.alignment="CENTER">
+
+                    <Region styleClass="tc-right-dim"
+                            maxWidth="Infinity"
+                            maxHeight="Infinity"/>
+
+                    <VBox fx:id="deleteModal"
+                          alignment="CENTER"
+                          styleClass="tc-right-confirm"
+                          StackPane.alignment="CENTER"
+                          prefWidth="300"
+                          maxWidth="300"
+                          prefHeight="200"
+                          maxHeight="210">
+
+                        <Label text="%tc.delete.title"
+                               wrapText="false"
+                               maxWidth="Infinity"
+                               styleClass="tc-delete-title">
+                            <VBox.margin>
+                                <Insets top="4"/>
+                            </VBox.margin>
+                        </Label>
+
+                        <Region prefHeight="20" minHeight="20" maxHeight="20"/>
+
+                        <VBox spacing="10" alignment="CENTER">
+                            <Button fx:id="btnDeleteCancel"
+                                    text="%tc.delete.cancel"
+                                    focusTraversable="false"
+                                    prefWidth="220"
+                                    minWidth="220"
+                                    maxWidth="220"
+                                    styleClass="tc-btn"/>
+
+                            <Button fx:id="btnDeleteConfirm"
+                                    text="%tc.delete.confirm"
+                                    focusTraversable="false"
+                                    prefWidth="220"
+                                    minWidth="220"
+                                    maxWidth="220"
+                                    styleClass="tc-btn,tc-danger-btn"/>
+                        </VBox>
+
+                        <Region prefHeight="20" minHeight="20" maxHeight="20"/>
+
+                        <Label text="%tc.delete.hint"
+                               wrapText="true"
+                               maxWidth="Infinity"
+                               styleClass="tc-delete-hint">
+                            <VBox.margin>
+                                <Insets bottom="2"/>
+                            </VBox.margin>
+                        </Label>
+
+                    </VBox>
+
+                </StackPane>
 
             </StackPane>
 

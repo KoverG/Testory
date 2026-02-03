@@ -1,3 +1,5 @@
+/* FILE: src/main/resources/ui/cycles.css */
+/* FILE: src/main/resources/ui/cycles.css */
 /* =========================================================
    CYCLES SCREEN (isolated)
    ========================================================= */
@@ -7,6 +9,7 @@
    Поэтому .cy-root НЕ должен рисовать свой фон. */
 .cy-root {
     -fx-background-color: transparent;
+    -fx-accent-strong:    #f50049;
 }
 
 /* =====================================================================
@@ -75,6 +78,99 @@
 .root.theme-light .cy-search:focused {
     -fx-border-color: -fx-button2-border-light;
 }
+
+/* =====================================================================
+   8.2.2.1) CYCLES: Environment modal - Builds TextArea (expandable, no scroll)
+   ===================================================================== */
+
+.cy-env-value-area {
+    -fx-background-color: -fx-input-dark;
+    -fx-background-insets: 1;
+    -fx-background-radius: 12;
+
+    -fx-border-color: -fx-base-button-border-dark;
+    -fx-border-width: 1;
+    -fx-border-radius: 12;
+
+    -fx-text-fill: -fx-text-color;
+    -fx-prompt-text-fill: -fx-placeholder-dark;
+
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+
+    -fx-min-height: 32px;
+}
+
+/* внутренний scroll-pane/viewport/content — прозрачные, чтобы не ломать рамку/скругления */
+.cy-env-value-area .scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 12;
+    -fx-padding: 0;
+}
+
+.cy-env-value-area .scroll-pane > .viewport {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 12;
+}
+
+.cy-env-value-area .content {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 12;
+
+    -fx-padding: 6 12 6 12;
+}
+
+.cy-env-value-area:focused {
+    -fx-border-color: rgb(147, 142, 142);
+}
+
+/* light */
+.root.theme-light .cy-env-value-area {
+    -fx-background-color: -fx-input-light;
+    -fx-border-color: -fx-base-button-border-light;
+    -fx-text-fill: -fx-text-color;
+    -fx-prompt-text-fill: -fx-placeholder-light;
+}
+
+.root.theme-light .cy-env-value-area:focused {
+    -fx-border-color: -fx-button2-border-light;
+}
+
+/* Скроллбары прячем CSS-страховкой (без managed/visible) */
+.cy-env-value-area .scroll-bar:vertical,
+.cy-env-value-area .scroll-bar:horizontal {
+    -fx-opacity: 0;
+    -fx-padding: 0;
+    -fx-pref-width: 0;
+    -fx-max-width: 0;
+    -fx-pref-height: 0;
+    -fx-max-height: 0;
+}
+
+.cy-env-value-area .corner {
+    -fx-background-color: transparent;
+}
+
+/* TaskLink URL field invalid (custom accent border) */
+.cy-tasklink-url.cy-url-invalid {
+    -fx-border-color: -fx-accent-strong;
+}
+.root.theme-light .cy-tasklink-url.cy-url-invalid {
+    -fx-border-color: -fx-accent-strong;
+}
+
+
+/* Если поле focused — пусть invalid выигрывает */
+.cy-tasklink-url.cy-url-invalid:focused {
+    -fx-border-color: -fx-accent-strong;
+}
+.root.theme-light .cy-tasklink-url.cy-url-invalid:focused {
+    -fx-border-color: -fx-accent-strong;
+}
+
 
 /* Иконка-кнопка (форма как в эталоне для .tc-left .button.icon-btn) */
 .cy-left .button.icon-btn,
@@ -246,6 +342,28 @@
     -fx-background-insets: 0 4 0 0;
 }
 
+/* ----------------- STICKY HEADER (LEFT LIST) -----------------
+   Фон/подложка берётся из tc-filter-overlay + tc-trash-glass (как у delete overlay).
+   Здесь только типографика/геометрия заголовка. */
+.cy-left-list-header {
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+
+    /* ✅ в 3 раза меньше (было около 42px в коде компонента) */
+    -fx-min-height: 20px;
+    -fx-pref-height: 20px;
+    -fx-max-height: 20px;
+
+    /* компактные внутренние отступы */
+    -fx-padding: 0 5 0 5;
+}
+
+.cy-left-list-header-title {
+    -fx-text-fill: -fx-text-color;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+}
+
 /* =====================================================================
    8.3) CYCLES (Оверлеи): filter / sort / trash (пока каркас)
    ===================================================================== */
@@ -277,4 +395,590 @@
 .root.theme-light .cy-right-placeholder {
     -fx-background-color: rgba(0,0,0,0.08);
     -fx-border-color: rgba(0,0,0,0.12);
+}
+
+/* ----------------- 8.4.1) CYCLES (Правая зона): Типографика хедера ----------------- */
+
+.cy-meta-label {
+    -fx-text-fill: -fx-muted-color;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+}
+
+.cy-meta-value {
+    -fx-text-fill: -fx-text-color;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+}
+
+.cy-muted {
+    -fx-text-fill: -fx-muted-color;
+    -fx-font-size: 12px;
+}
+
+/* =====================================================================
+   8.4.2) CYCLES (Правая зона): список добавленных кейсов (UI-only)
+   ===================================================================== */
+
+.cy-added-cases-list {
+    -fx-padding: 0 10 0 0;
+}
+
+.cy-added-case-row {
+    /* spacing управляется в Java через margin'ы, чтобы зазоры были одинаковыми */
+    -fx-spacing: 0;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.cy-added-case-index {
+    -fx-text-fill: -fx-muted-color;
+
+    /* ✅ увеличить шрифт нумерации */
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+
+    /* ✅ выравнивание и "сдвиг вправо" делаем паддингом (ширина авто из Java) */
+    -fx-alignment: CENTER_RIGHT;
+    -fx-padding: 0 0 0 6px;
+}
+
+.cy-added-case-titlebox {
+    -fx-background-color: rgba(0,0,0,0.14);
+    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-padding: 6 8 6 10;
+}
+
+.root.theme-light .cy-added-case-titlebox {
+    -fx-background-color: rgba(0,0,0,0.06);
+    -fx-border-color: rgba(0,0,0,0.10);
+}
+
+.cy-added-case-title {
+    -fx-text-fill: -fx-text-color;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+
+    /* ✅ страховка: троеточие, если где-то задают overrun через css */
+    -fx-text-overrun: ellipsis;
+}
+
+.cy-added-case-combo {
+    -fx-min-height: 28;
+    -fx-pref-height: 28;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-padding: 6 8 6 10;
+}
+
+/* =====================================================================
+   8.5) CYCLES: Right card menu modal (CycleCardMenuButton)
+   ===================================================================== */
+
+.cy-menu-backdrop {
+    -fx-background-color: transparent;
+}
+
+/* ✅ IMPORTANT:
+   Тень НЕ должна быть на интерактивной ноде модалки, иначе её expanded bounds
+   будет перехватывать клики по кнопкам под тенью.
+   Тень рисуем на отдельном Region (cy-menu-shadow), который mouseTransparent=true в коде. */
+.cy-menu-shadow {
+    /* важно: должен быть "рисуемый" фон, иначе effect может не отображаться */
+    -fx-background-color: rgba(0,0,0,0.001);
+    -fx-background-radius: 16;
+
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.26), 20, 0.16, 0, 8);
+}
+
+
+/* ✅ Контент модалки — без эффекта, чтобы bounds не перекрывали клики */
+.cy-menu-modal {
+    -fx-effect: null;
+}
+
+/* =====================================================================
+   8.5.1) CYCLES: Unified modal buttons (TaskLink / Profile / Menu)
+   ===================================================================== */
+
+/* База для всех кнопок в модалках Cycles (ширину задаёт код). */
+.button.cy-modal-btn {
+    -fx-background-color: -fx-base-button-dark;
+    -fx-background-insets: 1;
+    -fx-background-radius: 12;
+
+    -fx-border-color: -fx-base-button-border-dark;
+    -fx-border-radius: 12;
+
+    -fx-font-weight: 800;
+    -fx-text-fill: -fx-text-color;
+
+    /* ✅ одинаковая высота с полями ввода */
+    -fx-min-height: 32px;
+    -fx-pref-height: 32px;
+    -fx-max-height: 32px;
+
+    -fx-padding: 0 12;
+    -fx-alignment: CENTER;
+}
+
+.root.theme-light .button.cy-modal-btn {
+    -fx-background-color: -fx-base-button-light;
+    -fx-border-color: -fx-base-button-border-light;
+}
+
+/* hover / pressed для базовых кнопок */
+.button.cy-modal-btn:hover {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    -fx-base-button-dark,
+                    rgb(83, 81, 80)
+            );
+    -fx-border-color: -fx-base-button-border-dark;
+    -fx-background-insets: 1;
+    -fx-background-radius: 12;
+}
+
+.root.theme-light .button.cy-modal-btn:hover {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    -fx-base-button-light,
+                    rgb(228, 228, 228)
+            );
+    -fx-border-color: -fx-base-button-border-light;
+}
+
+.button.cy-modal-btn:pressed {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    rgb(83, 81, 80),
+                    -fx-base-button-dark
+            );
+    -fx-background-insets: 1;
+    -fx-background-radius: 12;
+    -fx-border-color: -fx-base-button-border-dark;
+    -fx-translate-y: 1;
+}
+
+.root.theme-light .button.cy-modal-btn:pressed {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    rgb(210, 210, 210),
+                    -fx-base-button-light
+            );
+
+    -fx-border-color: -fx-base-button-border-light;
+    -fx-translate-y: 1;
+}
+
+/* ✅ унифицированный disabled-стиль — как у кнопок Add/Delete из левой зоны (не через opacity)
+   Старый стиль через opacity удалён. */
+.button.cy-modal-btn:disabled,
+.button.cy-modal-btn.cy-modal-btn-primary:disabled,
+.button.cy-modal-btn.cy-modal-btn-danger:disabled {
+    -fx-opacity: 1.0;
+    -fx-effect: none;
+
+    -fx-background-color: -fx-base-button-dark;
+    -fx-border-color: -fx-base-button-border-dark;
+
+    /* приглушённый текст, без “прыжка” */
+    -fx-text-fill: rgba(242,244,247,0.55);
+    -fx-translate-y: 0;
+}
+
+/* disabled (light) */
+.root.theme-light .button.cy-modal-btn:disabled,
+.root.theme-light .button.cy-modal-btn.cy-modal-btn-primary:disabled,
+.root.theme-light .button.cy-modal-btn.cy-modal-btn-danger:disabled {
+    -fx-background-color: -fx-base-button-light;
+    -fx-border-color: -fx-base-button-border-light;
+
+    -fx-text-fill: rgba(20,20,20,0.55);
+    -fx-translate-y: 0;
+}
+
+/* disabled не должен менять вид от hover/pressed правил */
+.button.cy-modal-btn:disabled:hover,
+.button.cy-modal-btn:disabled:pressed,
+.button.cy-modal-btn.cy-modal-btn-primary:disabled:hover,
+.button.cy-modal-btn.cy-modal-btn-primary:disabled:pressed,
+.button.cy-modal-btn.cy-modal-btn-danger:disabled:hover,
+.button.cy-modal-btn.cy-modal-btn-danger:disabled:pressed {
+    -fx-background-color: -fx-base-button-dark;
+    -fx-border-color: -fx-base-button-border-dark;
+    -fx-translate-y: 0;
+}
+
+.root.theme-light .button.cy-modal-btn:disabled:hover,
+.root.theme-light .button.cy-modal-btn:disabled:pressed,
+.root.theme-light .button.cy-modal-btn.cy-modal-btn-primary:disabled:hover,
+.root.theme-light .button.cy-modal-btn.cy-modal-btn-primary:disabled:pressed,
+.root.theme-light .button.cy-modal-btn.cy-modal-btn-danger:disabled:hover,
+.root.theme-light .button.cy-modal-btn.cy-modal-btn-danger:disabled:pressed {
+    -fx-background-color: -fx-base-button-light;
+    -fx-border-color: -fx-base-button-border-light;
+    -fx-translate-y: 0;
+}
+
+/* Primary / Accent (Save) */
+.button.cy-modal-btn.cy-modal-btn-primary {
+    -fx-background-color: -fx-accent-strong;
+    -fx-border-color: -fx-accent-strong;
+    -fx-text-fill: rgb(255, 255, 255);
+}
+
+/* ✅ FIX: в light теме базовый .root.theme-light .button.cy-modal-btn перетирал primary.
+   Поэтому дублируем primary правила со специфичностью light темы. */
+.root.theme-light .button.cy-modal-btn.cy-modal-btn-primary {
+    -fx-background-color: -fx-accent-strong;
+    -fx-border-color: -fx-accent-strong;
+    -fx-text-fill: rgb(255, 255, 255);
+}
+
+/* hover / pressed для primary */
+.button.cy-modal-btn.cy-modal-btn-primary:hover {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    -fx-accent-strong,
+                    rgb(152, 1, 26)
+            );
+    -fx-border-color: -fx-accent-strong;
+}
+
+.root.theme-light .button.cy-modal-btn.cy-modal-btn-primary:hover {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    -fx-accent-strong,
+                    rgb(152, 1, 26)
+            );
+    -fx-border-color: -fx-accent-strong;
+}
+
+.button.cy-modal-btn.cy-modal-btn-primary:pressed {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    rgb(152, 1, 26),
+                    -fx-accent-strong
+            );
+    -fx-border-color: -fx-accent-strong;
+    -fx-translate-y: 1;
+}
+
+.root.theme-light .button.cy-modal-btn.cy-modal-btn-primary:pressed {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    rgb(152, 1, 26),
+                    -fx-accent-strong
+            );
+    -fx-border-color: -fx-accent-strong;
+    -fx-translate-y: 1;
+}
+
+/* Danger (Delete in menu modal) */
+.button.cy-modal-btn.cy-modal-btn-danger {
+    -fx-background-color: -fx-accent-strong;
+    -fx-border-color: -fx-accent-strong;
+    -fx-text-fill: rgb(255, 255, 255);
+}
+
+/* ✅ FIX: аналогично для danger в light теме */
+.root.theme-light .button.cy-modal-btn.cy-modal-btn-danger {
+    -fx-background-color: -fx-accent-strong;
+    -fx-border-color: -fx-accent-strong;
+    -fx-text-fill: rgb(255, 255, 255);
+}
+
+.button.cy-modal-btn.cy-modal-btn-danger:hover {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    -fx-accent-strong,
+                    rgb(152, 1, 26)
+            );
+    -fx-border-color: -fx-accent-strong;
+}
+
+.root.theme-light .button.cy-modal-btn.cy-modal-btn-danger:hover {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    -fx-accent-strong,
+                    rgb(152, 1, 26)
+            );
+    -fx-border-color: -fx-accent-strong;
+}
+
+.button.cy-modal-btn.cy-modal-btn-danger:pressed {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    rgb(152, 1, 26),
+                    -fx-accent-strong
+            );
+    -fx-border-color: -fx-accent-strong;
+    -fx-translate-y: 1;
+}
+
+.root.theme-light .button.cy-modal-btn.cy-modal-btn-danger:pressed {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    rgb(152, 1, 26),
+                    -fx-accent-strong
+            );
+    -fx-border-color: -fx-accent-strong;
+    -fx-translate-y: 1;
+}
+
+/* =====================================================================
+   8.6) CYCLES: Task Link Chip (meta row)
+   ===================================================================== */
+
+.cy-task-link-chip {
+    -fx-background-color: rgba(0,0,0,0.14);
+    -fx-border-color: rgba(255,255,255,0.10);
+
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+
+    -fx-min-height: 28px;
+    -fx-pref-height: 28px;
+    -fx-max-height: 28px;
+
+    /* ✅ icon flush right: no right padding, no spacing */
+    -fx-padding: 0 0 0 10;
+    -fx-spacing: 0;
+
+    -fx-alignment: CENTER_LEFT;
+
+    /* ✅ cursor stays clickable */
+    -fx-cursor: hand;
+}
+
+.root.theme-light .cy-task-link-chip {
+    -fx-background-color: rgba(0,0,0,0.06);
+    -fx-border-color: rgba(0,0,0,0.10);
+}
+
+.cy-task-link-chip:hover {
+    -fx-background-color: rgba(255,255,255,0.06);
+    -fx-border-color: rgba(255,255,255,0.14);
+    -fx-cursor: hand;
+}
+
+.root.theme-light .cy-task-link-chip:hover {
+    -fx-background-color: rgb(236, 234, 233);
+    -fx-border-color: rgba(0,0,0,0.14);
+    -fx-cursor: hand;
+}
+
+/* ✅ Right-side icon inside chip (no padding, rounded, same height as chip) */
+.cy-task-link-chip .cy-task-link-icon {
+    -fx-padding: 0;
+
+    -fx-min-width: 28px;
+    -fx-pref-width: 28px;
+    -fx-max-width: 28px;
+
+    -fx-min-height: 28px;
+    -fx-pref-height: 28px;
+    -fx-max-height: 28px;
+
+    -fx-background-insets: 0;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+
+    /* ✅ убрать рамку кнопки */
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+
+    -fx-cursor: hand;
+}
+
+
+.cy-task-link-text {
+    -fx-text-fill: -fx-text-color;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+
+    /* ✅ keep clickable cursor on text too */
+    -fx-cursor: hand;
+}
+
+/* =====================================================================
+   8.6.1) CYCLES: Environment Chip (meta row)
+   ===================================================================== */
+
+/* EnvironmentChip: симметричные внутренние отступы + как у TaskLinkChip */
+.cy-task-link-chip.cy-environment-chip {
+    /* ✅ фикс проблемы "впритык справа" — базовый чип имеет right padding = 0 */
+    -fx-padding: 0 10 0 10;
+
+    /* spacing контролируем в Java через margin у "/" */
+    -fx-spacing: 0;
+
+    /* ✅ должен вести себя как чип (hover курсор) */
+    -fx-cursor: hand;
+
+    /* контент по центру (у env-чипа нет правой кнопки как у TaskLinkChip) */
+    -fx-alignment: CENTER;
+}
+
+/* ✅ pressed-state для EnvironmentChip (HBox сам не умеет :pressed, делаем свой :down) */
+.cy-task-link-chip.cy-environment-chip:down {
+    -fx-background-color: rgba(255,255,255,0.03);
+    -fx-border-color: rgba(255,255,255,0.14);
+    -fx-translate-y: 1;
+}
+
+.root.theme-light .cy-task-link-chip.cy-environment-chip:down {
+    -fx-background-color: rgba(0,0,0,0.04);
+    -fx-border-color: rgba(0,0,0,0.14);
+    -fx-translate-y: 1;
+}
+
+
+/* =====================================================================
+   8.7) CYCLES: Task Link modal (Empty state)
+   ===================================================================== */
+
+.cy-tasklink-modal {
+    -fx-background-color: rgba(0,0,0,0.14);
+    -fx-border-color: rgba(255,255,255,0.10);
+
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+}
+
+.root.theme-light .cy-tasklink-modal {
+    -fx-background-color: rgba(0,0,0,0.06);
+    -fx-border-color: rgba(0,0,0,0.10);
+}
+
+.cy-tasklink-title {
+    -fx-text-fill: -fx-text-color;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+}
+
+.cy-tasklink-field {
+    -fx-min-height: 32px;
+    -fx-pref-height: 32px;
+    -fx-max-height: 32px;
+
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+
+    -fx-padding: 0 12;
+}
+
+/* =====================================================================
+   8.8) CYCLES: Profile modal (QA responsible)
+   ===================================================================== */
+
+/* ✅ Profile ComboBox: visuals are provided by global .app-combo styles (styles.css).
+   This class keeps only geometry constraints for the Cycles profile modal. */
+.cy-profile-combo {
+    -fx-min-height: 32px;
+    -fx-pref-height: 32px;
+    -fx-max-height: 32px;
+
+    -fx-padding: 0;
+}
+
+/* ✅ name input: reserve space for internal action button on the right */
+.cy-profile-name-input {
+    -fx-padding: 0 34 0 12;
+}
+
+/* ✅ add-user button INSIDE the input (same geometry as clear button style) */
+.cy-profile-add-in {
+    -fx-min-width: 28px;
+    -fx-pref-width: 28px;
+    -fx-max-width: 28px;
+
+    -fx-min-height: 28px;
+    -fx-pref-height: 28px;
+    -fx-max-height: 28px;
+
+    -fx-padding: 0;
+
+    -fx-background-insets: 0;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.cy-profile-add-in:hover {
+    -fx-background-color: rgba(255,255,255,0.06);
+}
+
+.root.theme-light .cy-profile-add-in:hover {
+    -fx-background-color: rgba(0,0,0,0.06);
+}
+
+/* ✅ remember checkbox text: explicit readable color in dark/light */
+.cy-profile-remember {
+    -fx-text-fill: -fx-text-color;
+}
+
+.root.theme-light .cy-profile-remember {
+    -fx-text-fill: -fx-text-color;
+}
+
+/* ✅ checkbox size: smaller (base shrink ~1.5x) */
+.cy-profile-remember-sm.tc-trash-check .box {
+    -fx-min-width: 18px;
+    -fx-min-height: 18px;
+    -fx-pref-width: 18px;
+    -fx-pref-height: 18px;
+
+    -fx-background-radius: 7;
+    -fx-border-radius: 7;
+
+    -fx-border-width: 1.2;
+    -fx-padding: 4px;
+}
+
+.cy-profile-remember-sm.tc-trash-check .mark {
+    -fx-scale-x: 0.77;
+    -fx-scale-y: 0.77;
+}
+
+/* ✅ EXTRA shrink on top: 1.2x smaller checkbox + text (relative to base shrink)
+   + затем увеличить на 10% (текущая задача) */
+.cy-profile-remember-xs {
+    -fx-font-size: 11px; /* было 10px, +10% */
+}
+
+/* box: было 15px -> +10% = 16.5px, округляем до 17px */
+.cy-profile-remember-xs.tc-trash-check .box {
+    -fx-min-width: 17px;
+    -fx-min-height: 17px;
+    -fx-pref-width: 17px;
+    -fx-pref-height: 17px;
+
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+
+    -fx-border-width: 1.1;
+    -fx-padding: 3px;
+}
+
+/* mark: было ~0.64 -> +10% ≈ 0.70 */
+.cy-profile-remember-xs.tc-trash-check .mark {
+    -fx-scale-x: 0.70;
+    -fx-scale-y: 0.70;
 }

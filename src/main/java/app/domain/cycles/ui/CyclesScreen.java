@@ -1,3 +1,4 @@
+// FILE: src/main/java/app/domain/cycles/ui/CyclesScreen.java
 package app.domain.cycles.ui;
 
 import app.domain.cycles.ui.left.LeftMode;
@@ -22,10 +23,21 @@ public final class CyclesScreen {
         left = new LeftPaneCoordinator(v, right);
         left.init();
 
-        // ✅ если пользователь закрыл правую зону — возвращаем левую зону к циклам,
-        // потому что btnFolder больше не "back", а кнопка переключения находится справа
+        // ✅ tgThemeLeft теперь отвечает за переключение списка (Cycles/Cases)
+        ThemeToggleUiInstaller.install(v.tgThemeLeft, left);
+
+        // right button "Добавить кейсы" -> ТУМБЛЕР:
+        // 1-й клик: cases picker + overlay "Добавить"
+        // 2-й клик: вернуть исходное состояние (cycles list)
+        right.setOnAddCases(() -> left.toggleCasesPickerAddOverlay());
+
+        // если пользователь закрыл правую зону — возвращаем левую зону к циклам
         right.setOnClose(() -> left.setMode(LeftMode.CYCLES_LIST));
 
-        // ❌ ничего не “показываем” справа при входе
+        // после сохранения — обновить cycles list
+        right.setOnSaved(() -> left.refreshCyclesFromDisk());
+
+        // ✅ после удаления — обновить cycles list
+        right.setOnDeleted(() -> left.refreshCyclesFromDisk());
     }
 }
