@@ -1,4 +1,3 @@
-// FILE: src/main/java/app/domain/testcases/ui/TestCaseRightPane.java
 package app.domain.testcases.ui;
 
 import app.core.I18n;
@@ -6,6 +5,7 @@ import app.core.PrivateRootConfig;
 import app.domain.testcases.repo.FileTestCaseRepository;
 import app.domain.testcases.usecase.CreateTestCaseUseCase;
 import app.domain.testcases.usecase.TestCaseDraft;
+import app.ui.UiAutoGrowTextArea;
 import app.ui.UiSaveFeedback;
 import app.ui.UiSvg;
 import javafx.animation.Interpolator;
@@ -943,97 +943,11 @@ public final class TestCaseRightPane {
         taRightDescription.setMinHeight(Region.USE_PREF_SIZE);
         taRightDescription.setMaxHeight(Double.MAX_VALUE);
 
-        installAutoGrowDescriptionTextArea(taRightDescription, base);
+        UiAutoGrowTextArea.installWrapAutoGrow(taRightDescription, base, null);
     }
-
-    private void installAutoGrowDescriptionTextArea(TextArea ta, double basePrefHeight) {
-        if (ta == null) return;
-
-        // сохраняем базовую высоту
-        ta.getProperties().put("autoGrowBasePrefHeight", basePrefHeight);
-
-        // один measurer на инстанс
-        Text measurer = new Text();
-        measurer.setFont(ta.getFont());
-
-        Runnable recalc = () -> {
-            Object v = ta.getProperties().get("autoGrowBasePrefHeight");
-            double basePref = (v instanceof Number) ? ((Number) v).doubleValue() : basePrefHeight;
-
-            String txt = ta.getText();
-            if (txt == null) txt = "";
-            if (txt.isEmpty()) txt = " "; // чтобы высота не стала 0
-
-            double w = ta.getWidth();
-            if (w <= 0) return;
-
-            double inW = ta.snappedLeftInset() + ta.snappedRightInset();
-            double inH = ta.snappedTopInset() + ta.snappedBottomInset();
-
-            double wrapW = Math.max(0.0, w - inW - 2.0); // без “запаса на строку”
-            measurer.setFont(ta.getFont());
-            measurer.setWrappingWidth(wrapW);
-
-            // считаем высоту как сумму высот по строкам, учитывая wrap
-            double lineH = computeLineHeight(measurer);
-
-            int visualLines = countVisualLines(txt, measurer, wrapW);
-            double textH = Math.max(1, visualLines) * lineH;
-
-            // только insets + микросейфти от дробных пикселей
-            double target = Math.max(basePref, Math.ceil(textH + inH + 2.0));
-
-            double cur = ta.getPrefHeight();
-            if (Math.abs(cur - target) > 0.5) {
-                ta.setPrefHeight(target);
-
-                // если вдруг TextArea успел внутренне “подскроллить” — возвращаем наверх
-                Platform.runLater(() -> {
-                    try { ta.setScrollTop(0); } catch (Exception ignore) {}
-                });
-            }
-        };
-
-        ta.textProperty().addListener((obs, ov, nv) -> recalc.run());
-        ta.widthProperty().addListener((obs, ov, nv) -> recalc.run());
-        ta.fontProperty().addListener((obs, ov, nv) -> recalc.run());
-
-        Platform.runLater(recalc);
-    }
-
-    private double computeLineHeight(Text measurer) {
-        // измеряем высоту одной строки
-        measurer.setText("Ay"); // символы с верх/низ выносами
-        return measurer.getLayoutBounds().getHeight();
-    }
-
     /**
      * Считает количество "визуальных строк" с учетом wrap по ширине.
      */
-    private int countVisualLines(String txt, Text measurer, double wrapW) {
-        String[] hard = txt.split("\n", -1);
-
-        int lines = 0;
-
-        for (String part : hard) {
-            if (part.isEmpty()) {
-                lines += 1;
-                continue;
-            }
-
-            // для этой части считаем, на сколько строк она переносится
-            measurer.setText(part);
-
-            double h = measurer.getLayoutBounds().getHeight();
-            double lineH = computeLineHeight(measurer);
-
-            int wrapped = (int) Math.ceil(h / Math.max(1.0, lineH));
-            lines += Math.max(1, wrapped);
-        }
-
-        return Math.max(1, lines);
-    }
-
     private void initStepsUi() {
         if (stepsBox == null) return;
         if (stepsBox.getChildren().isEmpty()) {
@@ -1738,3 +1652,5 @@ public final class TestCaseRightPane {
         return v;
     }
 }
+
+

@@ -1,4 +1,3 @@
-// FILE: src/main/java/app/domain/cycles/ui/left/CasesPickerActions.java
 package app.domain.cycles.ui.left;
 
 import app.domain.cycles.ui.CyclesViewRefs;
@@ -18,9 +17,22 @@ public final class CasesPickerActions implements LeftPaneActions {
 
     @Override
     public void onCreate() {
-        // save cycle (stub)
-        right.close();
-        switchToCyclesList.run();
+        // ✅ Требование: при нажатии "Создать" create-card справа должен открываться
+        // независимо от положения tgThemeLeft.
+        // Если мы в режиме кейсов — сначала возвращаемся к списку циклов (это же переключит toggle),
+        // затем открываем create-card справа.
+        if (switchToCyclesList != null) {
+            switchToCyclesList.run();
+        }
+
+        if (right != null) {
+            right.openCreateCard();
+        }
+
+        // как в CyclesListActions: снимаем выделение слева (на всякий случай)
+        try {
+            if (v != null && v.lvLeft != null) v.lvLeft.getSelectionModel().clearSelection();
+        } catch (Exception ignored) {}
     }
 
     @Override
