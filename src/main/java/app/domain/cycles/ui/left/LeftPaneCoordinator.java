@@ -2,16 +2,19 @@
 package app.domain.cycles.ui.left;
 
 import app.core.I18n;
+import app.domain.cycles.repo.CycleCardJsonReader;
 import app.domain.cycles.ui.CyclesViewRefs;
 import app.domain.cycles.ui.list.CaseListItem;
 import app.domain.cycles.ui.list.CycleListItem;
 import app.domain.cycles.ui.list.ListPresenter;
 import app.domain.cycles.ui.right.RightPaneCoordinator;
+import app.domain.cycles.usecase.CycleCaseRef;
 import app.domain.testcases.TestCase;
 import app.domain.testcases.repo.TestCaseCardStore;
 import app.ui.UiSvg;
 import app.ui.confirm.LeftDeleteConfirm;
 import app.domain.cycles.ui.overlay.LeftListActionOverlay;
+import app.ui.list.LeftListStickyHeader;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.PauseTransition;
@@ -23,8 +26,14 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.awt.Desktop;
@@ -35,6 +44,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -56,12 +66,17 @@ public final class LeftPaneCoordinator {
     private static final String TRASH_DIR_NAME = "_trash";
 
     // ===================== I18N =====================
-    private static final String I18N_CY_TOGGLE_TO_CASES  = "cy.btn.toggle.cases";
-    private static final String I18N_CY_TOGGLE_TO_CYCLES = "cy.btn.toggle.cycles";
 
     // ✅ delete confirm texts for cycles (NOT tc.*)
     private static final String I18N_CY_TRASH_TITLE = "cy.trash.delete.title";
     private static final String I18N_CY_TRASH_HINT  = "cy.trash.delete.hint";
+
+    // ✅ fallback title for empty cycle title (but never show id)
+    private static final String I18N_CY_UNTITLED = "cy.title.untitled";
+
+    // ✅ NEW: sticky header titles
+    private static final String I18N_CY_LEFT_LIST_CYCLES = "cy.left.list.cycles";
+    private static final String I18N_CY_LEFT_LIST_CASES  = "cy.left.list.cases";
     // ===============================================
 
     // ===================== SEARCH UX =====================
@@ -70,6 +85,10 @@ public final class LeftPaneCoordinator {
 
     // ===================== TRASH MODE (shared) =====================
     private static final String TRASH_SPACER_ID = "__TRASH_SPACER__";
+
+    // ✅ NEW: top spacer that offsets sticky header (scrolls away)
+    private static final String TOP_SPACER_ID = "__TOP_SPACER__";
+
     private static final double TRASH_SHIFT_PX = 26.0;
     private static final double TRASH_ANIM_MS  = 170.0;
 
@@ -80,12 +99,22 @@ public final class LeftPaneCoordinator {
     private boolean trashOutsideCloseInstalled = false;
     // ===============================================================
 
+    // ===================== STICKY HEADER (left list) =====================
+    private static final double LIST_HEADER_GAP_PX = 8.0; // extra gap below header
+    private static final double LIST_HEADER_MARGIN_TOP_PX = 10.0; // MUST match StackPane.setMargin(top)
+    private LeftListStickyHeader stickyHeader;
+    private StackPane listStack; // ListView + header overlay
+    // ===============================================================
+
     private final CyclesViewRefs v;
     private final RightPaneCoordinator right;
     private final ListPresenter list;
 
     private LeftMode mode = LeftMode.CYCLES_LIST;
     private LeftPaneActions actions;
+
+    // ✅ уведомление для внешних биндингов (tgThemeLeft)
+    private Runnable onModeChanged;
 
     private final PauseTransition searchIdleTimer = new PauseTransition();
     private boolean searchProgrammaticChange = false;
@@ -104,6 +133,11 @@ public final class LeftPaneCoordinator {
     private final Map<String, BooleanProperty> trashChecks = new HashMap<>();
     private final Map<String, BooleanProperty> cycleTrashChecks = new HashMap<>();
 
+    // ✅ порядок отметки чекбоксов (для "порядка добавления")
+    private final Map<String, Long> casePickOrder = new HashMap<>();
+    private long casePickSeq = 0L;
+    private boolean suppressPickOrder = false;
+
     // ====== UNIVERSAL overlay (cases + cycles) ======
     private LeftListActionOverlay casesAddOverlay;
     private LeftListActionOverlay cyclesTrashOverlay;
@@ -118,6 +152,9 @@ public final class LeftPaneCoordinator {
     }
 
     public void init() {
+        // ✅ install sticky header overlay inside list container (casesSheet)
+        installStickyListHeader();
+
         if (v.btnFolder != null) UiSvg.setButtonSvg(v.btnFolder, ICON_FOLDER, getIconSizeFromFxml(v.btnFolder, 14));
         if (v.btnSearch != null) UiSvg.setButtonSvg(v.btnSearch, ICON_SEARCH, getIconSizeFromFxml(v.btnSearch, 14));
         if (v.btnTrash != null)  UiSvg.setButtonSvg(v.btnTrash, ICON_TRASH,  getIconSizeFromFxml(v.btnTrash, 14));
@@ -139,16 +176,13 @@ public final class LeftPaneCoordinator {
 
         v.btnFolder.setOnAction(e -> openCyclesFolder());
 
-        if (v.btnToggleLeftList != null) {
-            v.btnToggleLeftList.setOnAction(e -> toggleMode());
-            syncToggleButtonText();
-        }
-
         // ====== CASES PICKER overlay (universal) ======
         casesAddOverlay = new LeftListActionOverlay(v.leftStack, v.casesSheet, "Добавить");
         casesAddOverlay.setOnOpenChanged(open -> {
             animateTrashShift(open);
             updateCasesTrashSpacerItem();
+            // ✅ при открытии overlay синхронизируем чекбоксы с правой зоной
+            syncCasesPickerChecksFromRight();
             refreshAddAvailability();
         });
         casesAddOverlay.setOnSpacerChanged(this::updateCasesTrashSpacerItem);
@@ -158,17 +192,12 @@ public final class LeftPaneCoordinator {
             refreshAddAvailability();
         });
 
-        // По умолчанию как раньше: UI-only (логика будет в coordinator/другом месте)
-        casesAddOverlay.setOnAdd(() -> {});
+        // ✅ применить diff в правую зону, НЕ закрывая режим
+        casesAddOverlay.setOnAdd(this::addSelectedCasesToRight);
 
-        // ====== CYCLES trash overlay (Delete) ======
+        // ====== CYCLES trash overlay (delete) ======
         cyclesTrashOverlay = new LeftListActionOverlay(v.leftStack, v.casesSheet, "Удалить");
         cyclesTrashOverlay.setOnOpenChanged(open -> {
-            // опционально: при закрытии снимаем select-all (а сами чекбоксы оставляем как есть)
-            if (!open && cyclesTrashOverlay != null && cyclesTrashOverlay.selectAllCheckBox() != null) {
-                cyclesTrashOverlay.selectAllCheckBox().setSelected(false);
-            }
-
             // если подтверждение было открыто — закрываем вместе с overlay
             if (!open && cyclesDeleteConfirm != null) {
                 cyclesDeleteConfirm.close();
@@ -215,18 +244,62 @@ public final class LeftPaneCoordinator {
         return mode;
     }
 
-    private void toggleMode() {
-        if (mode == LeftMode.CYCLES_LIST) applyMode(LeftMode.CASES_PICKER);
-        else applyMode(LeftMode.CYCLES_LIST);
+    // ✅ для ThemeToggleUiInstaller
+    public void setOnModeChanged(Runnable r) {
+        this.onModeChanged = r;
     }
 
-    private void syncToggleButtonText() {
-        if (v.btnToggleLeftList == null) return;
-        v.btnToggleLeftList.setText(
-                mode == LeftMode.CYCLES_LIST
-                        ? I18n.t(I18N_CY_TOGGLE_TO_CASES)
-                        : I18n.t(I18N_CY_TOGGLE_TO_CYCLES)
-        );
+    /**
+     * ✅ безопасный refresh cycles после сохранения файла на диск.
+     * Не меняет mode, не ломает overlays — просто перечитывает папку и перерисовывает список если мы в CYCLES_LIST.
+     */
+    public void refreshCyclesFromDisk() {
+        reloadCyclesFromDisk();
+        applyFiltersToList();
+
+        if (mode == LeftMode.CYCLES_LIST) {
+            list.showCycles(cycleView);
+            installCyclesListCellFactory();
+            updateCyclesTrashSpacerItem();
+            refreshCyclesDeleteAvailability();
+        }
+
+        // header text is still correct, but keep it safe
+        updateStickyHeaderTitle();
+    }
+
+    /**
+     * UX shortcut:
+     * - switch left list to CASES_PICKER
+     * - and open "Добавить" overlay (same as pressing the plus/trash button in cases picker mode).
+     */
+    public void openCasesPickerAddOverlay() {
+        // switch list to cases picker (reloads items + sets btnTrash to plus)
+        setMode(LeftMode.CASES_PICKER);
+
+        // ✅ синхронизируем чекбоксы с правой зоной и обновляем доступность кнопки
+        syncCasesPickerChecksFromRight();
+        refreshAddAvailability();
+
+        // open overlay (shift list + show checkboxes + action button)
+        if (casesAddOverlay != null && !casesAddOverlay.isOpen()) {
+            casesAddOverlay.open();
+        }
+    }
+
+    /**
+     * ✅ Задача: кнопка "Добавить кейсы" работает как тумблер.
+     * Повторное нажатие возвращает исходное состояние списка:
+     * - если сейчас уже в режиме добавления (CASES_PICKER) — возвращаемся в CYCLES_LIST
+     * - иначе — открываем режим добавления (openCasesPickerAddOverlay)
+     */
+    public void toggleCasesPickerAddOverlay() {
+        if (mode == LeftMode.CASES_PICKER) {
+            // applyMode(CYCLES_LIST) сам закроет casesAddOverlay если он открыт
+            setMode(LeftMode.CYCLES_LIST);
+            return;
+        }
+        openCasesPickerAddOverlay();
     }
 
     private void applyMode(LeftMode newMode) {
@@ -288,6 +361,11 @@ public final class LeftPaneCoordinator {
                 }
             }
 
+            // ✅ при входе в режим выбора кейсов — начинаем новую сессию порядка выбора
+            casePickOrder.clear();
+            casePickSeq = 0L;
+
+            // ✅ ВАЖНО: оставляем твою рабочую загрузку кейсов из TestCaseCardStore
             reloadCasesFromDisk();
             applyFiltersToList();
 
@@ -296,11 +374,337 @@ public final class LeftPaneCoordinator {
             installCasesPickerCellFactory();
             updateCasesTrashSpacerItem();
 
+            // ✅ отмечаем уже добавленные справа кейсы
+            syncCasesPickerChecksFromRight();
             refreshAddAvailability();
         }
 
-        syncToggleButtonText();
         updateSearchButtonVisibility();
+
+        // ✅ update sticky header title per current mode (i18n)
+        updateStickyHeaderTitle();
+
+        // ✅ notify external binders (tgThemeLeft)
+        if (onModeChanged != null) {
+            try { onModeChanged.run(); } catch (Exception ignore) {}
+        }
+    }
+
+    // ===================== STICKY HEADER (left list) =====================
+
+    /**
+     * Builds a StackPane overlay inside v.casesSheet:
+     * - ListView at bottom
+     * - sticky header on top
+     *
+     * Header background MUST match delete overlay:
+     * tc-filter-overlay + tc-trash-glass.
+     */
+    private void installStickyListHeader() {
+        if (v == null || v.casesSheet == null || v.lvLeft == null) return;
+
+        // already installed?
+        if (stickyHeader != null && listStack != null) return;
+
+        stickyHeader = new LeftListStickyHeader();
+        // ✅ important: allow scroll/clicks to pass through header overlay
+        stickyHeader.setMouseTransparent(true);
+        stickyHeader.setPickOnBounds(false);
+
+        listStack = new StackPane();
+        listStack.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+
+        // ✅ CRITICAL: casesSheet is VBox, stack must grow (fixes bottom clipping)
+        VBox.setVgrow(listStack, Priority.ALWAYS);
+
+        // move ListView into stack
+        try {
+            v.casesSheet.getChildren().remove(v.lvLeft);
+        } catch (Exception ignored) {}
+
+        // ensure ListView can fill stack
+        v.lvLeft.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        StackPane.setAlignment(v.lvLeft, Pos.TOP_LEFT);
+
+        listStack.getChildren().add(v.lvLeft);
+
+        // overlay header on top
+        StackPane.setAlignment(stickyHeader, Pos.TOP_CENTER);
+        StackPane.setMargin(stickyHeader, new Insets(LIST_HEADER_MARGIN_TOP_PX, 10, 0, 10));
+        listStack.getChildren().add(stickyHeader);
+
+        // replace sheet content with the stack (single child)
+        v.casesSheet.getChildren().clear();
+        v.casesSheet.getChildren().add(listStack);
+
+        // ✅ IMPORTANT: do NOT use ListView padding (it causes "scroll to header and stop").
+        // We use a TOP spacer item that scrolls away.
+        ensureTopSpacers();
+
+        // initial title
+        updateStickyHeaderTitle();
+    }
+
+    private void updateStickyHeaderTitle() {
+        if (stickyHeader == null) return;
+
+        String key = (mode == LeftMode.CASES_PICKER)
+                ? I18N_CY_LEFT_LIST_CASES
+                : I18N_CY_LEFT_LIST_CYCLES;
+
+        stickyHeader.setTitleKey(key);
+
+        // title may affect header height → update spacer height lazily by using supplier
+        // but also ensure spacer exists after mode switches/filters
+        ensureTopSpacers();
+    }
+
+    private double topSpacerHeightPx() {
+        if (stickyHeader == null) return 1.0;
+
+        double h = stickyHeader.getHeight();
+        if (h <= 0.0) h = stickyHeader.prefHeight(-1);
+
+        // if component provides stable height, use it as fallback
+        if (h <= 0.0) {
+            try { h = stickyHeader.stableHeightPx(); } catch (Exception ignore) {}
+        }
+
+        if (h <= 0.0) h = 1.0;
+
+        double top = LIST_HEADER_MARGIN_TOP_PX + h + LIST_HEADER_GAP_PX;
+        return Math.max(1.0, top);
+    }
+
+    private void ensureTopSpacers() {
+        // cycles view
+        ensureTopSpacerRow(
+                cycleView,
+                TOP_SPACER_ID,
+                CycleListItem::id,
+                () -> stickyHeader != null,
+                () -> new CycleListItem(TOP_SPACER_ID, "", "")
+        );
+        moveTopSpacerToStart(cycleView, CycleListItem::id);
+
+        // cases view
+        ensureTopSpacerRow(
+                caseView,
+                TOP_SPACER_ID,
+                CaseListItem::id,
+                () -> stickyHeader != null,
+                () -> new CaseListItem(TOP_SPACER_ID, "")
+        );
+        moveTopSpacerToStart(caseView, CaseListItem::id);
+    }
+
+    private static <T> void ensureTopSpacerRow(
+            ObservableList<T> viewItems,
+            String spacerId,
+            java.util.function.Function<T, String> idGetter,
+            java.util.function.Supplier<Boolean> wantSpacer,
+            java.util.function.Supplier<T> spacerFactory
+    ) {
+        if (viewItems == null) return;
+
+        boolean need = wantSpacer != null && Boolean.TRUE.equals(wantSpacer.get());
+        int idx = indexOfSpacer(viewItems, spacerId, idGetter);
+
+        if (need) {
+            if (idx < 0 && spacerFactory != null) viewItems.add(0, spacerFactory.get());
+        } else {
+            if (idx >= 0) viewItems.remove(idx);
+        }
+    }
+
+    private static <T> void moveTopSpacerToStart(ObservableList<T> items, java.util.function.Function<T, String> idGetter) {
+        if (items == null || items.isEmpty()) return;
+
+        int idx = -1;
+        for (int i = 0; i < items.size(); i++) {
+            T it = items.get(i);
+            if (it == null) continue;
+            String id = idGetter.apply(it);
+            if (TOP_SPACER_ID.equals(id)) { idx = i; break; }
+        }
+
+        if (idx > 0) {
+            T spacer = items.remove(idx);
+            items.add(0, spacer);
+        }
+    }
+
+    // ===================== OPEN CYCLE CARD (single click) =====================
+
+    private void onCycleClicked(CycleListItem c) {
+        if (c == null) return;
+
+        String id = safeTrim(c.id());
+        if (id.isEmpty() || TRASH_SPACER_ID.equals(id) || TOP_SPACER_ID.equals(id)) return;
+
+        // toggle-close if clicking currently opened cycle (like TestCases)
+        if (right != null && right.isOpen()) {
+            String openedId = safeTrim(right.openedCycleId());
+            if (!openedId.isEmpty() && openedId.equals(id)) {
+                right.close();
+                try {
+                    if (v.lvLeft != null) v.lvLeft.getSelectionModel().clearSelection();
+                } catch (Exception ignored) {}
+                return;
+            }
+        }
+
+        // open existing card
+        Path file = CYCLES_ROOT.resolve(id + ".json");
+        if (right != null) right.openExistingCard(file);
+    }
+
+    // ===================== ADD SELECTED CASES -> RIGHT (UI-only) =====================
+
+    private void addSelectedCasesToRight() {
+        if (right == null) return;
+        if (!right.isOpen()) return;
+
+        LinkedHashSet<String> desiredIds = getCheckedCaseIds();
+        LinkedHashSet<String> currentIds = new LinkedHashSet<>(right.getAddedCaseIds());
+
+        // toRemove: было справа, но сейчас не отмечено
+        List<String> toRemove = new ArrayList<>();
+        for (String id : currentIds) {
+            if (id == null || id.isBlank()) continue;
+            if (!desiredIds.contains(id)) toRemove.add(id);
+        }
+
+        // toAdd: отмечено, но ещё нет справа
+        List<String> toAddIds = new ArrayList<>();
+        for (String id : desiredIds) {
+            if (id == null || id.isBlank()) continue;
+            if (!currentIds.contains(id)) toAddIds.add(id);
+        }
+
+        // 1) remove unchecked (сохраняем порядок оставшихся)
+        if (!toRemove.isEmpty()) {
+            right.removeAddedCasesByIds(toRemove);
+        }
+
+        // 2) add new — в порядке "по мере выбора" (casePickOrder), иначе fallback на порядок списка
+        if (!toAddIds.isEmpty()) {
+            List<CycleCaseRef> toAdd = buildToAddRefsOrdered(toAddIds);
+            if (!toAdd.isEmpty()) right.addAddedCases(toAdd);
+        }
+
+        // ✅ режим и overlay остаются активными, просто обновляем доступность кнопки
+        refreshAddAvailability();
+    }
+
+    private LinkedHashSet<String> getCheckedCaseIds() {
+        LinkedHashSet<String> out = new LinkedHashSet<>();
+
+        for (var e : trashChecks.entrySet()) {
+            if (e == null) continue;
+
+            String id = safeTrim(e.getKey());
+            if (id.isEmpty() || TRASH_SPACER_ID.equals(id) || TOP_SPACER_ID.equals(id)) continue;
+
+            BooleanProperty p = e.getValue();
+            if (p != null && p.get()) out.add(id);
+        }
+
+        return out;
+    }
+
+    private boolean hasCasesPickerDiff() {
+        if (right == null || !right.isOpen()) return false;
+
+        LinkedHashSet<String> desired = getCheckedCaseIds();
+        LinkedHashSet<String> current = new LinkedHashSet<>(right.getAddedCaseIds());
+        return !desired.equals(current);
+    }
+
+    private List<CycleCaseRef> buildToAddRefsOrdered(List<String> toAddIds) {
+        // 1) если есть order по чекбоксам — сортируем по нему
+        List<String> ids = new ArrayList<>();
+        for (String id : toAddIds) {
+            if (id == null || id.isBlank()) continue;
+            ids.add(id);
+        }
+
+        ids.sort((a, b) -> {
+            Long oa = casePickOrder.get(a);
+            Long ob = casePickOrder.get(b);
+            if (oa == null && ob == null) return 0;
+            if (oa == null) return 1;
+            if (ob == null) return -1;
+            return Long.compare(oa, ob);
+        });
+
+        // title lookup из caseAll/caseView
+        Map<String, String> titleById = new HashMap<>();
+        for (CaseListItem it : caseAll) {
+            if (it == null) continue;
+            String id = safeTrim(it.id());
+            if (id.isEmpty() || TRASH_SPACER_ID.equals(id) || TOP_SPACER_ID.equals(id)) continue;
+            titleById.putIfAbsent(id, safeTrim(it.title()));
+        }
+        for (CaseListItem it : caseView) {
+            if (it == null) continue;
+            String id = safeTrim(it.id());
+            if (id.isEmpty() || TRASH_SPACER_ID.equals(id) || TOP_SPACER_ID.equals(id)) continue;
+            titleById.putIfAbsent(id, safeTrim(it.title()));
+        }
+
+        List<CycleCaseRef> out = new ArrayList<>();
+        for (String id : ids) {
+            String title = titleById.getOrDefault(id, "");
+            out.add(new CycleCaseRef(id, title));
+        }
+        return out;
+    }
+
+    /**
+     * При входе/открытии overlay в CASES_PICKER:
+     * ✅ отмечаем уже добавленные справа кейсы и НЕ пишем их в order (это не "новое добавление")
+     */
+    private void syncCasesPickerChecksFromRight() {
+        if (right == null || !right.isOpen()) return;
+
+        suppressPickOrder = true;
+        try {
+            for (String idRaw : right.getAddedCaseIds()) {
+                String id = safeTrim(idRaw);
+                if (id.isEmpty()) continue;
+
+                BooleanProperty p = getOrCreateTrashCheck(id);
+                p.set(true);
+            }
+        } finally {
+            suppressPickOrder = false;
+        }
+    }
+
+    private BooleanProperty getOrCreateTrashCheck(String id) {
+        String key = safeTrim(id);
+        if (key.isEmpty()) return new SimpleBooleanProperty(false);
+
+        BooleanProperty p = trashChecks.get(key);
+        if (p != null) return p;
+
+        SimpleBooleanProperty prop = new SimpleBooleanProperty(false);
+        // ✅ фиксируем порядок выбора пользователем
+        prop.addListener((obs, oldV, newV) -> {
+            if (suppressPickOrder) return;
+
+            boolean v = newV != null && newV;
+            if (v) {
+                casePickOrder.put(key, ++casePickSeq);
+            } else {
+                casePickOrder.remove(key);
+            }
+            refreshAddAvailability();
+        });
+
+        trashChecks.put(key, prop);
+        return prop;
     }
 
     // ===================== OUTSIDE CLOSE (cycles trash) =====================
@@ -356,11 +760,29 @@ public final class LeftPaneCoordinator {
                 (ObservableList) cycleView,
                 trashShiftPx,
                 (Map) cycleTrashChecks,
+                TOP_SPACER_ID,
+                this::topSpacerHeightPx,
                 TRASH_SPACER_ID,
                 () -> cyclesTrashOverlay != null ? cyclesTrashOverlay.scrollSpacerPx() : 1.0,
                 it -> ((CycleListItem) it).id(),
-                it -> ((CycleListItem) it).title(),
-                this::refreshCyclesDeleteAvailability
+                // ✅ UI-строку собираем тут (i18n), без утечки id
+                it -> {
+                    CycleListItem c = (CycleListItem) it;
+
+                    String t = safeTrim(c.safeTitle());
+                    String d = safeTrim(c.safeCreatedAtUi());
+
+                    if (t.isBlank()) t = I18n.t(I18N_CY_UNTITLED);
+                    if (d.isBlank()) return t;
+
+                    // формат: "<title> <date>"
+                    return t + " " + d;
+                },
+                this::refreshCyclesDeleteAvailability,
+                it -> {
+                    if (!(it instanceof CycleListItem c)) return;
+                    onCycleClicked(c);
+                }
         );
     }
 
@@ -373,200 +795,77 @@ public final class LeftPaneCoordinator {
                 (ObservableList) caseView,
                 trashShiftPx,
                 (Map) trashChecks,
+                TOP_SPACER_ID,
+                this::topSpacerHeightPx,
                 TRASH_SPACER_ID,
                 () -> casesAddOverlay != null ? casesAddOverlay.scrollSpacerPx() : 1.0,
                 it -> ((CaseListItem) it).id(),
                 it -> ((CaseListItem) it).title(),
-                this::refreshAddAvailability
+                this::refreshAddAvailability,
+                null
         );
     }
 
-    // ===================== CYCLES trash-mode =====================
+    // ===================== SPACER ROWS =====================
+
+    private void updateCasesTrashSpacerItem() {
+        ensureSpacerRow(
+                caseView,
+                TRASH_SPACER_ID,
+                CaseListItem::id,
+                () -> casesAddOverlay != null && casesAddOverlay.isOpen(),
+                () -> new CaseListItem(TRASH_SPACER_ID, "")
+        );
+        moveSpacerToEnd(caseView, CaseListItem::id);
+        moveTopSpacerToStart(caseView, CaseListItem::id);
+    }
 
     private void updateCyclesTrashSpacerItem() {
-        if (mode != LeftMode.CYCLES_LIST) return;
-        if (cyclesTrashOverlay == null) return;
-
-        TrashModeListSupport.ensureSpacerRow(
+        ensureSpacerRow(
                 cycleView,
                 TRASH_SPACER_ID,
                 CycleListItem::id,
-                () -> cyclesTrashOverlay.isOpen() && cyclesTrashOverlay.scrollSpacerPx() > 0.0,
-                () -> new CycleListItem(TRASH_SPACER_ID, "")
+                () -> cyclesTrashOverlay != null && cyclesTrashOverlay.isOpen(),
+                () -> new CycleListItem(TRASH_SPACER_ID, "", "")
         );
-
-        Platform.runLater(() -> v.lvLeft.refresh());
-    }
-
-    private void reloadCyclesFromDisk() {
-        cycleAll.clear();
-
-        try {
-            Files.createDirectories(CYCLES_ROOT);
-        } catch (Exception ignored) {}
-
-        ArrayList<Path> files = new ArrayList<>();
-        try (DirectoryStream<Path> ds = Files.newDirectoryStream(CYCLES_ROOT, "*.json")) {
-            for (Path p : ds) {
-                if (p == null) continue;
-                if (!Files.isRegularFile(p)) continue;
-                files.add(p);
-            }
-        } catch (Exception ignored) {}
-
-        files.sort(Comparator.comparing(p -> safeTrim(p.getFileName() == null ? "" : p.getFileName().toString()).toLowerCase()));
-
-        for (Path p : files) {
-            String fileName = p.getFileName() == null ? "" : p.getFileName().toString();
-            if (fileName.isBlank()) continue;
-
-            String title = fileName;
-            if (title.toLowerCase().endsWith(".json")) {
-                title = title.substring(0, title.length() - 5);
-            }
-
-            // id = имя файла (нужно для удаления), title = для UI
-            cycleAll.add(new CycleListItem(fileName, title));
-        }
-    }
-
-    private void refreshCyclesDeleteAvailability() {
-        if (mode != LeftMode.CYCLES_LIST) return;
-        if (cyclesTrashOverlay == null) return;
-
-        boolean any = hasAnyCycleTrashChecked();
-
-        cyclesTrashOverlay.setDeleteEnabled(any);
-        if (cyclesDeleteConfirm != null) cyclesDeleteConfirm.refreshAvailability(any);
-    }
-
-    private boolean hasAnyCycleTrashChecked() {
-        for (CycleListItem it : cycleView) {
-            if (it == null) continue;
-            if (TRASH_SPACER_ID.equals(it.id())) continue;
-
-            BooleanProperty p = cycleTrashChecks.get(it.id());
-            if (p != null && p.get()) return true;
-        }
-        return false;
-    }
-
-    private void setAllCycleTrashChecks(boolean value) {
-        for (CycleListItem it : cycleView) {
-            if (it == null) continue;
-            if (TRASH_SPACER_ID.equals(it.id())) continue;
-
-            BooleanProperty p = cycleTrashChecks.computeIfAbsent(it.id(), k -> new SimpleBooleanProperty(false));
-            p.set(value);
-        }
-    }
-
-    private void deleteSelectedCyclesChecked() {
-        if (mode != LeftMode.CYCLES_LIST) return;
-
-        ArrayList<String> toDelete = new ArrayList<>();
-        for (CycleListItem it : cycleView) {
-            if (it == null) continue;
-            String id = safeTrim(it.id());
-            if (id.isEmpty() || TRASH_SPACER_ID.equals(id)) continue;
-
-            BooleanProperty p = cycleTrashChecks.get(id);
-            if (p != null && p.get()) toDelete.add(id);
-        }
-
-        if (toDelete.isEmpty()) {
-            refreshCyclesDeleteAvailability();
-            return;
-        }
-
-        // ✅ move to trash folder (same as TestCasesController.deleteSelectedTrashChecked)
-        Path trashDir = CYCLES_ROOT.resolve(TRASH_DIR_NAME);
-        try {
-            if (!Files.exists(trashDir)) Files.createDirectories(trashDir);
-        } catch (Exception ignored) {}
-
-        for (String fileName : toDelete) {
-            try {
-                Path src = CYCLES_ROOT.resolve(fileName);
-                if (!Files.exists(src)) continue;
-
-                Path dst = trashDir.resolve(src.getFileName());
-                Files.move(src, dst, StandardCopyOption.REPLACE_EXISTING);
-            } catch (Exception ignored) {}
-        }
-
-        for (String fileName : toDelete) {
-            BooleanProperty p = cycleTrashChecks.get(fileName);
-            if (p != null) p.set(false);
-        }
-
-        reloadCyclesFromDisk();
-        applyFiltersToList();
-
-        if (cyclesTrashOverlay != null && cyclesTrashOverlay.isOpen()) {
-            cyclesTrashOverlay.close();
-        }
-
-        animateTrashShift(false);
-        trashShiftPx.set(0.0);
-
-        updateCyclesTrashSpacerItem();
-        refreshCyclesDeleteAvailability();
-    }
-
-    // ===================== CASES picker (existing) =====================
-
-    private void refreshAddAvailability() {
-        if (mode != LeftMode.CASES_PICKER) return;
-        if (casesAddOverlay == null) return;
-
-        boolean any = false;
-        for (CaseListItem it : caseView) {
-            if (it == null) continue;
-            if (TRASH_SPACER_ID.equals(it.id())) continue;
-
-            BooleanProperty p = trashChecks.get(it.id());
-            if (p != null && p.get()) {
-                any = true;
-                break;
-            }
-        }
-
-        casesAddOverlay.setAddEnabled(any);
-    }
-
-    private void setAllTrashChecks(boolean value) {
-        for (CaseListItem it : caseView) {
-            if (it == null) continue;
-            if (TRASH_SPACER_ID.equals(it.id())) continue;
-
-            BooleanProperty p = trashChecks.computeIfAbsent(it.id(), k -> new SimpleBooleanProperty(false));
-            p.set(value);
-        }
-    }
-
-    // ===================== VIEW APPLY (shared) =====================
-
-    private void applyFiltersToList() {
-        // cycles
-        cycleView.clear();
-        cycleView.addAll(cycleAll);
-
-        // cases
-        caseView.clear();
-        caseView.addAll(caseAll);
-
-        // search
-        if (appliedSearch != null && !appliedSearch.isBlank()) {
-            String q = appliedSearch.trim().toLowerCase();
-
-            cycleView.removeIf(it -> it == null || it.id() == null || it.title() == null || !it.title().toLowerCase().contains(q));
-            caseView.removeIf(it -> it == null || it.id() == null || it.title() == null || !it.title().toLowerCase().contains(q));
-        }
-
-        // ensure spacer rows are at bottom (if present)
         moveSpacerToEnd(cycleView, CycleListItem::id);
-        moveSpacerToEnd(caseView, CaseListItem::id);
+        moveTopSpacerToStart(cycleView, CycleListItem::id);
+    }
+
+    public static <T> void ensureSpacerRow(
+            ObservableList<T> viewItems,
+            String spacerId,
+            java.util.function.Function<T, String> idGetter,
+            java.util.function.Supplier<Boolean> wantSpacer,
+            java.util.function.Supplier<T> spacerFactory
+    ) {
+        if (viewItems == null) return;
+
+        boolean need = wantSpacer != null && Boolean.TRUE.equals(wantSpacer.get());
+        int idx = indexOfSpacer(viewItems, spacerId, idGetter);
+
+        if (need) {
+            if (idx < 0 && spacerFactory != null) viewItems.add(spacerFactory.get());
+        } else {
+            if (idx >= 0) viewItems.remove(idx);
+        }
+    }
+
+    public static <T> int indexOfSpacer(ObservableList<T> list, String spacerId, java.util.function.Function<T, String> idGetter) {
+        for (int i = 0; i < list.size(); i++) {
+            T it = list.get(i);
+            if (it == null) continue;
+
+            final String id;
+            try {
+                id = safeTrim(idGetter.apply(it));
+            } catch (Exception ex) {
+                continue;
+            }
+
+            if (spacerId.equals(id)) return i;
+        }
+        return -1;
     }
 
     private static <T> void moveSpacerToEnd(ObservableList<T> items, java.util.function.Function<T, String> idGetter) {
@@ -583,6 +882,57 @@ public final class LeftPaneCoordinator {
         if (idx >= 0 && idx != items.size() - 1) {
             T spacer = items.remove(idx);
             items.add(spacer);
+        }
+    }
+
+    // ===================== ENABLE/DISABLE action buttons =====================
+
+    private void refreshAddAvailability() {
+        if (casesAddOverlay == null) return;
+
+        // ✅ кнопка активна только если есть diff относительно правой зоны
+        boolean enable = hasCasesPickerDiff();
+        casesAddOverlay.setAddEnabled(enable);
+    }
+
+    private void refreshCyclesDeleteAvailability() {
+        if (cyclesTrashOverlay == null) return;
+        boolean enable = hasAnyCycleTrashChecked();
+        cyclesTrashOverlay.setDeleteEnabled(enable);
+    }
+
+    private boolean hasAnyCycleTrashChecked() {
+        for (var e : cycleTrashChecks.entrySet()) {
+            if (e == null) continue;
+            BooleanProperty p = e.getValue();
+            if (p != null && p.get()) return true;
+        }
+        return false;
+    }
+
+    private void setAllTrashChecks(boolean v) {
+        // ✅ select-all не должен ломать "порядок добавления" — это массовая операция
+        suppressPickOrder = true;
+        try {
+            for (var it : caseView) {
+                if (it == null) continue;
+                String id = it.id();
+                if (id == null || id.isBlank() || TRASH_SPACER_ID.equals(id) || TOP_SPACER_ID.equals(id)) continue;
+
+                BooleanProperty p = getOrCreateTrashCheck(id);
+                p.set(v);
+            }
+        } finally {
+            suppressPickOrder = false;
+        }
+    }
+
+    private void setAllCycleTrashChecks(boolean v) {
+        for (var it : cycleView) {
+            if (it == null) continue;
+            String id = it.id();
+            if (id == null || id.isBlank() || TRASH_SPACER_ID.equals(id) || TOP_SPACER_ID.equals(id)) continue;
+            cycleTrashChecks.computeIfAbsent(id, k -> new SimpleBooleanProperty(false)).set(v);
         }
     }
 
@@ -660,34 +1010,32 @@ public final class LeftPaneCoordinator {
         trashShiftAnim.playFromStart();
     }
 
-    // ===================== CASES picker data (existing) =====================
-
-    private void updateCasesTrashSpacerItem() {
-        if (mode != LeftMode.CASES_PICKER) return;
-        if (casesAddOverlay == null) return;
-
-        TrashModeListSupport.ensureSpacerRow(
-                caseView,
-                TRASH_SPACER_ID,
-                CaseListItem::id,
-                () -> casesAddOverlay.isOpen() && casesAddOverlay.scrollSpacerPx() > 0.0,
-                () -> new CaseListItem(TRASH_SPACER_ID, "")
-        );
-
-        Platform.runLater(() -> v.lvLeft.refresh());
-    }
+    // ===================== CASES picker data (fixed) =====================
 
     private void reloadCasesFromDisk() {
         caseAll.clear();
+        trashChecks.clear(); // ✅ как было: при входе в режим выборки — чистый выбор
+        casePickOrder.clear();
+        casePickSeq = 0L;
 
-        List<TestCase> all = TestCaseCardStore.loadAll();
-        for (TestCase tc : all) {
-            if (tc == null) continue;
-            String id = safeTrim(tc.getId());
-            if (id.isEmpty()) continue;
+        try {
+            List<TestCase> all = TestCaseCardStore.loadAll();
+            for (TestCase tc : all) {
+                if (tc == null) continue;
 
-            String title = buildLeftTitle(tc);
-            caseAll.add(new CaseListItem(id, title));
+                String id = safeTrim(tc.getId());
+                if (id.isEmpty()) continue;
+
+                // ✅ как было в рабочем варианте: показываем "CODE-NUMBER Title" (или head если title пустой)
+                String title = buildLeftTitle(tc);
+                caseAll.add(new CaseListItem(id, title));
+            }
+
+            // keep stable sort
+            caseAll.sort(Comparator.comparing(CaseListItem::title, String.CASE_INSENSITIVE_ORDER));
+
+        } catch (Exception ignore) {
+            // ignore
         }
     }
 
@@ -707,23 +1055,122 @@ public final class LeftPaneCoordinator {
         return head;
     }
 
-    // ===================== FOLDER OPEN =====================
+    // ===================== CYCLES data (from disk) =====================
+
+    private void reloadCyclesFromDisk() {
+        cycleAll.clear();
+        cycleTrashChecks.clear();
+
+        try {
+            if (!Files.exists(CYCLES_ROOT)) return;
+
+            List<Path> jsons = new ArrayList<>();
+            try (DirectoryStream<Path> ds = Files.newDirectoryStream(CYCLES_ROOT, "*.json")) {
+                for (Path p : ds) {
+                    if (p == null) continue;
+                    jsons.add(p);
+                }
+            }
+
+            for (Path p : jsons) {
+                String name = p.getFileName().toString();
+                String id = name.replace(".json", "");
+
+                // читаем title и meta.createdAtUi из json
+                CycleCardJsonReader.CycleListMeta meta = CycleCardJsonReader.readListMeta(p);
+
+                String title = meta != null ? safeTrim(meta.title) : "";
+                String createdAtUi = meta != null ? safeTrim(meta.createdAtUi) : "";
+
+                cycleAll.add(new CycleListItem(id, title, createdAtUi));
+            }
+
+            // сортировка по title (пустые уйдут наверх — это ок, отображение решаем i18n)
+            cycleAll.sort(Comparator.comparing(CycleListItem::safeTitle, String.CASE_INSENSITIVE_ORDER));
+
+        } catch (Exception ignore) {
+            // ignore
+        }
+    }
+
+    private void deleteSelectedCyclesChecked() {
+        try {
+            if (!Files.exists(CYCLES_ROOT)) return;
+
+            Path trashDir = CYCLES_ROOT.resolve(TRASH_DIR_NAME);
+            if (!Files.exists(trashDir)) Files.createDirectories(trashDir);
+
+            List<String> ids = new ArrayList<>();
+            for (var e : cycleTrashChecks.entrySet()) {
+                if (e == null) continue;
+                if (e.getValue() != null && e.getValue().get()) ids.add(e.getKey());
+            }
+
+            for (String id : ids) {
+                if (id == null || id.isBlank()) continue;
+
+                Path src = CYCLES_ROOT.resolve(id + ".json");
+                if (!Files.exists(src)) continue;
+
+                Path dst = trashDir.resolve(id + ".json");
+                Files.move(src, dst, StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            // cleanup state
+            cycleTrashChecks.clear();
+            if (cyclesTrashOverlay != null) cyclesTrashOverlay.close();
+            if (cyclesDeleteConfirm != null) cyclesDeleteConfirm.close();
+
+            reloadCyclesFromDisk();
+            applyFiltersToList();
+            list.showCycles(cycleView);
+            installCyclesListCellFactory();
+            updateCyclesTrashSpacerItem();
+            refreshCyclesDeleteAvailability();
+
+        } catch (Exception ignore) {
+            // ignore
+        }
+    }
+
+    // ===================== FILTERS =====================
+
+    private void applyFiltersToList() {
+        // cycles
+        cycleView.clear();
+        cycleView.addAll(cycleAll);
+
+        // cases
+        caseView.clear();
+        caseView.addAll(caseAll);
+
+        // search
+        if (appliedSearch != null && !appliedSearch.isBlank()) {
+            String q = appliedSearch.trim().toLowerCase();
+
+            // поиск по title (без даты)
+            cycleView.removeIf(it -> it == null || it.id() == null || it.safeTitle() == null || !it.safeTitle().toLowerCase().contains(q));
+            caseView.removeIf(it -> it == null || it.id() == null || it.title() == null || !it.title().toLowerCase().contains(q));
+        }
+
+        // ✅ ensure top spacer exists and stays at index 0
+        ensureTopSpacers();
+
+        // ensure trash spacer rows are at bottom (if present)
+        moveSpacerToEnd(cycleView, CycleListItem::id);
+        moveSpacerToEnd(caseView, CaseListItem::id);
+    }
+
+    // ===================== MISC =====================
 
     private void openCyclesFolder() {
         try {
-            Files.createDirectories(CYCLES_ROOT);
-            if (Desktop.isDesktopSupported()) {
-                Desktop.getDesktop().open(CYCLES_ROOT.toFile());
-            }
-        } catch (Exception ignored) {}
-    }
-
-    private static String safeTrim(String v) {
-        return v == null ? "" : v.trim();
-    }
-
-    private static String s(String v) {
-        return v == null ? "" : v.trim();
+            if (!Files.exists(CYCLES_ROOT)) Files.createDirectories(CYCLES_ROOT);
+            if (!Desktop.isDesktopSupported()) return;
+            Desktop.getDesktop().open(CYCLES_ROOT.toFile());
+        } catch (Exception ignore) {
+            // ignore
+        }
     }
 
     private static int getIconSizeFromFxml(javafx.scene.Node node, int def) {
@@ -740,5 +1187,13 @@ public final class LeftPaneCoordinator {
         } catch (Exception ignore) {
             return def;
         }
+    }
+
+    private static String s(String v) {
+        return v == null ? "" : v.trim();
+    }
+
+    public static String safeTrim(String v) {
+        return v == null ? "" : v.trim();
     }
 }

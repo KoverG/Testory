@@ -1,3 +1,4 @@
+// FILE: src/main/java/app/domain/cycles/ui/left/TrashModeListSupport.java
 package app.domain.cycles.ui.left;
 
 import javafx.application.Platform;
@@ -22,13 +23,14 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
  * Small UI helper to keep LeftPaneCoordinator lean:
  * - installs list cell factory with "trash-mode" checkbox behavior identical to TestCases list.
- * - supports spacer row when overlay is open.
+ * - supports spacer row(s).
  *
  * IMPORTANT:
  * ListView может коротко оставлять старые cells при смене items/cellFactory.
@@ -45,16 +47,24 @@ public final class TrashModeListSupport {
 
     public static final double TRASH_SHIFT_PX = 26.0;
 
+    /**
+     * ✅ NEW overload: supports TWO spacers:
+     * - topSpacerId: offsets sticky header (scrolls away)
+     * - spacerId: bottom spacer for overlay (existing behavior)
+     */
     public static <T> void install(
             ListView<T> lv,
             ObservableList<T> viewItems,
             DoubleProperty trashShiftPx,
             Map<String, BooleanProperty> checks,
+            String topSpacerId,
+            Supplier<Double> topSpacerHeightSupplier,
             String spacerId,
             Supplier<Double> spacerHeightSupplier,
             Function<T, String> idGetter,
             Function<T, String> titleGetter,
-            Runnable onSelectionChanged
+            Runnable onSelectionChanged,
+            Consumer<T> onNormalClick
     ) {
         if (lv == null) return;
 
@@ -120,6 +130,7 @@ public final class TrashModeListSupport {
                 setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 
                 // click row toggles checkbox in trash-mode (same UX as cases)
+                // + in normal mode: delegate click to opener (Cycles requirement)
                 setOnMouseClicked(ev -> {
                     if (ev.getButton() != javafx.scene.input.MouseButton.PRIMARY) return;
                     if (ev.getClickCount() != 1) return;
@@ -138,15 +149,28 @@ public final class TrashModeListSupport {
                         return;
                     }
 
-                    if (id.isEmpty() || spacerId.equals(id)) return;
+                    if (id.isEmpty()) return;
+                    if (spacerId != null && spacerId.equals(id)) return;
+                    if (topSpacerId != null && topSpacerId.equals(id)) return;
 
                     boolean inTrashMode = trashShiftPx.get() > 0.5;
-                    if (!inTrashMode) return;
 
-                    BooleanProperty p = checks.computeIfAbsent(id, k -> new SimpleBooleanProperty(false));
-                    p.set(!p.get());
+                    if (inTrashMode) {
+                        BooleanProperty p = checks.computeIfAbsent(id, k -> new SimpleBooleanProperty(false));
+                        p.set(!p.get());
 
-                    if (onSelectionChanged != null) onSelectionChanged.run();
+                        if (onSelectionChanged != null) onSelectionChanged.run();
+                        return;
+                    }
+
+                    // normal mode click → open card
+                    if (onNormalClick != null) {
+                        try {
+                            // держим selection синхронным (ListView не всегда успевает)
+                            list.getSelectionModel().select(getIndex());
+                        } catch (Exception ignored) {}
+                        onNormalClick.accept(raw);
+                    }
                 });
             }
 
@@ -176,14 +200,21 @@ public final class TrashModeListSupport {
                     return;
                 }
 
-                if (spacerId.equals(id)) {
+                // top spacer OR bottom spacer
+                boolean isTopSpacer = topSpacerId != null && topSpacerId.equals(id);
+                boolean isBottomSpacer = spacerId != null && spacerId.equals(id);
+
+                if (isTopSpacer || isBottomSpacer) {
                     unbindTrashRow();
 
                     Region r = new Region();
                     double h = 1.0;
+
                     try {
-                        h = spacerHeightSupplier == null ? 1.0 : spacerHeightSupplier.get();
+                        Supplier<Double> sup = isTopSpacer ? topSpacerHeightSupplier : spacerHeightSupplier;
+                        h = sup == null ? 1.0 : sup.get();
                     } catch (Exception ignored) {}
+
                     if (h <= 0) h = 1;
 
                     r.setMinHeight(h);
@@ -261,6 +292,41 @@ public final class TrashModeListSupport {
                 try { cbTrashRow.setSelected(false); } catch (Exception ignored) {}
             }
         });
+
+        // keep original items
+        if (viewItems != null) lv.setItems(viewItems);
+    }
+
+    /**
+     * ✅ Backward compatible overload (old signature).
+     * Treats single spacerId as bottom spacer only.
+     */
+    public static <T> void install(
+            ListView<T> lv,
+            ObservableList<T> viewItems,
+            DoubleProperty trashShiftPx,
+            Map<String, BooleanProperty> checks,
+            String spacerId,
+            Supplier<Double> spacerHeightSupplier,
+            Function<T, String> idGetter,
+            Function<T, String> titleGetter,
+            Runnable onSelectionChanged,
+            Consumer<T> onNormalClick
+    ) {
+        install(
+                lv,
+                viewItems,
+                trashShiftPx,
+                checks,
+                null,
+                null,
+                spacerId,
+                spacerHeightSupplier,
+                idGetter,
+                titleGetter,
+                onSelectionChanged,
+                onNormalClick
+        );
     }
 
     public static <T> void ensureSpacerRow(
