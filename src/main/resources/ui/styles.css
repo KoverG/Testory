@@ -784,7 +784,201 @@
 /* selected строки popup ComboBox в light. */
 .root.theme-light .combo-box-popup .list-view .list-cell:selected { -fx-background-color: rgba(0,0,0,0.08); }
 
-/* .drawer-theme-label — подпись рядом с ToggleSwitch в drawer (например “Тёмная тема”). */
+/* =====================================================================
+   APP COMBOBOX (universal)
+   Usage:
+   - add styleClass "app-combo" to ComboBox
+   - call UiComboBox.install(combo, opacity) to style popup
+     (adds .app-combo-popup to ListView)
+   ===================================================================== */
+
+/* =====================================================================
+   COMBOBOX
+   ===================================================================== */
+
+/* Base (dark) */
+.combo-box.app-combo {
+    -fx-background-color: -fx-input-dark;
+    -fx-background-insets: 1;
+    -fx-background-radius: 12;
+
+    -fx-border-color: -fx-base-button-border-dark;
+    -fx-border-insets: 0;
+    -fx-border-width: 1;
+    -fx-border-radius: 12;
+
+    -fx-min-height: 32px;
+    -fx-pref-height: 32px;
+    -fx-max-height: 32px;
+
+    -fx-padding: 0;
+    -fx-effect: none;
+}
+
+/* Light */
+.root.theme-light .combo-box.app-combo {
+    -fx-background-color: -fx-input-light;
+    -fx-border-color: -fx-base-button-border-light;
+}
+
+/* Focus */
+.combo-box.app-combo:focused {
+    -fx-border-color: rgb(147, 142, 142);
+}
+.root.theme-light .combo-box.app-combo:focused {
+    -fx-border-color: -fx-button2-border-light;
+}
+
+/* Displayed value */
+.combo-box.app-combo .list-cell {
+    -fx-text-fill: -fx-text-color;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-padding: 0 10;
+    -fx-background-color: transparent;
+}
+
+/* Arrow */
+.combo-box.app-combo .arrow-button {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 12;
+    -fx-padding: 0 10 0 8;
+}
+.combo-box.app-combo .arrow {
+    -fx-background-color: -fx-text-color;
+}
+
+/* =====================================================================
+   COMBOBOX WHEN POPUP IS OPEN (DEFAULT = POPUP DOWN)
+   ===================================================================== */
+
+/* Popup DOWN:
+   - square bottom
+   - rounded top
+   - remove bottom border to merge with popup */
+.combo-box.app-combo:showing {
+    -fx-background-radius: 12 12 0 0;
+    -fx-border-radius: 12 12 0 0;
+    -fx-border-width: 1 1 0 1;
+}
+
+/* Popup UP:
+   - square top
+   - rounded bottom
+   - remove top border to merge with popup */
+.combo-box.app-combo:showing:popup-up {
+    -fx-background-radius: 0 0 12 12;
+    -fx-border-radius: 0 0 12 12;
+    -fx-border-width: 0 1 1 1;
+}
+
+/* =====================================================================
+   POPUP LIST (ListView)
+   ===================================================================== */
+
+/* Base popup list (dark) — POPUP DOWN */
+.list-view.app-combo-popup {
+    -fx-background-color: -fx-input-dark;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0 0 12 12;
+
+    -fx-border-color: -fx-base-button-border-dark;
+    -fx-border-insets: 0;
+    -fx-border-width: 0 1 1 1;
+    -fx-border-radius: 0 0 12 12;
+
+    /* padding for content when popup is DOWN */
+    -fx-padding: 6;
+
+    /* shadow down */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.26), 18, 0.14, 0, 10);
+}
+
+/* Base popup list (light) — POPUP DOWN */
+.root.theme-light .list-view.app-combo-popup {
+    -fx-background-color: -fx-input-light;
+    -fx-border-color: -fx-base-button-border-light;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 16, 0.12, 0, 10);
+}
+
+/* =====================================================================
+   POPUP LIST — POPUP UP (CRITICAL FIX)
+   ===================================================================== */
+
+/* Popup UP:
+   - rounded TOP
+   - square bottom
+   - remove bottom border
+   - REMOVE bottom padding (this fixes the "empty row" gap)
+   - shadow goes UP */
+.list-view.app-combo-popup:popup-up {
+    -fx-background-radius: 12 12 0 0;
+    -fx-border-radius: 12 12 0 0;
+    -fx-border-width: 1 1 0 1;
+
+    /* CRITICAL: no bottom padding when popup is above */
+    -fx-padding: 6 6 0 6;
+
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.26), 18, 0.14, 0, -10);
+}
+
+/* Popup UP — light */
+.root.theme-light .list-view.app-combo-popup:popup-up {
+    -fx-background-radius: 12 12 0 0;
+    -fx-border-radius: 12 12 0 0;
+    -fx-border-width: 1 1 0 1;
+
+    -fx-padding: 6 6 0 6;
+
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 16, 0.12, 0, -10);
+}
+
+/* =====================================================================
+   POPUP FOCUS SYNC (from UiComboBox pseudo-class mirror)
+   ===================================================================== */
+
+.list-view.app-combo-popup:combo-focused {
+    -fx-border-color: rgb(147, 142, 142);
+}
+.root.theme-light .list-view.app-combo-popup:combo-focused {
+    -fx-border-color: -fx-button2-border-light;
+}
+
+/* =====================================================================
+   POPUP ROWS
+   ===================================================================== */
+
+.list-view.app-combo-popup .list-cell {
+    -fx-text-fill: -fx-text-color;
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+
+    -fx-background-color: transparent;
+    -fx-padding: 10 12;
+    -fx-background-radius: 10;
+}
+
+/* hover / selected */
+.list-view.app-combo-popup .list-cell:hover {
+    -fx-background-color: rgba(255,255,255,0.08);
+}
+.list-view.app-combo-popup .list-cell:selected {
+    -fx-background-color: rgba(255,255,255,0.12);
+}
+
+.root.theme-light .list-view.app-combo-popup .list-cell:hover {
+    -fx-background-color: rgba(0,0,0,0.06);
+}
+.root.theme-light .list-view.app-combo-popup .list-cell:selected {
+    -fx-background-color: rgba(0,0,0,0.08);
+}
+
+/* =====================================================================
+   MISC
+   ===================================================================== */
+
+/* .drawer-theme-label — подпись рядом с ToggleSwitch */
 .drawer-theme-label {
     -fx-text-fill: -fx-text-color;
     -fx-font-size: 13px;
@@ -794,6 +988,7 @@
     -fx-min-height: 28px;
     -fx-line-spacing: 0;
 }
+
 
 /* =====================================================================
   7) ToggleSwitch (кастомный контрол для смены темы)
@@ -946,6 +1141,7 @@
     -fx-background-radius: 12;
 
     -fx-border-color: -fx-base-button-border-dark;
+    -fx-border-insets: 0;
     -fx-border-radius: 12;
 
     -fx-font-weight: 700;
@@ -974,6 +1170,7 @@
             );
 
     -fx-border-color: -fx-base-button-border-dark;
+    -fx-border-insets: 0;
     -fx-background-insets: 1;
     -fx-background-radius: 12;
 
@@ -1001,6 +1198,7 @@
     -fx-background-insets: 1;
     -fx-background-radius: 12;
     -fx-border-color: -fx-base-button-border-dark;
+    -fx-border-insets: 0;
     -fx-translate-y: 1;
 }
 
@@ -1109,6 +1307,7 @@
 
     -fx-background-color: -fx-base-button-dark;
     -fx-border-color: -fx-base-button-border-dark;
+    -fx-border-insets: 0;
 
     -fx-text-fill: rgba(242,244,247,0.55);
 }
@@ -1126,6 +1325,7 @@
 .button.tc-disabled-base:disabled:pressed {
     -fx-background-color: -fx-base-button-dark;
     -fx-border-color: -fx-base-button-border-dark;
+    -fx-border-insets: 0;
 }
 
 .root.theme-light .button.tc-disabled-base:disabled:hover,
@@ -1148,6 +1348,7 @@
     -fx-background-insets: 1;
 
     -fx-border-color: -fx-base-button-border-dark;
+    -fx-border-insets: 0;
     -fx-border-radius: 12;
 
     -fx-text-fill: -fx-text-color;

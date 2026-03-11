@@ -1,0 +1,1020 @@
+/* FILE: src/main/resources/ui/cycles.css */
+/* FILE: src/main/resources/ui/cycles.css */
+/* =========================================================
+   CYCLES SCREEN (isolated)
+   ========================================================= */
+
+/* ----------------- 8.1) CYCLES: Root / Screen background -----------------
+   Р вЂ™ РЎРЊРЎвЂљР В°Р В»Р С•Р Р…Р Вµ РЎвЂћР С•Р Р… Р В·Р В°Р Т‘Р В°РЎвЂРЎвЂљ .app-root (Shell), Р В° РЎРЊР С”РЎР‚Р В°Р Р…-РЎР‚РЎС“РЎвЂљРЎвЂ№ Р С—РЎР‚Р С•Р В·РЎР‚Р В°РЎвЂЎР Р…РЎвЂ№Р Вµ.
+   Р СџР С•РЎРЊРЎвЂљР С•Р СРЎС“ .cy-root Р СњР вЂў Р Т‘Р С•Р В»Р В¶Р ВµР Р… РЎР‚Р С‘РЎРѓР С•Р Р†Р В°РЎвЂљРЎРЉ РЎРѓР Р†Р С•Р в„– РЎвЂћР С•Р Р…. */
+.cy-root {
+    -fx-background-color: transparent;
+    -fx-accent-strong:    #f50049;
+}
+
+
+.cy-testcase-overlay-backdrop {
+    -fx-background-color: linear-gradient(to bottom, -fx-bg-top, -fx-bg-bottom);
+    -fx-background-radius: 18;
+}
+
+/* =====================================================================
+   8.2) CYCLES (Р вЂєР ВµР Р†Р В°РЎРЏ Р В·Р С•Р Р…Р В°)
+   ===================================================================== */
+
+/* ----------------- 8.2.1) CYCLES (Р вЂєР ВµР Р†Р В°РЎРЏ Р В·Р С•Р Р…Р В°): Р С™Р В°РЎР‚Р С”Р В°РЎРѓ ----------------- */
+
+/* Р вЂ™Р Р…Р ВµРЎв‚¬Р Р…РЎРЏРЎРЏ Р С”Р В°РЎР‚РЎвЂљР С•РЎвЂЎР С”Р В° Р В»Р ВµР Р†Р С•Р в„– Р В·Р С•Р Р…РЎвЂ№ (Р С”Р В°Р С” .tc-left) */
+.cy-left {
+    -fx-background-color: rgba(0,0,0,0.28);
+    -fx-background-radius: 18;
+    -fx-padding: 0;
+
+    -fx-border-color: rgba(255,255,255,0.12);
+    -fx-border-radius: 18;
+}
+
+/* Р вЂ™Р Р…Р ВµРЎв‚¬Р Р…РЎРЏРЎРЏ Р С”Р В°РЎР‚РЎвЂљР С•РЎвЂЎР С”Р В° Р В»Р ВµР Р†Р С•Р в„– Р В·Р С•Р Р…РЎвЂ№ (light) */
+.root.theme-light .cy-left {
+    -fx-background-color: rgba(0,0,0,0.10);
+    -fx-border-color: rgba(0,0,0,0.14);
+    -fx-padding: 0;
+}
+
+/* Р СџР С•Р Т‘Р В»Р С•Р В¶Р С”Р С‘-Р С•Р В±РЎвЂРЎР‚РЎвЂљР С”Р С‘ РЎРѓР В»Р ВµР Р†Р В° РІР‚вЂќ Р С—РЎР‚Р С•Р В·РЎР‚Р В°РЎвЂЎР Р…РЎвЂ№Р Вµ, РЎвЂЎРЎвЂљР С•Р В±РЎвЂ№ Р Р…Р Вµ Р В»Р С•Р СР В°РЎвЂљРЎРЉ Р С•Р В±РЎвЂ°Р С‘Р в„– РЎвЂћР С•Р Р… */
+.cy-left-root,
+.cy-left-stack {
+    -fx-background-color: transparent;
+}
+
+/* ----------------- 8.2.2) CYCLES (Р вЂєР ВµР Р†Р В°РЎРЏ Р В·Р С•Р Р…Р В°): Р СџР С•Р С‘РЎРѓР С” / Р С™Р Р…Р С•Р С—Р С”Р С‘ ----------------- */
+
+/* Р СџР С•Р В»Р Вµ Р С—Р С•Р С‘РЎРѓР С”Р В° (Р С”Р В°Р С” .tc-search) */
+.cy-search {
+    -fx-background-color: -fx-input-dark;
+    -fx-background-radius: 12;
+    -fx-background-insets: 1;
+
+    -fx-border-color: -fx-base-button-border-dark;
+    -fx-border-radius: 12;
+
+    -fx-text-fill: -fx-text-color;
+    -fx-prompt-text-fill: -fx-placeholder-dark;
+
+    -fx-min-height: 32px;
+    -fx-max-height: 32px;
+
+    -fx-padding: 0 12;
+}
+
+/* Р СџР С•Р В»Р Вµ Р С—Р С•Р С‘РЎРѓР С”Р В° (light) */
+.root.theme-light .cy-search {
+    -fx-background-color: -fx-input-light;
+    -fx-background-insets: 1;
+    -fx-border-color: -fx-base-button-border-light;
+    -fx-text-fill: -fx-text-color;
+    -fx-prompt-text-fill: -fx-placeholder-light;
+}
+
+/* Р В¤Р С•Р С”РЎС“РЎРѓ */
+.cy-search:focused {
+    -fx-border-color: rgb(147, 142, 142);
+}
+
+.root.theme-light .cy-search:focused {
+    -fx-border-color: -fx-button2-border-light;
+}
+
+/* =====================================================================
+   8.2.2.1) CYCLES: Environment modal - Builds TextArea (expandable, no scroll)
+   ===================================================================== */
+
+.cy-env-value-area {
+    -fx-background-color: -fx-input-dark;
+    -fx-background-insets: 1;
+    -fx-background-radius: 12;
+
+    -fx-border-color: -fx-base-button-border-dark;
+    -fx-border-width: 1;
+    -fx-border-radius: 12;
+
+    -fx-text-fill: -fx-text-color;
+    -fx-prompt-text-fill: -fx-placeholder-dark;
+
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+
+    -fx-min-height: 32px;
+}
+
+/* Р Р†Р Р…РЎС“РЎвЂљРЎР‚Р ВµР Р…Р Р…Р С‘Р в„– scroll-pane/viewport/content РІР‚вЂќ Р С—РЎР‚Р С•Р В·РЎР‚Р В°РЎвЂЎР Р…РЎвЂ№Р Вµ, РЎвЂЎРЎвЂљР С•Р В±РЎвЂ№ Р Р…Р Вµ Р В»Р С•Р СР В°РЎвЂљРЎРЉ РЎР‚Р В°Р СР С”РЎС“/РЎРѓР С”РЎР‚РЎС“Р С–Р В»Р ВµР Р…Р С‘РЎРЏ */
+.cy-env-value-area .scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 12;
+    -fx-padding: 0;
+}
+
+.cy-env-value-area .scroll-pane > .viewport {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 12;
+}
+
+.cy-env-value-area .content {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 12;
+
+    -fx-padding: 6 12 6 12;
+}
+
+.cy-env-value-area:focused {
+    -fx-border-color: rgb(147, 142, 142);
+}
+
+/* light */
+.root.theme-light .cy-env-value-area {
+    -fx-background-color: -fx-input-light;
+    -fx-border-color: -fx-base-button-border-light;
+    -fx-text-fill: -fx-text-color;
+    -fx-prompt-text-fill: -fx-placeholder-light;
+}
+
+.root.theme-light .cy-env-value-area:focused {
+    -fx-border-color: -fx-button2-border-light;
+}
+
+/* Р РЋР С”РЎР‚Р С•Р В»Р В»Р В±Р В°РЎР‚РЎвЂ№ Р С—РЎР‚РЎРЏРЎвЂЎР ВµР С CSS-РЎРѓРЎвЂљРЎР‚Р В°РЎвЂ¦Р С•Р Р†Р С”Р С•Р в„– (Р В±Р ВµР В· managed/visible) */
+.cy-env-value-area .scroll-bar:vertical,
+.cy-env-value-area .scroll-bar:horizontal {
+    -fx-opacity: 0;
+    -fx-padding: 0;
+    -fx-pref-width: 0;
+    -fx-max-width: 0;
+    -fx-pref-height: 0;
+    -fx-max-height: 0;
+}
+
+.cy-env-value-area .corner {
+    -fx-background-color: transparent;
+}
+
+/* TaskLink URL field invalid (custom accent border) */
+.cy-tasklink-url.cy-url-invalid {
+    -fx-border-color: -fx-accent-strong;
+}
+.root.theme-light .cy-tasklink-url.cy-url-invalid {
+    -fx-border-color: -fx-accent-strong;
+}
+
+
+/* Р вЂўРЎРѓР В»Р С‘ Р С—Р С•Р В»Р Вµ focused РІР‚вЂќ Р С—РЎС“РЎРѓРЎвЂљРЎРЉ invalid Р Р†РЎвЂ№Р С‘Р С–РЎР‚РЎвЂ№Р Р†Р В°Р ВµРЎвЂљ */
+.cy-tasklink-url.cy-url-invalid:focused {
+    -fx-border-color: -fx-accent-strong;
+}
+.root.theme-light .cy-tasklink-url.cy-url-invalid:focused {
+    -fx-border-color: -fx-accent-strong;
+}
+
+
+/* Р ВР С”Р С•Р Р…Р С”Р В°-Р С”Р Р…Р С•Р С—Р С”Р В° (РЎвЂћР С•РЎР‚Р СР В° Р С”Р В°Р С” Р Р† РЎРЊРЎвЂљР В°Р В»Р С•Р Р…Р Вµ Р Т‘Р В»РЎРЏ .tc-left .button.icon-btn) */
+.cy-left .button.icon-btn,
+.cy-left .button.icon-btn.sm {
+    -fx-min-width: 32px;
+    -fx-pref-width: 32px;
+    -fx-max-width: 32px;
+
+    -fx-min-height: 32px;
+    -fx-pref-height: 32px;
+    -fx-max-height: 32px;
+
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+}
+
+/* Р вЂР В°Р В·Р С•Р Р†Р В°РЎРЏ Р С”Р Р…Р С•Р С—Р С”Р В° Р В»Р ВµР Р†Р С•Р в„– Р В·Р С•Р Р…РЎвЂ№ (Р С”Р В°Р С” .tc-btn) */
+.cy-btn {
+    -fx-background-color: -fx-base-button-dark;
+    -fx-background-insets: 1;
+    -fx-background-radius: 12;
+
+    -fx-border-color: -fx-base-button-border-dark;
+    -fx-border-radius: 12;
+
+    -fx-font-weight: 700;
+    -fx-text-fill: -fx-text-color;
+
+    -fx-min-height: 32px;
+    -fx-max-height: 32px;
+
+    -fx-padding: 0 12;
+    -fx-alignment: CENTER;
+}
+
+/* Р вЂР В°Р В·Р С•Р Р†Р В°РЎРЏ Р С”Р Р…Р С•Р С—Р С”Р В° (light) */
+.root.theme-light .cy-btn {
+    -fx-background-color: -fx-base-button-light;
+    -fx-border-color: -fx-base-button-border-light;
+}
+
+/* Hover (Р С”Р В°Р С” Р Р† РЎРЊРЎвЂљР В°Р В»Р С•Р Р…Р Вµ) */
+.cy-btn:hover {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    -fx-base-button-dark,
+                    rgb(83, 81, 80)
+            );
+
+    -fx-border-color: -fx-base-button-border-dark;
+    -fx-background-insets: 1;
+    -fx-background-radius: 12;
+}
+
+.root.theme-light .cy-btn:hover {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    -fx-base-button-light,
+                    rgb(228, 228, 228)
+            );
+    -fx-border-color: -fx-base-button-border-light;
+}
+
+/* Pressed (Р С”Р В°Р С” Р Р† РЎРЊРЎвЂљР В°Р В»Р С•Р Р…Р Вµ) */
+.cy-btn:pressed {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    rgb(83, 81, 80),
+                    -fx-base-button-dark
+            );
+    -fx-background-insets: 1;
+    -fx-background-radius: 12;
+    -fx-border-color: -fx-base-button-border-dark;
+    -fx-translate-y: 1;
+}
+
+.root.theme-light .cy-btn:pressed {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    rgb(210, 210, 210),
+                    -fx-base-button-light
+            );
+
+    -fx-border-color: -fx-base-button-border-light;
+    -fx-translate-y: 1;
+}
+
+/* ----------------- 8.2.3) CYCLES (Р вЂєР ВµР Р†Р В°РЎРЏ Р В·Р С•Р Р…Р В°): Р РЋР С—Р С‘РЎРѓР С•Р С” ----------------- */
+
+/* Р С™Р С•Р Р…РЎвЂљР ВµР в„–Р Р…Р ВµРЎР‚ РЎРѓР С—Р С‘РЎРѓР С”Р В° (Р С”Р В°Р С” .tc-cases-sheet) */
+.cy-cases-sheet {
+    -fx-background-color: -fx-background-level-2-dark;
+    -fx-border-color: -fx-background-border-level-2-dark;
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+}
+
+/* Р С™Р С•Р Р…РЎвЂљР ВµР в„–Р Р…Р ВµРЎР‚ РЎРѓР С—Р С‘РЎРѓР С”Р В° (light) */
+.root.theme-light .cy-cases-sheet {
+    -fx-background-color: -fx-background-level-2-light;
+    -fx-border-color: -fx-background-border-level-2-light;
+}
+
+/* Р РЋР С—Р С‘РЎРѓР С•Р С” (РЎвЂћР С•Р Р… Р С—РЎР‚Р С•Р В·РЎР‚Р В°РЎвЂЎР Р…РЎвЂ№Р в„–) РІР‚вЂќ Р С”Р В°Р С” .tc-list */
+.cy-list {
+    -fx-background-color: transparent;
+}
+
+/* Р вЂ™ РЎРЊРЎвЂљР В°Р В»Р С•Р Р…Р Вµ Р С—РЎР‚Р С•Р В·РЎР‚Р В°РЎвЂЎР Р…Р С•РЎРѓРЎвЂљРЎРЉ/Р С•РЎвЂљРЎРѓРЎвЂљРЎС“Р С—РЎвЂ№ Р В·Р В°Р Т‘Р В°РЎР‹РЎвЂљРЎРѓРЎРЏ .tc-list .list-cell.
+   Р СџР С•Р Р†РЎвЂљР С•РЎР‚РЎРЏР ВµР С. */
+.cy-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 0 2 0 0;
+    -fx-border-color: transparent;
+}
+
+/* Р В­Р С”Р Р†Р С‘Р Р†Р В°Р В»Р ВµР Р…РЎвЂљ .tc-case-row, Р Р…Р С• Р В±Р ВµР В· Р Р†Р В»Р С•Р В¶Р ВµР Р…Р Р…Р С•Р С–Р С• РЎС“Р В·Р В»Р В°:
+   Р С•РЎвЂћР С•РЎР‚Р СР В»РЎРЏР ВµР С РЎРѓР В°Р С list-cell, РЎвЂЎРЎвЂљР С•Р В±РЎвЂ№ Р С—Р С•Р В»РЎС“РЎвЂЎР С‘РЎвЂљРЎРЉ РІР‚СљР С”Р В°РЎР‚РЎвЂљР С•РЎвЂЎР С”Р С‘РІР‚Сњ Р Р† РЎРѓР С—Р С‘РЎРѓР С”Р Вµ. */
+.cy-list .list-cell:filled {
+    -fx-padding: 5 6 5 3;
+
+    -fx-background-color: rgba(255,255,255,0.03);
+    -fx-background-radius: 10;
+    -fx-background-insets: 0 4 0 0;
+
+    -fx-border-color:
+            transparent,
+            rgba(255,255,255,0.10);
+    -fx-border-width: 0 0 0 4, 1;
+    -fx-border-radius: 10;
+    -fx-border-insets: 0 4 0 0;
+
+    -fx-alignment: CENTER_LEFT;
+}
+
+/* list-cell (light) */
+.root.theme-light .cy-list .list-cell:filled {
+    -fx-background-color: rgba(0, 0, 0, 0.06);
+
+    -fx-border-color:
+            transparent,
+            rgba(0,0,0,0.20);
+    -fx-border-width: 0 0 0 4, 1;
+}
+
+/* Hover (Р С”Р В°Р С” .tc-list ... .tc-case-row) */
+.cy-list .list-cell:filled:hover {
+    -fx-background-color: rgba(255,255,255,0.06);
+
+    -fx-border-color:
+            transparent,
+            rgba(255,255,255,0.14);
+}
+
+.root.theme-light .cy-list .list-cell:filled:hover {
+    -fx-background-color: rgb(236, 234, 233);
+
+    -fx-border-color:
+            transparent,
+            rgba(0,0,0,0.14);
+}
+
+/* Selected РІР‚вЂќ Р В°Р С”Р С”РЎС“РЎР‚Р В°РЎвЂљР Р…Р С•, РЎвЂЎРЎвЂљР С•Р В±РЎвЂ№ Р Р…Р Вµ РЎРѓР С—Р С•РЎР‚Р С‘РЎвЂљРЎРЉ РЎРѓ Р Т‘Р ВµРЎвЂћР С•Р В»РЎвЂљР Р…РЎвЂ№Р С selection paint */
+.cy-list .list-cell:filled:selected {
+    -fx-background-insets: 0 4 0 0;
+}
+
+/* ----------------- STICKY HEADER (LEFT LIST) -----------------
+   Р В¤Р С•Р Р…/Р С—Р С•Р Т‘Р В»Р С•Р В¶Р С”Р В° Р В±Р ВµРЎР‚РЎвЂРЎвЂљРЎРѓРЎРЏ Р С‘Р В· tc-filter-overlay + tc-trash-glass (Р С”Р В°Р С” РЎС“ delete overlay).
+   Р вЂ”Р Т‘Р ВµРЎРѓРЎРЉ РЎвЂљР С•Р В»РЎРЉР С”Р С• РЎвЂљР С‘Р С—Р С•Р С–РЎР‚Р В°РЎвЂћР С‘Р С”Р В°/Р С–Р ВµР С•Р СР ВµРЎвЂљРЎР‚Р С‘РЎРЏ Р В·Р В°Р С–Р С•Р В»Р С•Р Р†Р С”Р В°. */
+.cy-left-list-header {
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+
+    /* РІСљвЂ¦ Р Р† 3 РЎР‚Р В°Р В·Р В° Р СР ВµР Р…РЎРЉРЎв‚¬Р Вµ (Р В±РЎвЂ№Р В»Р С• Р С•Р С”Р С•Р В»Р С• 42px Р Р† Р С”Р С•Р Т‘Р Вµ Р С”Р С•Р СР С—Р С•Р Р…Р ВµР Р…РЎвЂљР В°) */
+    -fx-min-height: 20px;
+    -fx-pref-height: 20px;
+    -fx-max-height: 20px;
+
+    /* Р С”Р С•Р СР С—Р В°Р С”РЎвЂљР Р…РЎвЂ№Р Вµ Р Р†Р Р…РЎС“РЎвЂљРЎР‚Р ВµР Р…Р Р…Р С‘Р Вµ Р С•РЎвЂљРЎРѓРЎвЂљРЎС“Р С—РЎвЂ№ */
+    -fx-padding: 0 5 0 5;
+}
+
+.cy-left-list-header-title {
+    -fx-text-fill: -fx-text-color;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+}
+
+/* =====================================================================
+   8.3) CYCLES (Р С›Р Р†Р ВµРЎР‚Р В»Р ВµР С‘): filter / sort / trash (Р С—Р С•Р С”Р В° Р С”Р В°РЎР‚Р С”Р В°РЎРѓ)
+   ===================================================================== */
+
+.cy-overlay-sheet {
+    -fx-background-color: rgba(0,0,0,0.45);
+}
+
+.root.theme-light .cy-overlay-sheet {
+    -fx-background-color: rgba(0,0,0,0.22);
+}
+
+/* =====================================================================
+   8.4) CYCLES (Р СџРЎР‚Р В°Р Р†Р В°РЎРЏ Р В·Р С•Р Р…Р В°): placeholder (Р СР С‘Р Р…Р С‘Р СР В°Р В»РЎРЉР Р…Р С•, Р В±Р ВµР В· РЎвЂћР В°Р Р…РЎвЂљР В°Р В·Р С‘Р в„–)
+   ===================================================================== */
+
+.cy-right-root,
+.cy-right {
+    -fx-background-color: transparent;
+}
+
+.cy-right-placeholder {
+    -fx-background-color: rgba(0,0,0,0.20);
+    -fx-background-radius: 18;
+    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-border-radius: 18;
+}
+
+.root.theme-light .cy-right-placeholder {
+    -fx-background-color: rgba(0,0,0,0.08);
+    -fx-border-color: rgba(0,0,0,0.12);
+}
+
+/* ----------------- 8.4.1) CYCLES (Р СџРЎР‚Р В°Р Р†Р В°РЎРЏ Р В·Р С•Р Р…Р В°): Р СћР С‘Р С—Р С•Р С–РЎР‚Р В°РЎвЂћР С‘Р С”Р В° РЎвЂ¦Р ВµР Т‘Р ВµРЎР‚Р В° ----------------- */
+
+.cy-meta-label {
+    -fx-text-fill: -fx-muted-color;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+}
+
+.cy-meta-value {
+    -fx-text-fill: -fx-text-color;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+}
+
+.cy-muted {
+    -fx-text-fill: -fx-muted-color;
+    -fx-font-size: 12px;
+}
+
+/* =====================================================================
+   8.4.2) CYCLES (Р СџРЎР‚Р В°Р Р†Р В°РЎРЏ Р В·Р С•Р Р…Р В°): РЎРѓР С—Р С‘РЎРѓР С•Р С” Р Т‘Р С•Р В±Р В°Р Р†Р В»Р ВµР Р…Р Р…РЎвЂ№РЎвЂ¦ Р С”Р ВµР в„–РЎРѓР С•Р Р† (UI-only)
+   ===================================================================== */
+
+.cy-added-cases-list {
+    -fx-padding: 0 10 0 0;
+}
+
+.cy-added-case-row {
+    /* spacing РЎС“Р С—РЎР‚Р В°Р Р†Р В»РЎРЏР ВµРЎвЂљРЎРѓРЎРЏ Р Р† Java РЎвЂЎР ВµРЎР‚Р ВµР В· margin'РЎвЂ№, РЎвЂЎРЎвЂљР С•Р В±РЎвЂ№ Р В·Р В°Р В·Р С•РЎР‚РЎвЂ№ Р В±РЎвЂ№Р В»Р С‘ Р С•Р Т‘Р С‘Р Р…Р В°Р С”Р С•Р Р†РЎвЂ№Р СР С‘ */
+    -fx-spacing: 0;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.cy-added-case-index {
+    -fx-text-fill: -fx-muted-color;
+
+    /* РІСљвЂ¦ РЎС“Р Р†Р ВµР В»Р С‘РЎвЂЎР С‘РЎвЂљРЎРЉ РЎв‚¬РЎР‚Р С‘РЎвЂћРЎвЂљ Р Р…РЎС“Р СР ВµРЎР‚Р В°РЎвЂ Р С‘Р С‘ */
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+
+    /* РІСљвЂ¦ Р Р†РЎвЂ№РЎР‚Р В°Р Р†Р Р…Р С‘Р Р†Р В°Р Р…Р С‘Р Вµ Р С‘ "РЎРѓР Т‘Р Р†Р С‘Р С– Р Р†Р С—РЎР‚Р В°Р Р†Р С•" Р Т‘Р ВµР В»Р В°Р ВµР С Р С—Р В°Р Т‘Р Т‘Р С‘Р Р…Р С–Р С•Р С (РЎв‚¬Р С‘РЎР‚Р С‘Р Р…Р В° Р В°Р Р†РЎвЂљР С• Р С‘Р В· Java) */
+    -fx-alignment: CENTER_RIGHT;
+    -fx-padding: 0 0 0 6px;
+}
+
+.cy-added-case-titlebox {
+    -fx-background-color: rgba(0,0,0,0.14);
+    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-padding: 6 8 6 10;
+}
+
+.root.theme-light .cy-added-case-titlebox {
+    -fx-background-color: rgba(0,0,0,0.06);
+    -fx-border-color: rgba(0,0,0,0.10);
+}
+
+.cy-added-case-row {
+    -fx-cursor: hand;
+}
+
+.cy-added-case-row:hover .cy-added-case-titlebox {
+    -fx-background-color: rgba(255,255,255,0.06);
+    -fx-border-color: rgba(255,255,255,0.14);
+}
+
+.root.theme-light .cy-added-case-row:hover .cy-added-case-titlebox {
+    -fx-background-color: rgb(236, 234, 233);
+    -fx-border-color: rgba(0,0,0,0.14);
+}
+
+.cy-added-case-row:pressed .cy-added-case-titlebox {
+    -fx-background-color: rgba(255,255,255,0.03);
+    -fx-border-color: rgba(255,255,255,0.14);
+    -fx-translate-y: 1;
+}
+
+.root.theme-light .cy-added-case-row:pressed .cy-added-case-titlebox {
+    -fx-background-color: rgb(228, 226, 224);
+    -fx-border-color: rgba(0,0,0,0.14);
+    -fx-translate-y: 1;
+}
+
+.cy-added-case-row .cy-added-case-titlebox {
+    -fx-translate-y: 0;
+}
+
+.cy-added-case-title {
+    -fx-text-fill: -fx-text-color;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+
+    /* РІСљвЂ¦ РЎРѓРЎвЂљРЎР‚Р В°РЎвЂ¦Р С•Р Р†Р С”Р В°: РЎвЂљРЎР‚Р С•Р ВµРЎвЂљР С•РЎвЂЎР С‘Р Вµ, Р ВµРЎРѓР В»Р С‘ Р С–Р Т‘Р Вµ-РЎвЂљР С• Р В·Р В°Р Т‘Р В°РЎР‹РЎвЂљ overrun РЎвЂЎР ВµРЎР‚Р ВµР В· css */
+    -fx-text-overrun: ellipsis;
+}
+
+.cy-added-case-combo {
+    -fx-min-height: 28;
+    -fx-pref-height: 28;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-padding: 6 8 6 10;
+}
+
+/* =====================================================================
+   8.5) CYCLES: Right card menu modal (CycleCardMenuButton)
+   ===================================================================== */
+
+.cy-menu-backdrop {
+    -fx-background-color: transparent;
+}
+
+/* РІСљвЂ¦ IMPORTANT:
+   Р СћР ВµР Р…РЎРЉ Р СњР вЂў Р Т‘Р С•Р В»Р В¶Р Р…Р В° Р В±РЎвЂ№РЎвЂљРЎРЉ Р Р…Р В° Р С‘Р Р…РЎвЂљР ВµРЎР‚Р В°Р С”РЎвЂљР С‘Р Р†Р Р…Р С•Р в„– Р Р…Р С•Р Т‘Р Вµ Р СР С•Р Т‘Р В°Р В»Р С”Р С‘, Р С‘Р Р…Р В°РЎвЂЎР Вµ Р ВµРЎвЂ expanded bounds
+   Р В±РЎС“Р Т‘Р ВµРЎвЂљ Р С—Р ВµРЎР‚Р ВµРЎвЂ¦Р Р†Р В°РЎвЂљРЎвЂ№Р Р†Р В°РЎвЂљРЎРЉ Р С”Р В»Р С‘Р С”Р С‘ Р С—Р С• Р С”Р Р…Р С•Р С—Р С”Р В°Р С Р С—Р С•Р Т‘ РЎвЂљР ВµР Р…РЎРЉРЎР‹.
+   Р СћР ВµР Р…РЎРЉ РЎР‚Р С‘РЎРѓРЎС“Р ВµР С Р Р…Р В° Р С•РЎвЂљР Т‘Р ВµР В»РЎРЉР Р…Р С•Р С Region (cy-menu-shadow), Р С”Р С•РЎвЂљР С•РЎР‚РЎвЂ№Р в„– mouseTransparent=true Р Р† Р С”Р С•Р Т‘Р Вµ. */
+.cy-menu-shadow {
+    /* Р Р†Р В°Р В¶Р Р…Р С•: Р Т‘Р С•Р В»Р В¶Р ВµР Р… Р В±РЎвЂ№РЎвЂљРЎРЉ "РЎР‚Р С‘РЎРѓРЎС“Р ВµР СРЎвЂ№Р в„–" РЎвЂћР С•Р Р…, Р С‘Р Р…Р В°РЎвЂЎР Вµ effect Р СР С•Р В¶Р ВµРЎвЂљ Р Р…Р Вµ Р С•РЎвЂљР С•Р В±РЎР‚Р В°Р В¶Р В°РЎвЂљРЎРЉРЎРѓРЎРЏ */
+    -fx-background-color: rgba(0,0,0,0.001);
+    -fx-background-radius: 16;
+
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.26), 20, 0.16, 0, 8);
+}
+
+
+/* РІСљвЂ¦ Р С™Р С•Р Р…РЎвЂљР ВµР Р…РЎвЂљ Р СР С•Р Т‘Р В°Р В»Р С”Р С‘ РІР‚вЂќ Р В±Р ВµР В· РЎРЊРЎвЂћРЎвЂћР ВµР С”РЎвЂљР В°, РЎвЂЎРЎвЂљР С•Р В±РЎвЂ№ bounds Р Р…Р Вµ Р С—Р ВµРЎР‚Р ВµР С”РЎР‚РЎвЂ№Р Р†Р В°Р В»Р С‘ Р С”Р В»Р С‘Р С”Р С‘ */
+.cy-menu-modal {
+    -fx-effect: null;
+}
+
+/* =====================================================================
+   8.5.1) CYCLES: Unified modal buttons (TaskLink / Profile / Menu)
+   ===================================================================== */
+
+/* Р вЂР В°Р В·Р В° Р Т‘Р В»РЎРЏ Р Р†РЎРѓР ВµРЎвЂ¦ Р С”Р Р…Р С•Р С—Р С•Р С” Р Р† Р СР С•Р Т‘Р В°Р В»Р С”Р В°РЎвЂ¦ Cycles (РЎв‚¬Р С‘РЎР‚Р С‘Р Р…РЎС“ Р В·Р В°Р Т‘Р В°РЎвЂРЎвЂљ Р С”Р С•Р Т‘). */
+.button.cy-modal-btn {
+    -fx-background-color: -fx-base-button-dark;
+    -fx-background-insets: 1;
+    -fx-background-radius: 12;
+
+    -fx-border-color: -fx-base-button-border-dark;
+    -fx-border-radius: 12;
+
+    -fx-font-weight: 800;
+    -fx-text-fill: -fx-text-color;
+
+    /* РІСљвЂ¦ Р С•Р Т‘Р С‘Р Р…Р В°Р С”Р С•Р Р†Р В°РЎРЏ Р Р†РЎвЂ№РЎРѓР С•РЎвЂљР В° РЎРѓ Р С—Р С•Р В»РЎРЏР СР С‘ Р Р†Р Р†Р С•Р Т‘Р В° */
+    -fx-min-height: 32px;
+    -fx-pref-height: 32px;
+    -fx-max-height: 32px;
+
+    -fx-padding: 0 12;
+    -fx-alignment: CENTER;
+}
+
+.root.theme-light .button.cy-modal-btn {
+    -fx-background-color: -fx-base-button-light;
+    -fx-border-color: -fx-base-button-border-light;
+}
+
+/* hover / pressed Р Т‘Р В»РЎРЏ Р В±Р В°Р В·Р С•Р Р†РЎвЂ№РЎвЂ¦ Р С”Р Р…Р С•Р С—Р С•Р С” */
+.button.cy-modal-btn:hover {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    -fx-base-button-dark,
+                    rgb(83, 81, 80)
+            );
+    -fx-border-color: -fx-base-button-border-dark;
+    -fx-background-insets: 1;
+    -fx-background-radius: 12;
+}
+
+.root.theme-light .button.cy-modal-btn:hover {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    -fx-base-button-light,
+                    rgb(228, 228, 228)
+            );
+    -fx-border-color: -fx-base-button-border-light;
+}
+
+.button.cy-modal-btn:pressed {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    rgb(83, 81, 80),
+                    -fx-base-button-dark
+            );
+    -fx-background-insets: 1;
+    -fx-background-radius: 12;
+    -fx-border-color: -fx-base-button-border-dark;
+    -fx-translate-y: 1;
+}
+
+.root.theme-light .button.cy-modal-btn:pressed {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    rgb(210, 210, 210),
+                    -fx-base-button-light
+            );
+
+    -fx-border-color: -fx-base-button-border-light;
+    -fx-translate-y: 1;
+}
+
+/* РІСљвЂ¦ РЎС“Р Р…Р С‘РЎвЂћР С‘РЎвЂ Р С‘РЎР‚Р С•Р Р†Р В°Р Р…Р Р…РЎвЂ№Р в„– disabled-РЎРѓРЎвЂљР С‘Р В»РЎРЉ РІР‚вЂќ Р С”Р В°Р С” РЎС“ Р С”Р Р…Р С•Р С—Р С•Р С” Add/Delete Р С‘Р В· Р В»Р ВµР Р†Р С•Р в„– Р В·Р С•Р Р…РЎвЂ№ (Р Р…Р Вµ РЎвЂЎР ВµРЎР‚Р ВµР В· opacity)
+   Р РЋРЎвЂљР В°РЎР‚РЎвЂ№Р в„– РЎРѓРЎвЂљР С‘Р В»РЎРЉ РЎвЂЎР ВµРЎР‚Р ВµР В· opacity РЎС“Р Т‘Р В°Р В»РЎвЂР Р…. */
+.button.cy-modal-btn:disabled,
+.button.cy-modal-btn.cy-modal-btn-primary:disabled,
+.button.cy-modal-btn.cy-modal-btn-danger:disabled {
+    -fx-opacity: 1.0;
+    -fx-effect: none;
+
+    -fx-background-color: -fx-base-button-dark;
+    -fx-border-color: -fx-base-button-border-dark;
+
+    /* Р С—РЎР‚Р С‘Р С–Р В»РЎС“РЎв‚¬РЎвЂР Р…Р Р…РЎвЂ№Р в„– РЎвЂљР ВµР С”РЎРѓРЎвЂљ, Р В±Р ВµР В· РІР‚СљР С—РЎР‚РЎвЂ№Р В¶Р С”Р В°РІР‚Сњ */
+    -fx-text-fill: rgba(242,244,247,0.55);
+    -fx-translate-y: 0;
+}
+
+/* disabled (light) */
+.root.theme-light .button.cy-modal-btn:disabled,
+.root.theme-light .button.cy-modal-btn.cy-modal-btn-primary:disabled,
+.root.theme-light .button.cy-modal-btn.cy-modal-btn-danger:disabled {
+    -fx-background-color: -fx-base-button-light;
+    -fx-border-color: -fx-base-button-border-light;
+
+    -fx-text-fill: rgba(20,20,20,0.55);
+    -fx-translate-y: 0;
+}
+
+/* disabled Р Р…Р Вµ Р Т‘Р С•Р В»Р В¶Р ВµР Р… Р СР ВµР Р…РЎРЏРЎвЂљРЎРЉ Р Р†Р С‘Р Т‘ Р С•РЎвЂљ hover/pressed Р С—РЎР‚Р В°Р Р†Р С‘Р В» */
+.button.cy-modal-btn:disabled:hover,
+.button.cy-modal-btn:disabled:pressed,
+.button.cy-modal-btn.cy-modal-btn-primary:disabled:hover,
+.button.cy-modal-btn.cy-modal-btn-primary:disabled:pressed,
+.button.cy-modal-btn.cy-modal-btn-danger:disabled:hover,
+.button.cy-modal-btn.cy-modal-btn-danger:disabled:pressed {
+    -fx-background-color: -fx-base-button-dark;
+    -fx-border-color: -fx-base-button-border-dark;
+    -fx-translate-y: 0;
+}
+
+.root.theme-light .button.cy-modal-btn:disabled:hover,
+.root.theme-light .button.cy-modal-btn:disabled:pressed,
+.root.theme-light .button.cy-modal-btn.cy-modal-btn-primary:disabled:hover,
+.root.theme-light .button.cy-modal-btn.cy-modal-btn-primary:disabled:pressed,
+.root.theme-light .button.cy-modal-btn.cy-modal-btn-danger:disabled:hover,
+.root.theme-light .button.cy-modal-btn.cy-modal-btn-danger:disabled:pressed {
+    -fx-background-color: -fx-base-button-light;
+    -fx-border-color: -fx-base-button-border-light;
+    -fx-translate-y: 0;
+}
+
+/* Primary / Accent (Save) */
+.button.cy-modal-btn.cy-modal-btn-primary {
+    -fx-background-color: -fx-accent-strong;
+    -fx-border-color: -fx-accent-strong;
+    -fx-text-fill: rgb(255, 255, 255);
+}
+
+/* РІСљвЂ¦ FIX: Р Р† light РЎвЂљР ВµР СР Вµ Р В±Р В°Р В·Р С•Р Р†РЎвЂ№Р в„– .root.theme-light .button.cy-modal-btn Р С—Р ВµРЎР‚Р ВµРЎвЂљР С‘РЎР‚Р В°Р В» primary.
+   Р СџР С•РЎРЊРЎвЂљР С•Р СРЎС“ Р Т‘РЎС“Р В±Р В»Р С‘РЎР‚РЎС“Р ВµР С primary Р С—РЎР‚Р В°Р Р†Р С‘Р В»Р В° РЎРѓР С• РЎРѓР С—Р ВµРЎвЂ Р С‘РЎвЂћР С‘РЎвЂЎР Р…Р С•РЎРѓРЎвЂљРЎРЉРЎР‹ light РЎвЂљР ВµР СРЎвЂ№. */
+.root.theme-light .button.cy-modal-btn.cy-modal-btn-primary {
+    -fx-background-color: -fx-accent-strong;
+    -fx-border-color: -fx-accent-strong;
+    -fx-text-fill: rgb(255, 255, 255);
+}
+
+/* hover / pressed Р Т‘Р В»РЎРЏ primary */
+.button.cy-modal-btn.cy-modal-btn-primary:hover {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    -fx-accent-strong,
+                    rgb(152, 1, 26)
+            );
+    -fx-border-color: -fx-accent-strong;
+}
+
+.root.theme-light .button.cy-modal-btn.cy-modal-btn-primary:hover {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    -fx-accent-strong,
+                    rgb(152, 1, 26)
+            );
+    -fx-border-color: -fx-accent-strong;
+}
+
+.button.cy-modal-btn.cy-modal-btn-primary:pressed {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    rgb(152, 1, 26),
+                    -fx-accent-strong
+            );
+    -fx-border-color: -fx-accent-strong;
+    -fx-translate-y: 1;
+}
+
+.root.theme-light .button.cy-modal-btn.cy-modal-btn-primary:pressed {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    rgb(152, 1, 26),
+                    -fx-accent-strong
+            );
+    -fx-border-color: -fx-accent-strong;
+    -fx-translate-y: 1;
+}
+
+/* Danger (Delete in menu modal) */
+.button.cy-modal-btn.cy-modal-btn-danger {
+    -fx-background-color: -fx-accent-strong;
+    -fx-border-color: -fx-accent-strong;
+    -fx-text-fill: rgb(255, 255, 255);
+}
+
+/* РІСљвЂ¦ FIX: Р В°Р Р…Р В°Р В»Р С•Р С–Р С‘РЎвЂЎР Р…Р С• Р Т‘Р В»РЎРЏ danger Р Р† light РЎвЂљР ВµР СР Вµ */
+.root.theme-light .button.cy-modal-btn.cy-modal-btn-danger {
+    -fx-background-color: -fx-accent-strong;
+    -fx-border-color: -fx-accent-strong;
+    -fx-text-fill: rgb(255, 255, 255);
+}
+
+.button.cy-modal-btn.cy-modal-btn-danger:hover {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    -fx-accent-strong,
+                    rgb(152, 1, 26)
+            );
+    -fx-border-color: -fx-accent-strong;
+}
+
+.root.theme-light .button.cy-modal-btn.cy-modal-btn-danger:hover {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    -fx-accent-strong,
+                    rgb(152, 1, 26)
+            );
+    -fx-border-color: -fx-accent-strong;
+}
+
+.button.cy-modal-btn.cy-modal-btn-danger:pressed {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    rgb(152, 1, 26),
+                    -fx-accent-strong
+            );
+    -fx-border-color: -fx-accent-strong;
+    -fx-translate-y: 1;
+}
+
+.root.theme-light .button.cy-modal-btn.cy-modal-btn-danger:pressed {
+    -fx-background-color:
+            linear-gradient(
+                    to bottom,
+                    rgb(152, 1, 26),
+                    -fx-accent-strong
+            );
+    -fx-border-color: -fx-accent-strong;
+    -fx-translate-y: 1;
+}
+
+/* =====================================================================
+   8.6) CYCLES: Task Link Chip (meta row)
+   ===================================================================== */
+
+.cy-task-link-chip {
+    -fx-background-color: rgba(0,0,0,0.14);
+    -fx-border-color: rgba(255,255,255,0.10);
+
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+
+    -fx-min-height: 28px;
+    -fx-pref-height: 28px;
+    -fx-max-height: 28px;
+
+    /* РІСљвЂ¦ icon flush right: no right padding, no spacing */
+    -fx-padding: 0 0 0 10;
+    -fx-spacing: 0;
+
+    -fx-alignment: CENTER_LEFT;
+
+    /* РІСљвЂ¦ cursor stays clickable */
+    -fx-cursor: hand;
+}
+
+.root.theme-light .cy-task-link-chip {
+    -fx-background-color: rgba(0,0,0,0.06);
+    -fx-border-color: rgba(0,0,0,0.10);
+}
+
+.cy-task-link-chip:hover {
+    -fx-background-color: rgba(255,255,255,0.06);
+    -fx-border-color: rgba(255,255,255,0.14);
+    -fx-cursor: hand;
+}
+
+.root.theme-light .cy-task-link-chip:hover {
+    -fx-background-color: rgb(236, 234, 233);
+    -fx-border-color: rgba(0,0,0,0.14);
+    -fx-cursor: hand;
+}
+
+/* РІСљвЂ¦ Right-side icon inside chip (no padding, rounded, same height as chip) */
+.cy-task-link-chip .cy-task-link-icon {
+    -fx-padding: 0;
+
+    -fx-min-width: 28px;
+    -fx-pref-width: 28px;
+    -fx-max-width: 28px;
+
+    -fx-min-height: 28px;
+    -fx-pref-height: 28px;
+    -fx-max-height: 28px;
+
+    -fx-background-insets: 0;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+
+    /* РІСљвЂ¦ РЎС“Р В±РЎР‚Р В°РЎвЂљРЎРЉ РЎР‚Р В°Р СР С”РЎС“ Р С”Р Р…Р С•Р С—Р С”Р С‘ */
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+
+    -fx-cursor: hand;
+}
+
+
+.cy-task-link-text {
+    -fx-text-fill: -fx-text-color;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+
+    /* РІСљвЂ¦ keep clickable cursor on text too */
+    -fx-cursor: hand;
+}
+
+/* =====================================================================
+   8.6.1) CYCLES: Environment Chip (meta row)
+   ===================================================================== */
+
+/* EnvironmentChip: РЎРѓР С‘Р СР СР ВµРЎвЂљРЎР‚Р С‘РЎвЂЎР Р…РЎвЂ№Р Вµ Р Р†Р Р…РЎС“РЎвЂљРЎР‚Р ВµР Р…Р Р…Р С‘Р Вµ Р С•РЎвЂљРЎРѓРЎвЂљРЎС“Р С—РЎвЂ№ + Р С”Р В°Р С” РЎС“ TaskLinkChip */
+.cy-task-link-chip.cy-environment-chip {
+    /* РІСљвЂ¦ РЎвЂћР С‘Р С”РЎРѓ Р С—РЎР‚Р С•Р В±Р В»Р ВµР СРЎвЂ№ "Р Р†Р С—РЎР‚Р С‘РЎвЂљРЎвЂ№Р С” РЎРѓР С—РЎР‚Р В°Р Р†Р В°" РІР‚вЂќ Р В±Р В°Р В·Р С•Р Р†РЎвЂ№Р в„– РЎвЂЎР С‘Р С— Р С‘Р СР ВµР ВµРЎвЂљ right padding = 0 */
+    -fx-padding: 0 10 0 10;
+
+    /* spacing Р С”Р С•Р Р…РЎвЂљРЎР‚Р С•Р В»Р С‘РЎР‚РЎС“Р ВµР С Р Р† Java РЎвЂЎР ВµРЎР‚Р ВµР В· margin РЎС“ "/" */
+    -fx-spacing: 0;
+
+    /* РІСљвЂ¦ Р Т‘Р С•Р В»Р В¶Р ВµР Р… Р Р†Р ВµРЎРѓРЎвЂљР С‘ РЎРѓР ВµР В±РЎРЏ Р С”Р В°Р С” РЎвЂЎР С‘Р С— (hover Р С”РЎС“РЎР‚РЎРѓР С•РЎР‚) */
+    -fx-cursor: hand;
+
+    /* Р С”Р С•Р Р…РЎвЂљР ВµР Р…РЎвЂљ Р С—Р С• РЎвЂ Р ВµР Р…РЎвЂљРЎР‚РЎС“ (РЎС“ env-РЎвЂЎР С‘Р С—Р В° Р Р…Р ВµРЎвЂљ Р С—РЎР‚Р В°Р Р†Р С•Р в„– Р С”Р Р…Р С•Р С—Р С”Р С‘ Р С”Р В°Р С” РЎС“ TaskLinkChip) */
+    -fx-alignment: CENTER;
+}
+
+/* РІСљвЂ¦ pressed-state Р Т‘Р В»РЎРЏ EnvironmentChip (HBox РЎРѓР В°Р С Р Р…Р Вµ РЎС“Р СР ВµР ВµРЎвЂљ :pressed, Р Т‘Р ВµР В»Р В°Р ВµР С РЎРѓР Р†Р С•Р в„– :down) */
+.cy-task-link-chip.cy-environment-chip:down {
+    -fx-background-color: rgba(255,255,255,0.03);
+    -fx-border-color: rgba(255,255,255,0.14);
+    -fx-translate-y: 1;
+}
+
+.root.theme-light .cy-task-link-chip.cy-environment-chip:down {
+    -fx-background-color: rgba(0,0,0,0.04);
+    -fx-border-color: rgba(0,0,0,0.14);
+    -fx-translate-y: 1;
+}
+
+
+/* =====================================================================
+   8.7) CYCLES: Task Link modal (Empty state)
+   ===================================================================== */
+
+.cy-tasklink-modal {
+    -fx-background-color: rgba(0,0,0,0.14);
+    -fx-border-color: rgba(255,255,255,0.10);
+
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+}
+
+.root.theme-light .cy-tasklink-modal {
+    -fx-background-color: rgba(0,0,0,0.06);
+    -fx-border-color: rgba(0,0,0,0.10);
+}
+
+.cy-tasklink-title {
+    -fx-text-fill: -fx-text-color;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+}
+
+.cy-tasklink-field {
+    -fx-min-height: 32px;
+    -fx-pref-height: 32px;
+    -fx-max-height: 32px;
+
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+
+    -fx-padding: 0 12;
+}
+
+/* =====================================================================
+   8.8) CYCLES: Profile modal (QA responsible)
+   ===================================================================== */
+
+/* РІСљвЂ¦ Profile ComboBox: visuals are provided by global .app-combo styles (styles.css).
+   This class keeps only geometry constraints for the Cycles profile modal. */
+.cy-profile-combo {
+    -fx-min-height: 32px;
+    -fx-pref-height: 32px;
+    -fx-max-height: 32px;
+
+    -fx-padding: 0;
+}
+
+/* РІСљвЂ¦ name input: reserve space for internal action button on the right */
+.cy-profile-name-input {
+    -fx-padding: 0 34 0 12;
+}
+
+/* РІСљвЂ¦ add-user button INSIDE the input (same geometry as clear button style) */
+.cy-profile-add-in {
+    -fx-min-width: 28px;
+    -fx-pref-width: 28px;
+    -fx-max-width: 28px;
+
+    -fx-min-height: 28px;
+    -fx-pref-height: 28px;
+    -fx-max-height: 28px;
+
+    -fx-padding: 0;
+
+    -fx-background-insets: 0;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.cy-profile-add-in:hover {
+    -fx-background-color: rgba(255,255,255,0.06);
+}
+
+.root.theme-light .cy-profile-add-in:hover {
+    -fx-background-color: rgba(0,0,0,0.06);
+}
+
+/* РІСљвЂ¦ remember checkbox text: explicit readable color in dark/light */
+.cy-profile-remember {
+    -fx-text-fill: -fx-text-color;
+}
+
+.root.theme-light .cy-profile-remember {
+    -fx-text-fill: -fx-text-color;
+}
+
+/* РІСљвЂ¦ checkbox size: smaller (base shrink ~1.5x) */
+.cy-profile-remember-sm.tc-trash-check .box {
+    -fx-min-width: 18px;
+    -fx-min-height: 18px;
+    -fx-pref-width: 18px;
+    -fx-pref-height: 18px;
+
+    -fx-background-radius: 7;
+    -fx-border-radius: 7;
+
+    -fx-border-width: 1.2;
+    -fx-padding: 4px;
+}
+
+.cy-profile-remember-sm.tc-trash-check .mark {
+    -fx-scale-x: 0.77;
+    -fx-scale-y: 0.77;
+}
+
+/* РІСљвЂ¦ EXTRA shrink on top: 1.2x smaller checkbox + text (relative to base shrink)
+   + Р В·Р В°РЎвЂљР ВµР С РЎС“Р Р†Р ВµР В»Р С‘РЎвЂЎР С‘РЎвЂљРЎРЉ Р Р…Р В° 10% (РЎвЂљР ВµР С”РЎС“РЎвЂ°Р В°РЎРЏ Р В·Р В°Р Т‘Р В°РЎвЂЎР В°) */
+.cy-profile-remember-xs {
+    -fx-font-size: 11px; /* Р В±РЎвЂ№Р В»Р С• 10px, +10% */
+}
+
+/* box: Р В±РЎвЂ№Р В»Р С• 15px -> +10% = 16.5px, Р С•Р С”РЎР‚РЎС“Р С–Р В»РЎРЏР ВµР С Р Т‘Р С• 17px */
+.cy-profile-remember-xs.tc-trash-check .box {
+    -fx-min-width: 17px;
+    -fx-min-height: 17px;
+    -fx-pref-width: 17px;
+    -fx-pref-height: 17px;
+
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+
+    -fx-border-width: 1.1;
+    -fx-padding: 3px;
+}
+
+/* mark: Р В±РЎвЂ№Р В»Р С• ~0.64 -> +10% РІвЂ°в‚¬ 0.70 */
+.cy-profile-remember-xs.tc-trash-check .mark {
+    -fx-scale-x: 0.70;
+    -fx-scale-y: 0.70;
+}

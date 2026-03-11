@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/23"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="app.domain.testcases.ui.TestCaseCardController"
+      fx:id="rightCard"
+      spacing="0"
+      visible="false" managed="false"
+      styleClass="tc-card"
+      maxWidth="Infinity"
+      maxHeight="Infinity">
+    <!-- Первая строка в карточке -->
+    <HBox fx:id="rightTopRow" spacing="2" alignment="CENTER_LEFT">
+        <VBox.margin>
+            <Insets top="0" right="0" bottom="2" left="0"/>
+        </VBox.margin>
+
+        <HBox spacing="4" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+            <!-- Поле ввода Код -->
+            <TextField fx:id="tfPrivTop"
+                       editable="false"
+                       promptText="%tc.right.private.placeholder"
+                       styleClass="tc-search,tc-top-mini"
+                       prefWidth="90"/>
+            <!-- Кнопка редактирования поля ввода Код -->
+            <Button fx:id="btnEditPriv"
+                    focusTraversable="false"
+                    styleClass="icon-btn"
+                    userData="14"
+                    onAction="#onEditPriv"/>
+            <!-- Поле ввода Номер -->
+            <TextField fx:id="tfTop2"
+                       promptText="%tc.right.public.placeholder"
+                       styleClass="tc-search,tc-top-mini"
+                       prefWidth="70"/>
+
+            <!-- Бокс для превью названия -->
+            <VBox fx:id="rightInlineStripBox"
+                  HBox.hgrow="ALWAYS"
+                  minWidth="0"
+                  prefWidth="0"
+                  alignment="CENTER_LEFT"
+                  spacing="4">
+                <!-- Превью названия в первой строке -->
+                <Label fx:id="lbRightInlineTitle"
+                       HBox.hgrow="ALWAYS"
+                       minWidth="0"
+                       prefWidth="0"
+                       maxWidth="Infinity"
+                       textOverrun="ELLIPSIS"
+                       styleClass="tc-inline-title"/>
+                <!-- Черта для превью названия -->
+                <Region fx:id="rightInlineStrip"
+                        minHeight="1.0" prefHeight="1.0" maxHeight="1.0"
+                        maxWidth="Infinity"
+                        styleClass="tc-inline-strip"/>
+            </VBox>
+            <!-- Кнопка Изменить -->
+            <Button fx:id="btnEdit"
+                    text="%tc.btn.edit"
+                    onAction="#onEdit"
+                    focusTraversable="false"
+                    styleClass="tc-btn"/>
+            <!-- Кнопка Закрыть карточку -->
+            <Button fx:id="btnCloseRight"
+                    focusTraversable="false"
+                    styleClass="icon-btn,sm"
+                    userData="14"
+                    onAction="#onCloseRight"/>
+        </HBox>
+    </HBox>
+
+    <!-- Вторая строка в карточке -->
+    <VBox fx:id="rightBody"
+          spacing="10"
+          VBox.vgrow="ALWAYS">
+        <!-- Контейнер для Поля ввода Названия -->
+        <StackPane fx:id="titleWrap"
+                   minWidth="0"
+                   prefWidth="0"
+                   maxWidth="Infinity">
+            <!-- Поле ввода Названия -->
+            <TextField fx:id="tfTitle"
+                       promptText="%tc.right.title.placeholder"
+                       styleClass="tc-title-field"
+                       minWidth="0"
+                       prefWidth="0"
+                       maxWidth="Infinity"/>
+
+            <!-- Дубль поля ввода названия чтобы менялся цвет плейсхолдера при фокусе -->
+            <Label fx:id="lbTitleDisplay"
+                   minWidth="0"
+                   prefWidth="0"
+                   maxWidth="Infinity"
+                   textOverrun="ELLIPSIS"
+                   styleClass="tc-title-field"/>
+        </StackPane>
+
+        <!-- Третья строка в карточке. Контейнер под контент карточки -->
+        <StackPane fx:id="rightStack"
+                   VBox.vgrow="ALWAYS"
+                   styleClass="tc-cases-sheet">
+
+            <!-- UNDERLAY: scrollable content -->
+            <ScrollPane fx:id="spRight"
+                        fitToWidth="false"
+                        hbarPolicy="NEVER"
+                        vbarPolicy="AS_NEEDED"
+                        styleClass="tc-filter-scroll"
+                        StackPane.alignment="TOP_LEFT">
+
+                <content>
+                    <VBox fx:id="rightScrollRoot" spacing="10" fillWidth="true">
+                        <padding>
+                            <Insets top="12" right="12" bottom="12" left="12"/>
+                        </padding>
+
+                        <!-- ===================== LABELS (chips) ===================== -->
+                        <FlowPane fx:id="fpRightLabels"
+                                  hgap="8" vgap="8"
+                                  maxWidth="Infinity"
+                                  styleClass="tc-tag-flow">
+
+                            <!-- 1-й элемент: поле ввода + кнопка-галочка ВНУТРИ поля -->
+                            <StackPane styleClass="tc-tag-input-wrap">
+                                <TextField fx:id="tfRightLabel"
+                                           prefWidth="130"
+                                           promptText="%tc.right.label.placeholder"
+                                           styleClass="tc-search,tc-tag-input"/>
+
+                                <Button fx:id="btnAddRightLabel"
+                                        focusTraversable="false"
+                                        onAction="#onAddRightLabel"
+                                        userData="14"
+                                        styleClass="icon-btn,tc-tag-add-in"
+                                        StackPane.alignment="CENTER_RIGHT"/>
+                            </StackPane>
+                        </FlowPane>
+
+                        <!-- ===================== TAGS (chips) ===================== -->
+                        <FlowPane fx:id="fpRightTags"
+                                  hgap="8" vgap="8"
+                                  maxWidth="Infinity"
+                                  styleClass="tc-tag-flow">
+
+                            <!-- 1-й элемент: поле ввода + кнопка-галочка ВНУТРИ поля -->
+                            <StackPane styleClass="tc-tag-input-wrap">
+                                <TextField fx:id="tfRightTag"
+                                           prefWidth="130"
+                                           promptText="%tc.right.tag.placeholder"
+                                           styleClass="tc-search,tc-tag-input"/>
+
+                                <Button fx:id="btnAddRightTag"
+                                        focusTraversable="false"
+                                        onAction="#onAddRightTag"
+                                        userData="14"
+                                        styleClass="icon-btn,tc-tag-add-in"
+                                        StackPane.alignment="CENTER_RIGHT"/>
+                            </StackPane>
+                        </FlowPane>
+
+                        <!-- ===================== DESCRIPTION ===================== -->
+                        <TextArea fx:id="taRightDescription"
+                                  promptText="%tc.right.desc.placeholder"
+                                  wrapText="true"
+                                  prefRowCount="4"
+                                  prefHeight="94"
+                                  maxWidth="Infinity"
+                                  styleClass="tc-area"/>
+
+                        <!-- ===================== STEPS ===================== -->
+                        <VBox fx:id="stepsBlock"
+                              spacing="10"
+                              styleClass="tc-steps-block">
+
+                            <HBox alignment="CENTER_LEFT">
+                                <Label fx:id="lbStepsTitle"
+                                       text="%tc.right.steps.title"
+                                       styleClass="tc-btnlike-title"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                            </HBox>
+
+                            <VBox fx:id="stepsBox" spacing="10"/>
+
+                            <!-- Кнопка добавления новых шагов -->
+                            <HBox alignment="CENTER_LEFT">
+                                <Button fx:id="btnAddStep"
+                                        userData="14"
+                                        onAction="#onAddStep"
+                                        focusTraversable="false"
+                                        styleClass="icon-btn,sm"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                            </HBox>
+
+
+                        </VBox>
+
+
+                        <VBox fx:id="rightScrollContent"
+                              spacing="10"
+                              maxWidth="Infinity"/>
+
+                        <Region minHeight="10"/>
+
+                        <Region fx:id="rightScrollBottomSpacer"
+                                minHeight="22"
+                                prefHeight="22"
+                                maxHeight="22"/>
+
+                    </VBox>
+                </content>
+
+            </ScrollPane>
+
+            <!-- OVERLAY: отдельный слой под кнопку, НЕ влияет на размеры/высоту контента -->
+            <VBox alignment="BOTTOM_CENTER"
+                  spacing="10"
+                  pickOnBounds="false"
+                  StackPane.alignment="BOTTOM_CENTER">
+
+                <StackPane maxWidth="Infinity"
+                           pickOnBounds="false">
+
+                    <!-- TRASH -->
+                    <Button fx:id="btnDeleteRight"
+                            focusTraversable="false"
+                            userData="10"
+                            styleClass="icon-btn,tc-delete-btn"
+                            StackPane.alignment="BOTTOM_RIGHT">
+                        <StackPane.margin>
+                            <Insets right="10" bottom="10"/>
+                        </StackPane.margin>
+                    </Button>
+
+                    <!-- SAVE -->
+                    <Button fx:id="btnSaveRight"
+                            text="%tc.btn.save"
+                            styleClass="tc-filter-apply,tc-save-btn"
+                            prefWidth="250"
+                            focusTraversable="false"
+                            StackPane.alignment="BOTTOM_CENTER">
+                        <StackPane.margin>
+                            <Insets bottom="18"/>
+                        </StackPane.margin>
+                    </Button>
+
+                </StackPane>
+            </VBox>
+
+        </StackPane>
+
+    </VBox>
+
+</VBox>
