@@ -17,9 +17,10 @@ import javafx.scene.layout.VBox;
 
 public class CyclesController {
 
-    private static final double CASES_SHEET_RADIUS = 18.0; // как на экране TestCases
+    private static final double CASES_SHEET_RADIUS = 18.0; // РєР°Рє РЅР° СЌРєСЂР°РЅРµ TestCases
 
-    @FXML private BorderPane root;
+    @FXML private StackPane root;
+    @FXML private BorderPane contentRoot;
 
     // left
     @FXML private StackPane leftStack;
@@ -30,7 +31,7 @@ public class CyclesController {
     @FXML private Button btnFolder;
     @FXML private Button btnCreate;
 
-    // ✅ toggle (теперь: переключение списка Cycle/Cases)
+    // вњ… toggle (С‚РµРїРµСЂСЊ: РїРµСЂРµРєР»СЋС‡РµРЅРёРµ СЃРїРёСЃРєР° Cycle/Cases)
     @FXML private Object tgThemeLeft;
 
     @FXML private Button btnTrash;
@@ -47,11 +48,12 @@ public class CyclesController {
     // right
     @FXML private StackPane rightRoot;
     @FXML private VBox rightPlaceholder;
+    @FXML private StackPane floatingOverlayRoot;
 
     @FXML private Label lblCycleCreatedAt;
     @FXML private TaskLinkChip chipTaskLink;
 
-    // ✅ NEW: environment chip near task link chip
+    // вњ… NEW: environment chip near task link chip
     @FXML private EnvironmentChip chipEnvironment;
 
     @FXML private TextField tfCycleTitle;
@@ -61,20 +63,20 @@ public class CyclesController {
     // menu button in first row
     @FXML private CycleCardMenuButton btnMenuRight;
 
-    // ✅ NEW
+    // вњ… NEW
     @FXML private Button btnProfileRight;
 
     @FXML private Button btnCloseRight;
 
     @FXML private Button btnRightAddCases;
 
-    // ✅ NEW: top delete-mode toggle button
+    // вњ… NEW: top delete-mode toggle button
     @FXML private Button btnRightTrashCases;
 
     @FXML private Label lblAddedCasesCount;
     @FXML private VBox vbAddedCases;
 
-    // ✅ DELETE (right)
+    // вњ… DELETE (right)
     @FXML private Button btnDeleteRight;
     @FXML private StackPane deleteLayer;
     @FXML private VBox deleteModal;
@@ -108,6 +110,7 @@ public class CyclesController {
                 filterSheet,
                 sortSheet,
                 trashOverlay,
+                floatingOverlayRoot,
                 rightRoot,
                 rightPlaceholder,
                 lblCycleCreatedAt,

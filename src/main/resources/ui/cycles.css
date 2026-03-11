@@ -5,20 +5,26 @@
    ========================================================= */
 
 /* ----------------- 8.1) CYCLES: Root / Screen background -----------------
-   В эталоне фон задаёт .app-root (Shell), а экран-руты прозрачные.
-   Поэтому .cy-root НЕ должен рисовать свой фон. */
+   Р вЂ™ РЎРЊРЎвЂљР В°Р В»Р С•Р Р…Р Вµ РЎвЂћР С•Р Р… Р В·Р В°Р Т‘Р В°РЎвЂРЎвЂљ .app-root (Shell), Р В° РЎРЊР С”РЎР‚Р В°Р Р…-РЎР‚РЎС“РЎвЂљРЎвЂ№ Р С—РЎР‚Р С•Р В·РЎР‚Р В°РЎвЂЎР Р…РЎвЂ№Р Вµ.
+   Р СџР С•РЎРЊРЎвЂљР С•Р СРЎС“ .cy-root Р СњР вЂў Р Т‘Р С•Р В»Р В¶Р ВµР Р… РЎР‚Р С‘РЎРѓР С•Р Р†Р В°РЎвЂљРЎРЉ РЎРѓР Р†Р С•Р в„– РЎвЂћР С•Р Р…. */
 .cy-root {
     -fx-background-color: transparent;
     -fx-accent-strong:    #f50049;
 }
 
+
+.cy-testcase-overlay-backdrop {
+    -fx-background-color: linear-gradient(to bottom, -fx-bg-top, -fx-bg-bottom);
+    -fx-background-radius: 18;
+}
+
 /* =====================================================================
-   8.2) CYCLES (Левая зона)
+   8.2) CYCLES (Р вЂєР ВµР Р†Р В°РЎРЏ Р В·Р С•Р Р…Р В°)
    ===================================================================== */
 
-/* ----------------- 8.2.1) CYCLES (Левая зона): Каркас ----------------- */
+/* ----------------- 8.2.1) CYCLES (Р вЂєР ВµР Р†Р В°РЎРЏ Р В·Р С•Р Р…Р В°): Р С™Р В°РЎР‚Р С”Р В°РЎРѓ ----------------- */
 
-/* Внешняя карточка левой зоны (как .tc-left) */
+/* Р вЂ™Р Р…Р ВµРЎв‚¬Р Р…РЎРЏРЎРЏ Р С”Р В°РЎР‚РЎвЂљР С•РЎвЂЎР С”Р В° Р В»Р ВµР Р†Р С•Р в„– Р В·Р С•Р Р…РЎвЂ№ (Р С”Р В°Р С” .tc-left) */
 .cy-left {
     -fx-background-color: rgba(0,0,0,0.28);
     -fx-background-radius: 18;
@@ -28,22 +34,22 @@
     -fx-border-radius: 18;
 }
 
-/* Внешняя карточка левой зоны (light) */
+/* Р вЂ™Р Р…Р ВµРЎв‚¬Р Р…РЎРЏРЎРЏ Р С”Р В°РЎР‚РЎвЂљР С•РЎвЂЎР С”Р В° Р В»Р ВµР Р†Р С•Р в„– Р В·Р С•Р Р…РЎвЂ№ (light) */
 .root.theme-light .cy-left {
     -fx-background-color: rgba(0,0,0,0.10);
     -fx-border-color: rgba(0,0,0,0.14);
     -fx-padding: 0;
 }
 
-/* Подложки-обёртки слева — прозрачные, чтобы не ломать общий фон */
+/* Р СџР С•Р Т‘Р В»Р С•Р В¶Р С”Р С‘-Р С•Р В±РЎвЂРЎР‚РЎвЂљР С”Р С‘ РЎРѓР В»Р ВµР Р†Р В° РІР‚вЂќ Р С—РЎР‚Р С•Р В·РЎР‚Р В°РЎвЂЎР Р…РЎвЂ№Р Вµ, РЎвЂЎРЎвЂљР С•Р В±РЎвЂ№ Р Р…Р Вµ Р В»Р С•Р СР В°РЎвЂљРЎРЉ Р С•Р В±РЎвЂ°Р С‘Р в„– РЎвЂћР С•Р Р… */
 .cy-left-root,
 .cy-left-stack {
     -fx-background-color: transparent;
 }
 
-/* ----------------- 8.2.2) CYCLES (Левая зона): Поиск / Кнопки ----------------- */
+/* ----------------- 8.2.2) CYCLES (Р вЂєР ВµР Р†Р В°РЎРЏ Р В·Р С•Р Р…Р В°): Р СџР С•Р С‘РЎРѓР С” / Р С™Р Р…Р С•Р С—Р С”Р С‘ ----------------- */
 
-/* Поле поиска (как .tc-search) */
+/* Р СџР С•Р В»Р Вµ Р С—Р С•Р С‘РЎРѓР С”Р В° (Р С”Р В°Р С” .tc-search) */
 .cy-search {
     -fx-background-color: -fx-input-dark;
     -fx-background-radius: 12;
@@ -61,7 +67,7 @@
     -fx-padding: 0 12;
 }
 
-/* Поле поиска (light) */
+/* Р СџР С•Р В»Р Вµ Р С—Р С•Р С‘РЎРѓР С”Р В° (light) */
 .root.theme-light .cy-search {
     -fx-background-color: -fx-input-light;
     -fx-background-insets: 1;
@@ -70,7 +76,7 @@
     -fx-prompt-text-fill: -fx-placeholder-light;
 }
 
-/* Фокус */
+/* Р В¤Р С•Р С”РЎС“РЎРѓ */
 .cy-search:focused {
     -fx-border-color: rgb(147, 142, 142);
 }
@@ -101,7 +107,7 @@
     -fx-min-height: 32px;
 }
 
-/* внутренний scroll-pane/viewport/content — прозрачные, чтобы не ломать рамку/скругления */
+/* Р Р†Р Р…РЎС“РЎвЂљРЎР‚Р ВµР Р…Р Р…Р С‘Р в„– scroll-pane/viewport/content РІР‚вЂќ Р С—РЎР‚Р С•Р В·РЎР‚Р В°РЎвЂЎР Р…РЎвЂ№Р Вµ, РЎвЂЎРЎвЂљР С•Р В±РЎвЂ№ Р Р…Р Вµ Р В»Р С•Р СР В°РЎвЂљРЎРЉ РЎР‚Р В°Р СР С”РЎС“/РЎРѓР С”РЎР‚РЎС“Р С–Р В»Р ВµР Р…Р С‘РЎРЏ */
 .cy-env-value-area .scroll-pane {
     -fx-background-color: transparent;
     -fx-background-insets: 0;
@@ -139,7 +145,7 @@
     -fx-border-color: -fx-button2-border-light;
 }
 
-/* Скроллбары прячем CSS-страховкой (без managed/visible) */
+/* Р РЋР С”РЎР‚Р С•Р В»Р В»Р В±Р В°РЎР‚РЎвЂ№ Р С—РЎР‚РЎРЏРЎвЂЎР ВµР С CSS-РЎРѓРЎвЂљРЎР‚Р В°РЎвЂ¦Р С•Р Р†Р С”Р С•Р в„– (Р В±Р ВµР В· managed/visible) */
 .cy-env-value-area .scroll-bar:vertical,
 .cy-env-value-area .scroll-bar:horizontal {
     -fx-opacity: 0;
@@ -163,7 +169,7 @@
 }
 
 
-/* Если поле focused — пусть invalid выигрывает */
+/* Р вЂўРЎРѓР В»Р С‘ Р С—Р С•Р В»Р Вµ focused РІР‚вЂќ Р С—РЎС“РЎРѓРЎвЂљРЎРЉ invalid Р Р†РЎвЂ№Р С‘Р С–РЎР‚РЎвЂ№Р Р†Р В°Р ВµРЎвЂљ */
 .cy-tasklink-url.cy-url-invalid:focused {
     -fx-border-color: -fx-accent-strong;
 }
@@ -172,7 +178,7 @@
 }
 
 
-/* Иконка-кнопка (форма как в эталоне для .tc-left .button.icon-btn) */
+/* Р ВР С”Р С•Р Р…Р С”Р В°-Р С”Р Р…Р С•Р С—Р С”Р В° (РЎвЂћР С•РЎР‚Р СР В° Р С”Р В°Р С” Р Р† РЎРЊРЎвЂљР В°Р В»Р С•Р Р…Р Вµ Р Т‘Р В»РЎРЏ .tc-left .button.icon-btn) */
 .cy-left .button.icon-btn,
 .cy-left .button.icon-btn.sm {
     -fx-min-width: 32px;
@@ -187,7 +193,7 @@
     -fx-border-radius: 12;
 }
 
-/* Базовая кнопка левой зоны (как .tc-btn) */
+/* Р вЂР В°Р В·Р С•Р Р†Р В°РЎРЏ Р С”Р Р…Р С•Р С—Р С”Р В° Р В»Р ВµР Р†Р С•Р в„– Р В·Р С•Р Р…РЎвЂ№ (Р С”Р В°Р С” .tc-btn) */
 .cy-btn {
     -fx-background-color: -fx-base-button-dark;
     -fx-background-insets: 1;
@@ -206,13 +212,13 @@
     -fx-alignment: CENTER;
 }
 
-/* Базовая кнопка (light) */
+/* Р вЂР В°Р В·Р С•Р Р†Р В°РЎРЏ Р С”Р Р…Р С•Р С—Р С”Р В° (light) */
 .root.theme-light .cy-btn {
     -fx-background-color: -fx-base-button-light;
     -fx-border-color: -fx-base-button-border-light;
 }
 
-/* Hover (как в эталоне) */
+/* Hover (Р С”Р В°Р С” Р Р† РЎРЊРЎвЂљР В°Р В»Р С•Р Р…Р Вµ) */
 .cy-btn:hover {
     -fx-background-color:
             linear-gradient(
@@ -236,7 +242,7 @@
     -fx-border-color: -fx-base-button-border-light;
 }
 
-/* Pressed (как в эталоне) */
+/* Pressed (Р С”Р В°Р С” Р Р† РЎРЊРЎвЂљР В°Р В»Р С•Р Р…Р Вµ) */
 .cy-btn:pressed {
     -fx-background-color:
             linear-gradient(
@@ -262,9 +268,9 @@
     -fx-translate-y: 1;
 }
 
-/* ----------------- 8.2.3) CYCLES (Левая зона): Список ----------------- */
+/* ----------------- 8.2.3) CYCLES (Р вЂєР ВµР Р†Р В°РЎРЏ Р В·Р С•Р Р…Р В°): Р РЋР С—Р С‘РЎРѓР С•Р С” ----------------- */
 
-/* Контейнер списка (как .tc-cases-sheet) */
+/* Р С™Р С•Р Р…РЎвЂљР ВµР в„–Р Р…Р ВµРЎР‚ РЎРѓР С—Р С‘РЎРѓР С”Р В° (Р С”Р В°Р С” .tc-cases-sheet) */
 .cy-cases-sheet {
     -fx-background-color: -fx-background-level-2-dark;
     -fx-border-color: -fx-background-border-level-2-dark;
@@ -272,27 +278,27 @@
     -fx-border-radius: 16;
 }
 
-/* Контейнер списка (light) */
+/* Р С™Р С•Р Р…РЎвЂљР ВµР в„–Р Р…Р ВµРЎР‚ РЎРѓР С—Р С‘РЎРѓР С”Р В° (light) */
 .root.theme-light .cy-cases-sheet {
     -fx-background-color: -fx-background-level-2-light;
     -fx-border-color: -fx-background-border-level-2-light;
 }
 
-/* Список (фон прозрачный) — как .tc-list */
+/* Р РЋР С—Р С‘РЎРѓР С•Р С” (РЎвЂћР С•Р Р… Р С—РЎР‚Р С•Р В·РЎР‚Р В°РЎвЂЎР Р…РЎвЂ№Р в„–) РІР‚вЂќ Р С”Р В°Р С” .tc-list */
 .cy-list {
     -fx-background-color: transparent;
 }
 
-/* В эталоне прозрачность/отступы задаются .tc-list .list-cell.
-   Повторяем. */
+/* Р вЂ™ РЎРЊРЎвЂљР В°Р В»Р С•Р Р…Р Вµ Р С—РЎР‚Р С•Р В·РЎР‚Р В°РЎвЂЎР Р…Р С•РЎРѓРЎвЂљРЎРЉ/Р С•РЎвЂљРЎРѓРЎвЂљРЎС“Р С—РЎвЂ№ Р В·Р В°Р Т‘Р В°РЎР‹РЎвЂљРЎРѓРЎРЏ .tc-list .list-cell.
+   Р СџР С•Р Р†РЎвЂљР С•РЎР‚РЎРЏР ВµР С. */
 .cy-list .list-cell {
     -fx-background-color: transparent;
     -fx-padding: 0 2 0 0;
     -fx-border-color: transparent;
 }
 
-/* Эквивалент .tc-case-row, но без вложенного узла:
-   оформляем сам list-cell, чтобы получить “карточки” в списке. */
+/* Р В­Р С”Р Р†Р С‘Р Р†Р В°Р В»Р ВµР Р…РЎвЂљ .tc-case-row, Р Р…Р С• Р В±Р ВµР В· Р Р†Р В»Р С•Р В¶Р ВµР Р…Р Р…Р С•Р С–Р С• РЎС“Р В·Р В»Р В°:
+   Р С•РЎвЂћР С•РЎР‚Р СР В»РЎРЏР ВµР С РЎРѓР В°Р С list-cell, РЎвЂЎРЎвЂљР С•Р В±РЎвЂ№ Р С—Р С•Р В»РЎС“РЎвЂЎР С‘РЎвЂљРЎРЉ РІР‚СљР С”Р В°РЎР‚РЎвЂљР С•РЎвЂЎР С”Р С‘РІР‚Сњ Р Р† РЎРѓР С—Р С‘РЎРѓР С”Р Вµ. */
 .cy-list .list-cell:filled {
     -fx-padding: 5 6 5 3;
 
@@ -320,7 +326,7 @@
     -fx-border-width: 0 0 0 4, 1;
 }
 
-/* Hover (как .tc-list ... .tc-case-row) */
+/* Hover (Р С”Р В°Р С” .tc-list ... .tc-case-row) */
 .cy-list .list-cell:filled:hover {
     -fx-background-color: rgba(255,255,255,0.06);
 
@@ -337,24 +343,24 @@
             rgba(0,0,0,0.14);
 }
 
-/* Selected — аккуратно, чтобы не спорить с дефолтным selection paint */
+/* Selected РІР‚вЂќ Р В°Р С”Р С”РЎС“РЎР‚Р В°РЎвЂљР Р…Р С•, РЎвЂЎРЎвЂљР С•Р В±РЎвЂ№ Р Р…Р Вµ РЎРѓР С—Р С•РЎР‚Р С‘РЎвЂљРЎРЉ РЎРѓ Р Т‘Р ВµРЎвЂћР С•Р В»РЎвЂљР Р…РЎвЂ№Р С selection paint */
 .cy-list .list-cell:filled:selected {
     -fx-background-insets: 0 4 0 0;
 }
 
 /* ----------------- STICKY HEADER (LEFT LIST) -----------------
-   Фон/подложка берётся из tc-filter-overlay + tc-trash-glass (как у delete overlay).
-   Здесь только типографика/геометрия заголовка. */
+   Р В¤Р С•Р Р…/Р С—Р С•Р Т‘Р В»Р С•Р В¶Р С”Р В° Р В±Р ВµРЎР‚РЎвЂРЎвЂљРЎРѓРЎРЏ Р С‘Р В· tc-filter-overlay + tc-trash-glass (Р С”Р В°Р С” РЎС“ delete overlay).
+   Р вЂ”Р Т‘Р ВµРЎРѓРЎРЉ РЎвЂљР С•Р В»РЎРЉР С”Р С• РЎвЂљР С‘Р С—Р С•Р С–РЎР‚Р В°РЎвЂћР С‘Р С”Р В°/Р С–Р ВµР С•Р СР ВµРЎвЂљРЎР‚Р С‘РЎРЏ Р В·Р В°Р С–Р С•Р В»Р С•Р Р†Р С”Р В°. */
 .cy-left-list-header {
     -fx-background-radius: 16;
     -fx-border-radius: 16;
 
-    /* ✅ в 3 раза меньше (было около 42px в коде компонента) */
+    /* РІСљвЂ¦ Р Р† 3 РЎР‚Р В°Р В·Р В° Р СР ВµР Р…РЎРЉРЎв‚¬Р Вµ (Р В±РЎвЂ№Р В»Р С• Р С•Р С”Р С•Р В»Р С• 42px Р Р† Р С”Р С•Р Т‘Р Вµ Р С”Р С•Р СР С—Р С•Р Р…Р ВµР Р…РЎвЂљР В°) */
     -fx-min-height: 20px;
     -fx-pref-height: 20px;
     -fx-max-height: 20px;
 
-    /* компактные внутренние отступы */
+    /* Р С”Р С•Р СР С—Р В°Р С”РЎвЂљР Р…РЎвЂ№Р Вµ Р Р†Р Р…РЎС“РЎвЂљРЎР‚Р ВµР Р…Р Р…Р С‘Р Вµ Р С•РЎвЂљРЎРѓРЎвЂљРЎС“Р С—РЎвЂ№ */
     -fx-padding: 0 5 0 5;
 }
 
@@ -365,7 +371,7 @@
 }
 
 /* =====================================================================
-   8.3) CYCLES (Оверлеи): filter / sort / trash (пока каркас)
+   8.3) CYCLES (Р С›Р Р†Р ВµРЎР‚Р В»Р ВµР С‘): filter / sort / trash (Р С—Р С•Р С”Р В° Р С”Р В°РЎР‚Р С”Р В°РЎРѓ)
    ===================================================================== */
 
 .cy-overlay-sheet {
@@ -377,7 +383,7 @@
 }
 
 /* =====================================================================
-   8.4) CYCLES (Правая зона): placeholder (минимально, без фантазий)
+   8.4) CYCLES (Р СџРЎР‚Р В°Р Р†Р В°РЎРЏ Р В·Р С•Р Р…Р В°): placeholder (Р СР С‘Р Р…Р С‘Р СР В°Р В»РЎРЉР Р…Р С•, Р В±Р ВµР В· РЎвЂћР В°Р Р…РЎвЂљР В°Р В·Р С‘Р в„–)
    ===================================================================== */
 
 .cy-right-root,
@@ -397,7 +403,7 @@
     -fx-border-color: rgba(0,0,0,0.12);
 }
 
-/* ----------------- 8.4.1) CYCLES (Правая зона): Типографика хедера ----------------- */
+/* ----------------- 8.4.1) CYCLES (Р СџРЎР‚Р В°Р Р†Р В°РЎРЏ Р В·Р С•Р Р…Р В°): Р СћР С‘Р С—Р С•Р С–РЎР‚Р В°РЎвЂћР С‘Р С”Р В° РЎвЂ¦Р ВµР Т‘Р ВµРЎР‚Р В° ----------------- */
 
 .cy-meta-label {
     -fx-text-fill: -fx-muted-color;
@@ -417,7 +423,7 @@
 }
 
 /* =====================================================================
-   8.4.2) CYCLES (Правая зона): список добавленных кейсов (UI-only)
+   8.4.2) CYCLES (Р СџРЎР‚Р В°Р Р†Р В°РЎРЏ Р В·Р С•Р Р…Р В°): РЎРѓР С—Р С‘РЎРѓР С•Р С” Р Т‘Р С•Р В±Р В°Р Р†Р В»Р ВµР Р…Р Р…РЎвЂ№РЎвЂ¦ Р С”Р ВµР в„–РЎРѓР С•Р Р† (UI-only)
    ===================================================================== */
 
 .cy-added-cases-list {
@@ -425,7 +431,7 @@
 }
 
 .cy-added-case-row {
-    /* spacing управляется в Java через margin'ы, чтобы зазоры были одинаковыми */
+    /* spacing РЎС“Р С—РЎР‚Р В°Р Р†Р В»РЎРЏР ВµРЎвЂљРЎРѓРЎРЏ Р Р† Java РЎвЂЎР ВµРЎР‚Р ВµР В· margin'РЎвЂ№, РЎвЂЎРЎвЂљР С•Р В±РЎвЂ№ Р В·Р В°Р В·Р С•РЎР‚РЎвЂ№ Р В±РЎвЂ№Р В»Р С‘ Р С•Р Т‘Р С‘Р Р…Р В°Р С”Р С•Р Р†РЎвЂ№Р СР С‘ */
     -fx-spacing: 0;
     -fx-alignment: CENTER_LEFT;
 }
@@ -433,11 +439,11 @@
 .cy-added-case-index {
     -fx-text-fill: -fx-muted-color;
 
-    /* ✅ увеличить шрифт нумерации */
+    /* РІСљвЂ¦ РЎС“Р Р†Р ВµР В»Р С‘РЎвЂЎР С‘РЎвЂљРЎРЉ РЎв‚¬РЎР‚Р С‘РЎвЂћРЎвЂљ Р Р…РЎС“Р СР ВµРЎР‚Р В°РЎвЂ Р С‘Р С‘ */
     -fx-font-size: 12px;
     -fx-font-weight: 700;
 
-    /* ✅ выравнивание и "сдвиг вправо" делаем паддингом (ширина авто из Java) */
+    /* РІСљвЂ¦ Р Р†РЎвЂ№РЎР‚Р В°Р Р†Р Р…Р С‘Р Р†Р В°Р Р…Р С‘Р Вµ Р С‘ "РЎРѓР Т‘Р Р†Р С‘Р С– Р Р†Р С—РЎР‚Р В°Р Р†Р С•" Р Т‘Р ВµР В»Р В°Р ВµР С Р С—Р В°Р Т‘Р Т‘Р С‘Р Р…Р С–Р С•Р С (РЎв‚¬Р С‘РЎР‚Р С‘Р Р…Р В° Р В°Р Р†РЎвЂљР С• Р С‘Р В· Java) */
     -fx-alignment: CENTER_RIGHT;
     -fx-padding: 0 0 0 6px;
 }
@@ -455,12 +461,42 @@
     -fx-border-color: rgba(0,0,0,0.10);
 }
 
+.cy-added-case-row {
+    -fx-cursor: hand;
+}
+
+.cy-added-case-row:hover .cy-added-case-titlebox {
+    -fx-background-color: rgba(255,255,255,0.06);
+    -fx-border-color: rgba(255,255,255,0.14);
+}
+
+.root.theme-light .cy-added-case-row:hover .cy-added-case-titlebox {
+    -fx-background-color: rgb(236, 234, 233);
+    -fx-border-color: rgba(0,0,0,0.14);
+}
+
+.cy-added-case-row:pressed .cy-added-case-titlebox {
+    -fx-background-color: rgba(255,255,255,0.03);
+    -fx-border-color: rgba(255,255,255,0.14);
+    -fx-translate-y: 1;
+}
+
+.root.theme-light .cy-added-case-row:pressed .cy-added-case-titlebox {
+    -fx-background-color: rgb(228, 226, 224);
+    -fx-border-color: rgba(0,0,0,0.14);
+    -fx-translate-y: 1;
+}
+
+.cy-added-case-row .cy-added-case-titlebox {
+    -fx-translate-y: 0;
+}
+
 .cy-added-case-title {
     -fx-text-fill: -fx-text-color;
     -fx-font-size: 12px;
     -fx-font-weight: 700;
 
-    /* ✅ страховка: троеточие, если где-то задают overrun через css */
+    /* РІСљвЂ¦ РЎРѓРЎвЂљРЎР‚Р В°РЎвЂ¦Р С•Р Р†Р С”Р В°: РЎвЂљРЎР‚Р С•Р ВµРЎвЂљР С•РЎвЂЎР С‘Р Вµ, Р ВµРЎРѓР В»Р С‘ Р С–Р Т‘Р Вµ-РЎвЂљР С• Р В·Р В°Р Т‘Р В°РЎР‹РЎвЂљ overrun РЎвЂЎР ВµРЎР‚Р ВµР В· css */
     -fx-text-overrun: ellipsis;
 }
 
@@ -480,12 +516,12 @@
     -fx-background-color: transparent;
 }
 
-/* ✅ IMPORTANT:
-   Тень НЕ должна быть на интерактивной ноде модалки, иначе её expanded bounds
-   будет перехватывать клики по кнопкам под тенью.
-   Тень рисуем на отдельном Region (cy-menu-shadow), который mouseTransparent=true в коде. */
+/* РІСљвЂ¦ IMPORTANT:
+   Р СћР ВµР Р…РЎРЉ Р СњР вЂў Р Т‘Р С•Р В»Р В¶Р Р…Р В° Р В±РЎвЂ№РЎвЂљРЎРЉ Р Р…Р В° Р С‘Р Р…РЎвЂљР ВµРЎР‚Р В°Р С”РЎвЂљР С‘Р Р†Р Р…Р С•Р в„– Р Р…Р С•Р Т‘Р Вµ Р СР С•Р Т‘Р В°Р В»Р С”Р С‘, Р С‘Р Р…Р В°РЎвЂЎР Вµ Р ВµРЎвЂ expanded bounds
+   Р В±РЎС“Р Т‘Р ВµРЎвЂљ Р С—Р ВµРЎР‚Р ВµРЎвЂ¦Р Р†Р В°РЎвЂљРЎвЂ№Р Р†Р В°РЎвЂљРЎРЉ Р С”Р В»Р С‘Р С”Р С‘ Р С—Р С• Р С”Р Р…Р С•Р С—Р С”Р В°Р С Р С—Р С•Р Т‘ РЎвЂљР ВµР Р…РЎРЉРЎР‹.
+   Р СћР ВµР Р…РЎРЉ РЎР‚Р С‘РЎРѓРЎС“Р ВµР С Р Р…Р В° Р С•РЎвЂљР Т‘Р ВµР В»РЎРЉР Р…Р С•Р С Region (cy-menu-shadow), Р С”Р С•РЎвЂљР С•РЎР‚РЎвЂ№Р в„– mouseTransparent=true Р Р† Р С”Р С•Р Т‘Р Вµ. */
 .cy-menu-shadow {
-    /* важно: должен быть "рисуемый" фон, иначе effect может не отображаться */
+    /* Р Р†Р В°Р В¶Р Р…Р С•: Р Т‘Р С•Р В»Р В¶Р ВµР Р… Р В±РЎвЂ№РЎвЂљРЎРЉ "РЎР‚Р С‘РЎРѓРЎС“Р ВµР СРЎвЂ№Р в„–" РЎвЂћР С•Р Р…, Р С‘Р Р…Р В°РЎвЂЎР Вµ effect Р СР С•Р В¶Р ВµРЎвЂљ Р Р…Р Вµ Р С•РЎвЂљР С•Р В±РЎР‚Р В°Р В¶Р В°РЎвЂљРЎРЉРЎРѓРЎРЏ */
     -fx-background-color: rgba(0,0,0,0.001);
     -fx-background-radius: 16;
 
@@ -493,7 +529,7 @@
 }
 
 
-/* ✅ Контент модалки — без эффекта, чтобы bounds не перекрывали клики */
+/* РІСљвЂ¦ Р С™Р С•Р Р…РЎвЂљР ВµР Р…РЎвЂљ Р СР С•Р Т‘Р В°Р В»Р С”Р С‘ РІР‚вЂќ Р В±Р ВµР В· РЎРЊРЎвЂћРЎвЂћР ВµР С”РЎвЂљР В°, РЎвЂЎРЎвЂљР С•Р В±РЎвЂ№ bounds Р Р…Р Вµ Р С—Р ВµРЎР‚Р ВµР С”РЎР‚РЎвЂ№Р Р†Р В°Р В»Р С‘ Р С”Р В»Р С‘Р С”Р С‘ */
 .cy-menu-modal {
     -fx-effect: null;
 }
@@ -502,7 +538,7 @@
    8.5.1) CYCLES: Unified modal buttons (TaskLink / Profile / Menu)
    ===================================================================== */
 
-/* База для всех кнопок в модалках Cycles (ширину задаёт код). */
+/* Р вЂР В°Р В·Р В° Р Т‘Р В»РЎРЏ Р Р†РЎРѓР ВµРЎвЂ¦ Р С”Р Р…Р С•Р С—Р С•Р С” Р Р† Р СР С•Р Т‘Р В°Р В»Р С”Р В°РЎвЂ¦ Cycles (РЎв‚¬Р С‘РЎР‚Р С‘Р Р…РЎС“ Р В·Р В°Р Т‘Р В°РЎвЂРЎвЂљ Р С”Р С•Р Т‘). */
 .button.cy-modal-btn {
     -fx-background-color: -fx-base-button-dark;
     -fx-background-insets: 1;
@@ -514,7 +550,7 @@
     -fx-font-weight: 800;
     -fx-text-fill: -fx-text-color;
 
-    /* ✅ одинаковая высота с полями ввода */
+    /* РІСљвЂ¦ Р С•Р Т‘Р С‘Р Р…Р В°Р С”Р С•Р Р†Р В°РЎРЏ Р Р†РЎвЂ№РЎРѓР С•РЎвЂљР В° РЎРѓ Р С—Р С•Р В»РЎРЏР СР С‘ Р Р†Р Р†Р С•Р Т‘Р В° */
     -fx-min-height: 32px;
     -fx-pref-height: 32px;
     -fx-max-height: 32px;
@@ -528,7 +564,7 @@
     -fx-border-color: -fx-base-button-border-light;
 }
 
-/* hover / pressed для базовых кнопок */
+/* hover / pressed Р Т‘Р В»РЎРЏ Р В±Р В°Р В·Р С•Р Р†РЎвЂ№РЎвЂ¦ Р С”Р Р…Р С•Р С—Р С•Р С” */
 .button.cy-modal-btn:hover {
     -fx-background-color:
             linear-gradient(
@@ -576,8 +612,8 @@
     -fx-translate-y: 1;
 }
 
-/* ✅ унифицированный disabled-стиль — как у кнопок Add/Delete из левой зоны (не через opacity)
-   Старый стиль через opacity удалён. */
+/* РІСљвЂ¦ РЎС“Р Р…Р С‘РЎвЂћР С‘РЎвЂ Р С‘РЎР‚Р С•Р Р†Р В°Р Р…Р Р…РЎвЂ№Р в„– disabled-РЎРѓРЎвЂљР С‘Р В»РЎРЉ РІР‚вЂќ Р С”Р В°Р С” РЎС“ Р С”Р Р…Р С•Р С—Р С•Р С” Add/Delete Р С‘Р В· Р В»Р ВµР Р†Р С•Р в„– Р В·Р С•Р Р…РЎвЂ№ (Р Р…Р Вµ РЎвЂЎР ВµРЎР‚Р ВµР В· opacity)
+   Р РЋРЎвЂљР В°РЎР‚РЎвЂ№Р в„– РЎРѓРЎвЂљР С‘Р В»РЎРЉ РЎвЂЎР ВµРЎР‚Р ВµР В· opacity РЎС“Р Т‘Р В°Р В»РЎвЂР Р…. */
 .button.cy-modal-btn:disabled,
 .button.cy-modal-btn.cy-modal-btn-primary:disabled,
 .button.cy-modal-btn.cy-modal-btn-danger:disabled {
@@ -587,7 +623,7 @@
     -fx-background-color: -fx-base-button-dark;
     -fx-border-color: -fx-base-button-border-dark;
 
-    /* приглушённый текст, без “прыжка” */
+    /* Р С—РЎР‚Р С‘Р С–Р В»РЎС“РЎв‚¬РЎвЂР Р…Р Р…РЎвЂ№Р в„– РЎвЂљР ВµР С”РЎРѓРЎвЂљ, Р В±Р ВµР В· РІР‚СљР С—РЎР‚РЎвЂ№Р В¶Р С”Р В°РІР‚Сњ */
     -fx-text-fill: rgba(242,244,247,0.55);
     -fx-translate-y: 0;
 }
@@ -603,7 +639,7 @@
     -fx-translate-y: 0;
 }
 
-/* disabled не должен менять вид от hover/pressed правил */
+/* disabled Р Р…Р Вµ Р Т‘Р С•Р В»Р В¶Р ВµР Р… Р СР ВµР Р…РЎРЏРЎвЂљРЎРЉ Р Р†Р С‘Р Т‘ Р С•РЎвЂљ hover/pressed Р С—РЎР‚Р В°Р Р†Р С‘Р В» */
 .button.cy-modal-btn:disabled:hover,
 .button.cy-modal-btn:disabled:pressed,
 .button.cy-modal-btn.cy-modal-btn-primary:disabled:hover,
@@ -633,15 +669,15 @@
     -fx-text-fill: rgb(255, 255, 255);
 }
 
-/* ✅ FIX: в light теме базовый .root.theme-light .button.cy-modal-btn перетирал primary.
-   Поэтому дублируем primary правила со специфичностью light темы. */
+/* РІСљвЂ¦ FIX: Р Р† light РЎвЂљР ВµР СР Вµ Р В±Р В°Р В·Р С•Р Р†РЎвЂ№Р в„– .root.theme-light .button.cy-modal-btn Р С—Р ВµРЎР‚Р ВµРЎвЂљР С‘РЎР‚Р В°Р В» primary.
+   Р СџР С•РЎРЊРЎвЂљР С•Р СРЎС“ Р Т‘РЎС“Р В±Р В»Р С‘РЎР‚РЎС“Р ВµР С primary Р С—РЎР‚Р В°Р Р†Р С‘Р В»Р В° РЎРѓР С• РЎРѓР С—Р ВµРЎвЂ Р С‘РЎвЂћР С‘РЎвЂЎР Р…Р С•РЎРѓРЎвЂљРЎРЉРЎР‹ light РЎвЂљР ВµР СРЎвЂ№. */
 .root.theme-light .button.cy-modal-btn.cy-modal-btn-primary {
     -fx-background-color: -fx-accent-strong;
     -fx-border-color: -fx-accent-strong;
     -fx-text-fill: rgb(255, 255, 255);
 }
 
-/* hover / pressed для primary */
+/* hover / pressed Р Т‘Р В»РЎРЏ primary */
 .button.cy-modal-btn.cy-modal-btn-primary:hover {
     -fx-background-color:
             linear-gradient(
@@ -691,7 +727,7 @@
     -fx-text-fill: rgb(255, 255, 255);
 }
 
-/* ✅ FIX: аналогично для danger в light теме */
+/* РІСљвЂ¦ FIX: Р В°Р Р…Р В°Р В»Р С•Р С–Р С‘РЎвЂЎР Р…Р С• Р Т‘Р В»РЎРЏ danger Р Р† light РЎвЂљР ВµР СР Вµ */
 .root.theme-light .button.cy-modal-btn.cy-modal-btn-danger {
     -fx-background-color: -fx-accent-strong;
     -fx-border-color: -fx-accent-strong;
@@ -755,13 +791,13 @@
     -fx-pref-height: 28px;
     -fx-max-height: 28px;
 
-    /* ✅ icon flush right: no right padding, no spacing */
+    /* РІСљвЂ¦ icon flush right: no right padding, no spacing */
     -fx-padding: 0 0 0 10;
     -fx-spacing: 0;
 
     -fx-alignment: CENTER_LEFT;
 
-    /* ✅ cursor stays clickable */
+    /* РІСљвЂ¦ cursor stays clickable */
     -fx-cursor: hand;
 }
 
@@ -782,7 +818,7 @@
     -fx-cursor: hand;
 }
 
-/* ✅ Right-side icon inside chip (no padding, rounded, same height as chip) */
+/* РІСљвЂ¦ Right-side icon inside chip (no padding, rounded, same height as chip) */
 .cy-task-link-chip .cy-task-link-icon {
     -fx-padding: 0;
 
@@ -798,7 +834,7 @@
     -fx-background-radius: 12;
     -fx-border-radius: 12;
 
-    /* ✅ убрать рамку кнопки */
+    /* РІСљвЂ¦ РЎС“Р В±РЎР‚Р В°РЎвЂљРЎРЉ РЎР‚Р В°Р СР С”РЎС“ Р С”Р Р…Р С•Р С—Р С”Р С‘ */
     -fx-border-color: transparent;
     -fx-border-width: 0;
 
@@ -811,7 +847,7 @@
     -fx-font-size: 11px;
     -fx-font-weight: 800;
 
-    /* ✅ keep clickable cursor on text too */
+    /* РІСљвЂ¦ keep clickable cursor on text too */
     -fx-cursor: hand;
 }
 
@@ -819,22 +855,22 @@
    8.6.1) CYCLES: Environment Chip (meta row)
    ===================================================================== */
 
-/* EnvironmentChip: симметричные внутренние отступы + как у TaskLinkChip */
+/* EnvironmentChip: РЎРѓР С‘Р СР СР ВµРЎвЂљРЎР‚Р С‘РЎвЂЎР Р…РЎвЂ№Р Вµ Р Р†Р Р…РЎС“РЎвЂљРЎР‚Р ВµР Р…Р Р…Р С‘Р Вµ Р С•РЎвЂљРЎРѓРЎвЂљРЎС“Р С—РЎвЂ№ + Р С”Р В°Р С” РЎС“ TaskLinkChip */
 .cy-task-link-chip.cy-environment-chip {
-    /* ✅ фикс проблемы "впритык справа" — базовый чип имеет right padding = 0 */
+    /* РІСљвЂ¦ РЎвЂћР С‘Р С”РЎРѓ Р С—РЎР‚Р С•Р В±Р В»Р ВµР СРЎвЂ№ "Р Р†Р С—РЎР‚Р С‘РЎвЂљРЎвЂ№Р С” РЎРѓР С—РЎР‚Р В°Р Р†Р В°" РІР‚вЂќ Р В±Р В°Р В·Р С•Р Р†РЎвЂ№Р в„– РЎвЂЎР С‘Р С— Р С‘Р СР ВµР ВµРЎвЂљ right padding = 0 */
     -fx-padding: 0 10 0 10;
 
-    /* spacing контролируем в Java через margin у "/" */
+    /* spacing Р С”Р С•Р Р…РЎвЂљРЎР‚Р С•Р В»Р С‘РЎР‚РЎС“Р ВµР С Р Р† Java РЎвЂЎР ВµРЎР‚Р ВµР В· margin РЎС“ "/" */
     -fx-spacing: 0;
 
-    /* ✅ должен вести себя как чип (hover курсор) */
+    /* РІСљвЂ¦ Р Т‘Р С•Р В»Р В¶Р ВµР Р… Р Р†Р ВµРЎРѓРЎвЂљР С‘ РЎРѓР ВµР В±РЎРЏ Р С”Р В°Р С” РЎвЂЎР С‘Р С— (hover Р С”РЎС“РЎР‚РЎРѓР С•РЎР‚) */
     -fx-cursor: hand;
 
-    /* контент по центру (у env-чипа нет правой кнопки как у TaskLinkChip) */
+    /* Р С”Р С•Р Р…РЎвЂљР ВµР Р…РЎвЂљ Р С—Р С• РЎвЂ Р ВµР Р…РЎвЂљРЎР‚РЎС“ (РЎС“ env-РЎвЂЎР С‘Р С—Р В° Р Р…Р ВµРЎвЂљ Р С—РЎР‚Р В°Р Р†Р С•Р в„– Р С”Р Р…Р С•Р С—Р С”Р С‘ Р С”Р В°Р С” РЎС“ TaskLinkChip) */
     -fx-alignment: CENTER;
 }
 
-/* ✅ pressed-state для EnvironmentChip (HBox сам не умеет :pressed, делаем свой :down) */
+/* РІСљвЂ¦ pressed-state Р Т‘Р В»РЎРЏ EnvironmentChip (HBox РЎРѓР В°Р С Р Р…Р Вµ РЎС“Р СР ВµР ВµРЎвЂљ :pressed, Р Т‘Р ВµР В»Р В°Р ВµР С РЎРѓР Р†Р С•Р в„– :down) */
 .cy-task-link-chip.cy-environment-chip:down {
     -fx-background-color: rgba(255,255,255,0.03);
     -fx-border-color: rgba(255,255,255,0.14);
@@ -886,7 +922,7 @@
    8.8) CYCLES: Profile modal (QA responsible)
    ===================================================================== */
 
-/* ✅ Profile ComboBox: visuals are provided by global .app-combo styles (styles.css).
+/* РІСљвЂ¦ Profile ComboBox: visuals are provided by global .app-combo styles (styles.css).
    This class keeps only geometry constraints for the Cycles profile modal. */
 .cy-profile-combo {
     -fx-min-height: 32px;
@@ -896,12 +932,12 @@
     -fx-padding: 0;
 }
 
-/* ✅ name input: reserve space for internal action button on the right */
+/* РІСљвЂ¦ name input: reserve space for internal action button on the right */
 .cy-profile-name-input {
     -fx-padding: 0 34 0 12;
 }
 
-/* ✅ add-user button INSIDE the input (same geometry as clear button style) */
+/* РІСљвЂ¦ add-user button INSIDE the input (same geometry as clear button style) */
 .cy-profile-add-in {
     -fx-min-width: 28px;
     -fx-pref-width: 28px;
@@ -929,7 +965,7 @@
     -fx-background-color: rgba(0,0,0,0.06);
 }
 
-/* ✅ remember checkbox text: explicit readable color in dark/light */
+/* РІСљвЂ¦ remember checkbox text: explicit readable color in dark/light */
 .cy-profile-remember {
     -fx-text-fill: -fx-text-color;
 }
@@ -938,7 +974,7 @@
     -fx-text-fill: -fx-text-color;
 }
 
-/* ✅ checkbox size: smaller (base shrink ~1.5x) */
+/* РІСљвЂ¦ checkbox size: smaller (base shrink ~1.5x) */
 .cy-profile-remember-sm.tc-trash-check .box {
     -fx-min-width: 18px;
     -fx-min-height: 18px;
@@ -957,13 +993,13 @@
     -fx-scale-y: 0.77;
 }
 
-/* ✅ EXTRA shrink on top: 1.2x smaller checkbox + text (relative to base shrink)
-   + затем увеличить на 10% (текущая задача) */
+/* РІСљвЂ¦ EXTRA shrink on top: 1.2x smaller checkbox + text (relative to base shrink)
+   + Р В·Р В°РЎвЂљР ВµР С РЎС“Р Р†Р ВµР В»Р С‘РЎвЂЎР С‘РЎвЂљРЎРЉ Р Р…Р В° 10% (РЎвЂљР ВµР С”РЎС“РЎвЂ°Р В°РЎРЏ Р В·Р В°Р Т‘Р В°РЎвЂЎР В°) */
 .cy-profile-remember-xs {
-    -fx-font-size: 11px; /* было 10px, +10% */
+    -fx-font-size: 11px; /* Р В±РЎвЂ№Р В»Р С• 10px, +10% */
 }
 
-/* box: было 15px -> +10% = 16.5px, округляем до 17px */
+/* box: Р В±РЎвЂ№Р В»Р С• 15px -> +10% = 16.5px, Р С•Р С”РЎР‚РЎС“Р С–Р В»РЎРЏР ВµР С Р Т‘Р С• 17px */
 .cy-profile-remember-xs.tc-trash-check .box {
     -fx-min-width: 17px;
     -fx-min-height: 17px;
@@ -977,7 +1013,7 @@
     -fx-padding: 3px;
 }
 
-/* mark: было ~0.64 -> +10% ≈ 0.70 */
+/* mark: Р В±РЎвЂ№Р В»Р С• ~0.64 -> +10% РІвЂ°в‚¬ 0.70 */
 .cy-profile-remember-xs.tc-trash-check .mark {
     -fx-scale-x: 0.70;
     -fx-scale-y: 0.70;

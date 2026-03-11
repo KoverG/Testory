@@ -26,31 +26,31 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * UI-only блок: список кейсов, добавленных в цикл.
+ * UI-only Р±Р»РѕРє: СЃРїРёСЃРѕРє РєРµР№СЃРѕРІ, РґРѕР±Р°РІР»РµРЅРЅС‹С… РІ С†РёРєР».
  *
- * Важно: без логики домена. Отображает только реально добавленные кейсы.
- * Никаких preview/шаблонов при пустом списке.
+ * Р’Р°Р¶РЅРѕ: Р±РµР· Р»РѕРіРёРєРё РґРѕРјРµРЅР°. РћС‚РѕР±СЂР°Р¶Р°РµС‚ С‚РѕР»СЊРєРѕ СЂРµР°Р»СЊРЅРѕ РґРѕР±Р°РІР»РµРЅРЅС‹Рµ РєРµР№СЃС‹.
+ * РќРёРєР°РєРёС… preview/С€Р°Р±Р»РѕРЅРѕРІ РїСЂРё РїСѓСЃС‚РѕРј СЃРїРёСЃРєРµ.
  */
 public final class AddedCasesListUi {
 
-    // ✅ больше отступ справа, чтобы элементы не прилипали к скроллбару
+    // вњ… Р±РѕР»СЊС€Рµ РѕС‚СЃС‚СѓРї СЃРїСЂР°РІР°, С‡С‚РѕР±С‹ СЌР»РµРјРµРЅС‚С‹ РЅРµ РїСЂРёР»РёРїР°Р»Рё Рє СЃРєСЂРѕР»Р»Р±Р°СЂСѓ
     private static final double RIGHT_SCROLL_RESERVE_PX = 24.0;
 
     private static final String ICON_CASE_ACTION = "kebab.svg";
     private static final String ICON_CASE_DELETE = "trash.svg";
 
-    // ✅ comment icon (must exist in the same icons folder as others)
+    // вњ… comment icon (must exist in the same icons folder as others)
     private static final String ICON_COMMENT = "comment.svg";
 
     // 160 * 1.5 = 240
     private static final double COMBO_WIDTH_PX = 240.0;
 
-    // визуальная “приглушённость” плейсхолдера (hint)
+    // РІРёР·СѓР°Р»СЊРЅР°СЏ вЂњРїСЂРёРіР»СѓС€С‘РЅРЅРѕСЃС‚СЊвЂќ РїР»РµР№СЃС…РѕР»РґРµСЂР° (hint)
     private static final double HINT_OPACITY = 0.62;
 
     /**
-     * Sentinel для пункта "Очистить выбор".
-     * Важно: должен быть уникальным и не пересекаться с реальными значениями из конфига.
+     * Sentinel РґР»СЏ РїСѓРЅРєС‚Р° "РћС‡РёСЃС‚РёС‚СЊ РІС‹Р±РѕСЂ".
+     * Р’Р°Р¶РЅРѕ: РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СѓРЅРёРєР°Р»СЊРЅС‹Рј Рё РЅРµ РїРµСЂРµСЃРµРєР°С‚СЊСЃСЏ СЃ СЂРµР°Р»СЊРЅС‹РјРё Р·РЅР°С‡РµРЅРёСЏРјРё РёР· РєРѕРЅС„РёРіР°.
      */
     private static final String CLEAR_SENTINEL = "__@CLEAR_SELECTION@__";
 
@@ -59,12 +59,13 @@ public final class AddedCasesListUi {
 
     private final CyclesViewRefs v;
 
-    // UI-only: комментарии по строке (index + title), т.к. в текущем UI нет caseId
+    // UI-only: РєРѕРјРјРµРЅС‚Р°СЂРёРё РїРѕ СЃС‚СЂРѕРєРµ (index + title), С‚.Рє. РІ С‚РµРєСѓС‰РµРј UI РЅРµС‚ caseId
     private final Map<String, String> commentsByRowKey = new LinkedHashMap<>();
 
     private boolean deleteMode = false;
 
     private Consumer<CycleCaseRef> onDeleteCase;
+    private Consumer<CycleCaseRef> onOpenCase;
 
     public AddedCasesListUi(CyclesViewRefs v) {
         this.v = v;
@@ -73,12 +74,16 @@ public final class AddedCasesListUi {
     public void init() {
         if (v.vbAddedCases == null) return;
 
-        // резерв справа, чтобы контент не конфликтовал со скроллбаром ScrollPane
+        // СЂРµР·РµСЂРІ СЃРїСЂР°РІР°, С‡С‚РѕР±С‹ РєРѕРЅС‚РµРЅС‚ РЅРµ РєРѕРЅС„Р»РёРєС‚РѕРІР°Р» СЃРѕ СЃРєСЂРѕР»Р»Р±Р°СЂРѕРј ScrollPane
         v.vbAddedCases.setPadding(new Insets(0, RIGHT_SCROLL_RESERVE_PX, 0, 0));
     }
 
     public void setOnDeleteCase(Consumer<CycleCaseRef> onDeleteCase) {
         this.onDeleteCase = onDeleteCase;
+    }
+
+    public void setOnOpenCase(Consumer<CycleCaseRef> onOpenCase) {
+        this.onOpenCase = onOpenCase;
     }
 
     public void setDeleteMode(boolean enabled) {
@@ -97,8 +102,8 @@ public final class AddedCasesListUi {
     }
 
     /**
-     * UI-only: показать выбранные кейсы.
-     * Если список пустой — просто очищаем контейнер и выходим (без заглушек).
+     * UI-only: РїРѕРєР°Р·Р°С‚СЊ РІС‹Р±СЂР°РЅРЅС‹Рµ РєРµР№СЃС‹.
+     * Р•СЃР»Рё СЃРїРёСЃРѕРє РїСѓСЃС‚РѕР№ вЂ” РїСЂРѕСЃС‚Рѕ РѕС‡РёС‰Р°РµРј РєРѕРЅС‚РµР№РЅРµСЂ Рё РІС‹С…РѕРґРёРј (Р±РµР· Р·Р°РіР»СѓС€РµРє).
      */
     public void showCases(List<CycleCaseRef> cases) {
         if (v.vbAddedCases == null) return;
@@ -121,7 +126,7 @@ public final class AddedCasesListUi {
     private void addRow(int index, CycleCaseRef ref) {
         if (v.vbAddedCases == null) return;
 
-        // spacing=0, расстояния между "колонками" задаём margin'ами (равные)
+        // spacing=0, СЂР°СЃСЃС‚РѕСЏРЅРёСЏ РјРµР¶РґСѓ "РєРѕР»РѕРЅРєР°РјРё" Р·Р°РґР°С‘Рј margin'Р°РјРё (СЂР°РІРЅС‹Рµ)
         HBox row = new HBox(0);
         row.getStyleClass().add("cy-added-case-row");
         row.setAlignment(Pos.CENTER_LEFT);
@@ -131,12 +136,12 @@ public final class AddedCasesListUi {
         Label lbIndex = new Label(String.valueOf(index));
         lbIndex.getStyleClass().add("cy-added-case-index");
 
-        // ✅ авто-ширина под 1/2/3+ цифр: колонка расширяется по содержимому
+        // вњ… Р°РІС‚Рѕ-С€РёСЂРёРЅР° РїРѕРґ 1/2/3+ С†РёС„СЂ: РєРѕР»РѕРЅРєР° СЂР°СЃС€РёСЂСЏРµС‚СЃСЏ РїРѕ СЃРѕРґРµСЂР¶РёРјРѕРјСѓ
         lbIndex.setMinWidth(Region.USE_PREF_SIZE);
         lbIndex.setPrefWidth(Region.USE_COMPUTED_SIZE);
         lbIndex.setMaxWidth(Region.USE_PREF_SIZE);
 
-        // ✅ визуально: сдвиг вправо и центровка по высоте строки
+        // вњ… РІРёР·СѓР°Р»СЊРЅРѕ: СЃРґРІРёРі РІРїСЂР°РІРѕ Рё С†РµРЅС‚СЂРѕРІРєР° РїРѕ РІС‹СЃРѕС‚Рµ СЃС‚СЂРѕРєРё
         lbIndex.setAlignment(Pos.CENTER_RIGHT);
         lbIndex.setPadding(new Insets(0, 0, 0, 6));
 
@@ -148,8 +153,8 @@ public final class AddedCasesListUi {
         titleBox.setMinWidth(0.0);
         HBox.setHgrow(titleBox, Priority.ALWAYS);
 
-        // ✅ одинаковый отступ между колонками: "номер -> titleBox" задаёт row spacing=0,
-        //    а "titleBox -> combo" делаем margin'ом
+        // вњ… РѕРґРёРЅР°РєРѕРІС‹Р№ РѕС‚СЃС‚СѓРї РјРµР¶РґСѓ РєРѕР»РѕРЅРєР°РјРё: "РЅРѕРјРµСЂ -> titleBox" Р·Р°РґР°С‘С‚ row spacing=0,
+        //    Р° "titleBox -> combo" РґРµР»Р°РµРј margin'РѕРј
         HBox.setMargin(titleBox, new Insets(0, 10, 0, 8));
 
         String title = (ref == null) ? "" : safe(ref.safeTitleSnapshot());
@@ -157,7 +162,7 @@ public final class AddedCasesListUi {
         Label lbTitle = new Label(title);
         lbTitle.getStyleClass().add("cy-added-case-title");
 
-        // ✅ фикс бага: длинное название обрезаем троеточием и не вылезаем за экран
+        // вњ… С„РёРєСЃ Р±Р°РіР°: РґР»РёРЅРЅРѕРµ РЅР°Р·РІР°РЅРёРµ РѕР±СЂРµР·Р°РµРј С‚СЂРѕРµС‚РѕС‡РёРµРј Рё РЅРµ РІС‹Р»РµР·Р°РµРј Р·Р° СЌРєСЂР°РЅ
         lbTitle.setMinWidth(0.0);
         lbTitle.setPrefWidth(0.0);
         lbTitle.setMaxWidth(Double.MAX_VALUE);
@@ -169,9 +174,9 @@ public final class AddedCasesListUi {
         btnKebab.getStyleClass().addAll("icon-btn", "xs", "cy-added-case-action");
         btnKebab.setFocusTraversable(false);
         UiSvg.setButtonSvg(btnKebab, ICON_CASE_ACTION, 12);
-        // логики пока нет — кнопка просто UI
+        // Р»РѕРіРёРєРё РїРѕРєР° РЅРµС‚ вЂ” РєРЅРѕРїРєР° РїСЂРѕСЃС‚Рѕ UI
 
-        // ✅ NEW: row trash button (hidden until deleteMode)
+        // вњ… NEW: row trash button (hidden until deleteMode)
         Button btnTrash = new Button();
         btnTrash.getStyleClass().addAll("icon-btn", "xs", "cy-added-case-delete");
         btnTrash.setFocusTraversable(false);
@@ -192,7 +197,13 @@ public final class AddedCasesListUi {
             onDeleteCase.accept(safeRef);
         });
 
-        // ✅ order matters: kebab first, trash appears to the right in same cell
+        row.setOnMouseClicked(e -> {
+            if (deleteMode) return;
+            if (onOpenCase == null) return;
+            onOpenCase.accept(safeRef);
+        });
+
+        // вњ… order matters: kebab first, trash appears to the right in same cell
         titleBox.getChildren().addAll(lbTitle, btnKebab, btnTrash);
 
         ComboBox<String> cb = new ComboBox<>();
@@ -201,27 +212,27 @@ public final class AddedCasesListUi {
 
         cb.setFocusTraversable(false);
 
-        // ✅ 1) ширина x1.5
+        // вњ… 1) С€РёСЂРёРЅР° x1.5
         cb.setPrefWidth(COMBO_WIDTH_PX);
         cb.setMaxWidth(COMBO_WIDTH_PX);
 
-        // ✅ одинаковый отступ между колонками: "combo -> comment btn"
+        // вњ… РѕРґРёРЅР°РєРѕРІС‹Р№ РѕС‚СЃС‚СѓРї РјРµР¶РґСѓ РєРѕР»РѕРЅРєР°РјРё: "combo -> comment btn"
         HBox.setMargin(cb, new Insets(0, 10, 0, 0));
 
-        // ✅ 2-3) список + цвета из private-config.json
+        // вњ… 2-3) СЃРїРёСЃРѕРє + С†РІРµС‚Р° РёР· private-config.json
         Map<String, String> colorsByText = loadCaseComboColors();
 
         // i18n texts
         final String hintStatus = safe(I18n.t("cy.case.status.placeholder"));
         final String clearLabel = safe(I18n.t("cy.combo.clearSelection"));
 
-        // базовые пункты (только статусы из конфига)
+        // Р±Р°Р·РѕРІС‹Рµ РїСѓРЅРєС‚С‹ (С‚РѕР»СЊРєРѕ СЃС‚Р°С‚СѓСЃС‹ РёР· РєРѕРЅС„РёРіР°)
         final List<String> baseItems = new ArrayList<>(colorsByText.keySet());
 
-        // promptText оставим, но реальный плейсхолдер рисуем через buttonCell
+        // promptText РѕСЃС‚Р°РІРёРј, РЅРѕ СЂРµР°Р»СЊРЅС‹Р№ РїР»РµР№СЃС…РѕР»РґРµСЂ СЂРёСЃСѓРµРј С‡РµСЂРµР· buttonCell
         cb.setPromptText(hintStatus);
 
-        // dropdown cells: "Очистить выбор" отображаем по sentinel
+        // dropdown cells: "РћС‡РёСЃС‚РёС‚СЊ РІС‹Р±РѕСЂ" РѕС‚РѕР±СЂР°Р¶Р°РµРј РїРѕ sentinel
         cb.setCellFactory(lv -> new ListCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -241,7 +252,7 @@ public final class AddedCasesListUi {
             }
         });
 
-        // button cell: плейсхолдер когда value == null
+        // button cell: РїР»РµР№СЃС…РѕР»РґРµСЂ РєРѕРіРґР° value == null
         cb.setButtonCell(new ListCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -254,7 +265,7 @@ public final class AddedCasesListUi {
                     return;
                 }
 
-                // если вдруг попали на sentinel (теоретически не должно оставаться как value)
+                // РµСЃР»Рё РІРґСЂСѓРі РїРѕРїР°Р»Рё РЅР° sentinel (С‚РµРѕСЂРµС‚РёС‡РµСЃРєРё РЅРµ РґРѕР»Р¶РЅРѕ РѕСЃС‚Р°РІР°С‚СЊСЃСЏ РєР°Рє value)
                 if (CLEAR_SENTINEL.equals(item)) {
                     setText(hintStatus);
                     setOpacity(HINT_OPACITY);
@@ -266,9 +277,9 @@ public final class AddedCasesListUi {
             }
         });
 
-        // обновление items без дублей:
-        // - если есть выбранный статус -> sentinel первым (всегда виден, без скролла)
-        // - если выбора нет -> только статусы
+        // РѕР±РЅРѕРІР»РµРЅРёРµ items Р±РµР· РґСѓР±Р»РµР№:
+        // - РµСЃР»Рё РµСЃС‚СЊ РІС‹Р±СЂР°РЅРЅС‹Р№ СЃС‚Р°С‚СѓСЃ -> sentinel РїРµСЂРІС‹Рј (РІСЃРµРіРґР° РІРёРґРµРЅ, Р±РµР· СЃРєСЂРѕР»Р»Р°)
+        // - РµСЃР»Рё РІС‹Р±РѕСЂР° РЅРµС‚ -> С‚РѕР»СЊРєРѕ СЃС‚Р°С‚СѓСЃС‹
         final Runnable syncItemsWithSelection = () -> {
             String v = cb.getValue();
             boolean hasSelection = v != null && !v.isBlank() && !CLEAR_SENTINEL.equals(v);
@@ -283,15 +294,15 @@ public final class AddedCasesListUi {
             }
         };
 
-        // начальное состояние: пусто -> без sentinel
+        // РЅР°С‡Р°Р»СЊРЅРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ: РїСѓСЃС‚Рѕ -> Р±РµР· sentinel
         syncItemsWithSelection.run();
 
-        // перед открытием popup гарантируем актуальный список
+        // РїРµСЂРµРґ РѕС‚РєСЂС‹С‚РёРµРј popup РіР°СЂР°РЅС‚РёСЂСѓРµРј Р°РєС‚СѓР°Р»СЊРЅС‹Р№ СЃРїРёСЃРѕРє
         cb.setOnShowing(e -> syncItemsWithSelection.run());
 
-        // ✅ 4) при выборе — красим комбобокс + поддержка "Очистить выбор"
+        // вњ… 4) РїСЂРё РІС‹Р±РѕСЂРµ вЂ” РєСЂР°СЃРёРј РєРѕРјР±РѕР±РѕРєСЃ + РїРѕРґРґРµСЂР¶РєР° "РћС‡РёСЃС‚РёС‚СЊ РІС‹Р±РѕСЂ"
         cb.valueProperty().addListener((obs, oldV, newV) -> {
-            // "Очистить выбор" -> сбрасываем в null
+            // "РћС‡РёСЃС‚РёС‚СЊ РІС‹Р±РѕСЂ" -> СЃР±СЂР°СЃС‹РІР°РµРј РІ null
             if (CLEAR_SENTINEL.equals(newV)) {
                 javafx.application.Platform.runLater(() -> {
                     cb.getSelectionModel().clearSelection();
@@ -302,18 +313,18 @@ public final class AddedCasesListUi {
                 return;
             }
 
-            // пусто/сброс — убираем стиль
+            // РїСѓСЃС‚Рѕ/СЃР±СЂРѕСЃ вЂ” СѓР±РёСЂР°РµРј СЃС‚РёР»СЊ
             if (newV == null || newV.isBlank()) {
                 cb.setStyle("");
                 syncItemsWithSelection.run();
                 return;
             }
 
-            // обычный выбранный статус
+            // РѕР±С‹С‡РЅС‹Р№ РІС‹Р±СЂР°РЅРЅС‹Р№ СЃС‚Р°С‚СѓСЃ
             String cssColor = colorsByText.get(newV);
             applyComboColor(cb, cssColor);
 
-            // после выбора добавим sentinel первым элементом
+            // РїРѕСЃР»Рµ РІС‹Р±РѕСЂР° РґРѕР±Р°РІРёРј sentinel РїРµСЂРІС‹Рј СЌР»РµРјРµРЅС‚РѕРј
             syncItemsWithSelection.run();
         });
 
@@ -321,7 +332,7 @@ public final class AddedCasesListUi {
 
         final String rowKey = buildRowKey(index, title);
 
-        // ✅ icon-only button (centered), tooltip text
+        // вњ… icon-only button (centered), tooltip text
         Button btnComment = new Button();
         btnComment.getStyleClass().addAll("icon-btn", "xs", "cy-added-case-comment");
         btnComment.setFocusTraversable(false);
@@ -332,7 +343,7 @@ public final class AddedCasesListUi {
 
         Tooltip.install(btnComment, new Tooltip(I18n.t("cy.case.comment.btn")));
 
-        // ✅ lazy modal creation to avoid lag on card open
+        // вњ… lazy modal creation to avoid lag on card open
         btnComment.setOnAction(e -> {
             if (v.rightRoot == null) return;
 
@@ -364,7 +375,7 @@ public final class AddedCasesListUi {
         Map<String, String> fromCfg = CyclePrivateConfig.caseComboColors();
         if (fromCfg != null && !fromCfg.isEmpty()) return fromCfg;
 
-        // fallback: сохраняем прежнее поведение (чтобы не "сломать функционал")
+        // fallback: СЃРѕС…СЂР°РЅСЏРµРј РїСЂРµР¶РЅРµРµ РїРѕРІРµРґРµРЅРёРµ (С‡С‚РѕР±С‹ РЅРµ "СЃР»РѕРјР°С‚СЊ С„СѓРЅРєС†РёРѕРЅР°Р»")
         Map<String, String> def = new LinkedHashMap<>();
         def.put("Option A", "");
         def.put("Option B", "");
@@ -381,8 +392,8 @@ public final class AddedCasesListUi {
             return;
         }
 
-        // Фон задаём inline, чтобы отработало поверх существующих стилей.
-        // Бордер/остальные стили остаются из CSS классов.
+        // Р¤РѕРЅ Р·Р°РґР°С‘Рј inline, С‡С‚РѕР±С‹ РѕС‚СЂР°Р±РѕС‚Р°Р»Рѕ РїРѕРІРµСЂС… СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёС… СЃС‚РёР»РµР№.
+        // Р‘РѕСЂРґРµСЂ/РѕСЃС‚Р°Р»СЊРЅС‹Рµ СЃС‚РёР»Рё РѕСЃС‚Р°СЋС‚СЃСЏ РёР· CSS РєР»Р°СЃСЃРѕРІ.
         cb.setStyle(
                 "-fx-background-color: " + c + ";" +
                         "-fx-background-insets: 1;" +
@@ -398,3 +409,8 @@ public final class AddedCasesListUi {
         return s == null ? "" : s.trim();
     }
 }
+
+
+
+
+

@@ -59,22 +59,22 @@ public final class LeftPaneCoordinator {
     // Cases picker mode
     private static final String ICON_CASES_PICK = "plus.svg";
 
-    // ✅ Папка циклов. JSON-файлы внутри = источник данных списка циклов.
+    // вњ… РџР°РїРєР° С†РёРєР»РѕРІ. JSON-С„Р°Р№Р»С‹ РІРЅСѓС‚СЂРё = РёСЃС‚РѕС‡РЅРёРє РґР°РЅРЅС‹С… СЃРїРёСЃРєР° С†РёРєР»РѕРІ.
     private static final Path CYCLES_ROOT = Path.of("test_resources", "cycles");
 
-    // ✅ имя подпапки-мусорки (как в TestCases: "_trash")
+    // вњ… РёРјСЏ РїРѕРґРїР°РїРєРё-РјСѓСЃРѕСЂРєРё (РєР°Рє РІ TestCases: "_trash")
     private static final String TRASH_DIR_NAME = "_trash";
 
     // ===================== I18N =====================
 
-    // ✅ delete confirm texts for cycles (NOT tc.*)
+    // вњ… delete confirm texts for cycles (NOT tc.*)
     private static final String I18N_CY_TRASH_TITLE = "cy.trash.delete.title";
     private static final String I18N_CY_TRASH_HINT  = "cy.trash.delete.hint";
 
-    // ✅ fallback title for empty cycle title (but never show id)
+    // вњ… fallback title for empty cycle title (but never show id)
     private static final String I18N_CY_UNTITLED = "cy.title.untitled";
 
-    // ✅ NEW: sticky header titles
+    // вњ… NEW: sticky header titles
     private static final String I18N_CY_LEFT_LIST_CYCLES = "cy.left.list.cycles";
     private static final String I18N_CY_LEFT_LIST_CASES  = "cy.left.list.cases";
     // ===============================================
@@ -86,7 +86,7 @@ public final class LeftPaneCoordinator {
     // ===================== TRASH MODE (shared) =====================
     private static final String TRASH_SPACER_ID = "__TRASH_SPACER__";
 
-    // ✅ NEW: top spacer that offsets sticky header (scrolls away)
+    // вњ… NEW: top spacer that offsets sticky header (scrolls away)
     private static final String TOP_SPACER_ID = "__TOP_SPACER__";
 
     private static final double TRASH_SHIFT_PX = 26.0;
@@ -95,7 +95,7 @@ public final class LeftPaneCoordinator {
     private final DoubleProperty trashShiftPx = new SimpleDoubleProperty(0.0);
     private Timeline trashShiftAnim;
 
-    // ✅ close overlay only on click OUTSIDE leftStack (like TestCasesController)
+    // вњ… close overlay only on click OUTSIDE leftStack (like TestCasesController)
     private boolean trashOutsideCloseInstalled = false;
     // ===============================================================
 
@@ -113,7 +113,7 @@ public final class LeftPaneCoordinator {
     private LeftMode mode = LeftMode.CYCLES_LIST;
     private LeftPaneActions actions;
 
-    // ✅ уведомление для внешних биндингов (tgThemeLeft)
+    // вњ… СѓРІРµРґРѕРјР»РµРЅРёРµ РґР»СЏ РІРЅРµС€РЅРёС… Р±РёРЅРґРёРЅРіРѕРІ (tgThemeLeft)
     private Runnable onModeChanged;
 
     private final PauseTransition searchIdleTimer = new PauseTransition();
@@ -121,11 +121,11 @@ public final class LeftPaneCoordinator {
     private String appliedSearch = "";
 
     // ====== DATA ======
-    // ✅ cycles: только из файловой системы
+    // вњ… cycles: С‚РѕР»СЊРєРѕ РёР· С„Р°Р№Р»РѕРІРѕР№ СЃРёСЃС‚РµРјС‹
     private final ObservableList<CycleListItem> cycleAll = FXCollections.observableArrayList();
     private final ObservableList<CycleListItem> cycleView = FXCollections.observableArrayList();
 
-    // cases: как было
+    // cases: РєР°Рє Р±С‹Р»Рѕ
     private final ObservableList<CaseListItem> caseAll = FXCollections.observableArrayList();
     private final ObservableList<CaseListItem> caseView = FXCollections.observableArrayList();
 
@@ -133,7 +133,7 @@ public final class LeftPaneCoordinator {
     private final Map<String, BooleanProperty> trashChecks = new HashMap<>();
     private final Map<String, BooleanProperty> cycleTrashChecks = new HashMap<>();
 
-    // ✅ порядок отметки чекбоксов (для "порядка добавления")
+    // вњ… РїРѕСЂСЏРґРѕРє РѕС‚РјРµС‚РєРё С‡РµРєР±РѕРєСЃРѕРІ (РґР»СЏ "РїРѕСЂСЏРґРєР° РґРѕР±Р°РІР»РµРЅРёСЏ")
     private final Map<String, Long> casePickOrder = new HashMap<>();
     private long casePickSeq = 0L;
     private boolean suppressPickOrder = false;
@@ -152,7 +152,7 @@ public final class LeftPaneCoordinator {
     }
 
     public void init() {
-        // ✅ install sticky header overlay inside list container (casesSheet)
+        // вњ… install sticky header overlay inside list container (casesSheet)
         installStickyListHeader();
 
         if (v.btnFolder != null) UiSvg.setButtonSvg(v.btnFolder, ICON_FOLDER, getIconSizeFromFxml(v.btnFolder, 14));
@@ -177,11 +177,11 @@ public final class LeftPaneCoordinator {
         v.btnFolder.setOnAction(e -> openCyclesFolder());
 
         // ====== CASES PICKER overlay (universal) ======
-        casesAddOverlay = new LeftListActionOverlay(v.leftStack, v.casesSheet, "Добавить");
+        casesAddOverlay = new LeftListActionOverlay(v.leftStack, v.casesSheet, "Р”РѕР±Р°РІРёС‚СЊ");
         casesAddOverlay.setOnOpenChanged(open -> {
             animateTrashShift(open);
             updateCasesTrashSpacerItem();
-            // ✅ при открытии overlay синхронизируем чекбоксы с правой зоной
+            // вњ… РїСЂРё РѕС‚РєСЂС‹С‚РёРё overlay СЃРёРЅС…СЂРѕРЅРёР·РёСЂСѓРµРј С‡РµРєР±РѕРєСЃС‹ СЃ РїСЂР°РІРѕР№ Р·РѕРЅРѕР№
             syncCasesPickerChecksFromRight();
             refreshAddAvailability();
         });
@@ -192,13 +192,13 @@ public final class LeftPaneCoordinator {
             refreshAddAvailability();
         });
 
-        // ✅ применить diff в правую зону, НЕ закрывая режим
+        // вњ… РїСЂРёРјРµРЅРёС‚СЊ diff РІ РїСЂР°РІСѓСЋ Р·РѕРЅСѓ, РќР• Р·Р°РєСЂС‹РІР°СЏ СЂРµР¶РёРј
         casesAddOverlay.setOnAdd(this::addSelectedCasesToRight);
 
         // ====== CYCLES trash overlay (delete) ======
-        cyclesTrashOverlay = new LeftListActionOverlay(v.leftStack, v.casesSheet, "Удалить");
+        cyclesTrashOverlay = new LeftListActionOverlay(v.leftStack, v.casesSheet, "РЈРґР°Р»РёС‚СЊ");
         cyclesTrashOverlay.setOnOpenChanged(open -> {
-            // если подтверждение было открыто — закрываем вместе с overlay
+            // РµСЃР»Рё РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ Р±С‹Р»Рѕ РѕС‚РєСЂС‹С‚Рѕ вЂ” Р·Р°РєСЂС‹РІР°РµРј РІРјРµСЃС‚Рµ СЃ overlay
             if (!open && cyclesDeleteConfirm != null) {
                 cyclesDeleteConfirm.close();
             }
@@ -213,17 +213,17 @@ public final class LeftPaneCoordinator {
             refreshCyclesDeleteAvailability();
         });
 
-        // ====== confirm delete (как в TestCases), но с i18n для Cycles ======
+        // ====== confirm delete (РєР°Рє РІ TestCases), РЅРѕ СЃ i18n РґР»СЏ Cycles ======
         cyclesDeleteConfirm = new LeftDeleteConfirm(v.leftStack, this::deleteSelectedCyclesChecked);
         cyclesDeleteConfirm.setCanOpenSupplier(() ->
                 cyclesTrashOverlay != null
                         && cyclesTrashOverlay.isOpen()
                         && hasAnyCycleTrashChecked()
         );
-        // ✅ texts for cycles (not tc.*)
+        // вњ… texts for cycles (not tc.*)
         cyclesDeleteConfirm.setTextKeys(I18N_CY_TRASH_TITLE, I18N_CY_TRASH_HINT);
 
-        // кнопка "Удалить" в overlay -> открываем confirm
+        // РєРЅРѕРїРєР° "РЈРґР°Р»РёС‚СЊ" РІ overlay -> РѕС‚РєСЂС‹РІР°РµРј confirm
         cyclesTrashOverlay.setOnDelete(() -> {
             if (cyclesDeleteConfirm != null) cyclesDeleteConfirm.open();
         });
@@ -231,7 +231,7 @@ public final class LeftPaneCoordinator {
         installSearchBehavior();
         applyMode(LeftMode.CYCLES_LIST);
 
-        // ✅ after scene ready: install outside-close for trash overlay (cycles)
+        // вњ… after scene ready: install outside-close for trash overlay (cycles)
         Platform.runLater(this::installTrashOutsideClose);
     }
 
@@ -244,14 +244,14 @@ public final class LeftPaneCoordinator {
         return mode;
     }
 
-    // ✅ для ThemeToggleUiInstaller
+    // вњ… РґР»СЏ ThemeToggleUiInstaller
     public void setOnModeChanged(Runnable r) {
         this.onModeChanged = r;
     }
 
     /**
-     * ✅ безопасный refresh cycles после сохранения файла на диск.
-     * Не меняет mode, не ломает overlays — просто перечитывает папку и перерисовывает список если мы в CYCLES_LIST.
+     * вњ… Р±РµР·РѕРїР°СЃРЅС‹Р№ refresh cycles РїРѕСЃР»Рµ СЃРѕС…СЂР°РЅРµРЅРёСЏ С„Р°Р№Р»Р° РЅР° РґРёСЃРє.
+     * РќРµ РјРµРЅСЏРµС‚ mode, РЅРµ Р»РѕРјР°РµС‚ overlays вЂ” РїСЂРѕСЃС‚Рѕ РїРµСЂРµС‡РёС‚С‹РІР°РµС‚ РїР°РїРєСѓ Рё РїРµСЂРµСЂРёСЃРѕРІС‹РІР°РµС‚ СЃРїРёСЃРѕРє РµСЃР»Рё РјС‹ РІ CYCLES_LIST.
      */
     public void refreshCyclesFromDisk() {
         reloadCyclesFromDisk();
@@ -271,13 +271,13 @@ public final class LeftPaneCoordinator {
     /**
      * UX shortcut:
      * - switch left list to CASES_PICKER
-     * - and open "Добавить" overlay (same as pressing the plus/trash button in cases picker mode).
+     * - and open "Р”РѕР±Р°РІРёС‚СЊ" overlay (same as pressing the plus/trash button in cases picker mode).
      */
     public void openCasesPickerAddOverlay() {
         // switch list to cases picker (reloads items + sets btnTrash to plus)
         setMode(LeftMode.CASES_PICKER);
 
-        // ✅ синхронизируем чекбоксы с правой зоной и обновляем доступность кнопки
+        // вњ… СЃРёРЅС…СЂРѕРЅРёР·РёСЂСѓРµРј С‡РµРєР±РѕРєСЃС‹ СЃ РїСЂР°РІРѕР№ Р·РѕРЅРѕР№ Рё РѕР±РЅРѕРІР»СЏРµРј РґРѕСЃС‚СѓРїРЅРѕСЃС‚СЊ РєРЅРѕРїРєРё
         syncCasesPickerChecksFromRight();
         refreshAddAvailability();
 
@@ -288,14 +288,14 @@ public final class LeftPaneCoordinator {
     }
 
     /**
-     * ✅ Задача: кнопка "Добавить кейсы" работает как тумблер.
-     * Повторное нажатие возвращает исходное состояние списка:
-     * - если сейчас уже в режиме добавления (CASES_PICKER) — возвращаемся в CYCLES_LIST
-     * - иначе — открываем режим добавления (openCasesPickerAddOverlay)
+     * вњ… Р—Р°РґР°С‡Р°: РєРЅРѕРїРєР° "Р”РѕР±Р°РІРёС‚СЊ РєРµР№СЃС‹" СЂР°Р±РѕС‚Р°РµС‚ РєР°Рє С‚СѓРјР±Р»РµСЂ.
+     * РџРѕРІС‚РѕСЂРЅРѕРµ РЅР°Р¶Р°С‚РёРµ РІРѕР·РІСЂР°С‰Р°РµС‚ РёСЃС…РѕРґРЅРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ СЃРїРёСЃРєР°:
+     * - РµСЃР»Рё СЃРµР№С‡Р°СЃ СѓР¶Рµ РІ СЂРµР¶РёРјРµ РґРѕР±Р°РІР»РµРЅРёСЏ (CASES_PICKER) вЂ” РІРѕР·РІСЂР°С‰Р°РµРјСЃСЏ РІ CYCLES_LIST
+     * - РёРЅР°С‡Рµ вЂ” РѕС‚РєСЂС‹РІР°РµРј СЂРµР¶РёРј РґРѕР±Р°РІР»РµРЅРёСЏ (openCasesPickerAddOverlay)
      */
     public void toggleCasesPickerAddOverlay() {
         if (mode == LeftMode.CASES_PICKER) {
-            // applyMode(CYCLES_LIST) сам закроет casesAddOverlay если он открыт
+            // applyMode(CYCLES_LIST) СЃР°Рј Р·Р°РєСЂРѕРµС‚ casesAddOverlay РµСЃР»Рё РѕРЅ РѕС‚РєСЂС‹С‚
             setMode(LeftMode.CYCLES_LIST);
             return;
         }
@@ -319,7 +319,7 @@ public final class LeftPaneCoordinator {
         animateTrashShift(false);
         trashShiftPx.set(0.0);
 
-        // ✅ FIX: сбросить items перед setItems другого типа (чтобы старые cells ушли в empty=true)
+        // вњ… FIX: СЃР±СЂРѕСЃРёС‚СЊ items РїРµСЂРµРґ setItems РґСЂСѓРіРѕРіРѕ С‚РёРїР° (С‡С‚РѕР±С‹ СЃС‚Р°СЂС‹Рµ cells СѓС€Р»Рё РІ empty=true)
         if (v.lvLeft != null) {
             v.lvLeft.setItems(FXCollections.observableArrayList());
             v.lvLeft.getSelectionModel().clearSelection();
@@ -333,7 +333,7 @@ public final class LeftPaneCoordinator {
                 v.btnTrash.setDisable(false);
                 if (cyclesTrashOverlay != null) {
                     cyclesTrashOverlay.init(v.btnTrash);
-                    cyclesTrashOverlay.setButtonText("Удалить");
+                    cyclesTrashOverlay.setButtonText("РЈРґР°Р»РёС‚СЊ");
                 }
                 refreshCyclesDeleteAvailability();
             }
@@ -357,15 +357,15 @@ public final class LeftPaneCoordinator {
 
                 if (casesAddOverlay != null) {
                     casesAddOverlay.init(v.btnTrash);
-                    casesAddOverlay.setButtonText("Добавить");
+                    casesAddOverlay.setButtonText("Р”РѕР±Р°РІРёС‚СЊ");
                 }
             }
 
-            // ✅ при входе в режим выбора кейсов — начинаем новую сессию порядка выбора
+            // вњ… РїСЂРё РІС…РѕРґРµ РІ СЂРµР¶РёРј РІС‹Р±РѕСЂР° РєРµР№СЃРѕРІ вЂ” РЅР°С‡РёРЅР°РµРј РЅРѕРІСѓСЋ СЃРµСЃСЃРёСЋ РїРѕСЂСЏРґРєР° РІС‹Р±РѕСЂР°
             casePickOrder.clear();
             casePickSeq = 0L;
 
-            // ✅ ВАЖНО: оставляем твою рабочую загрузку кейсов из TestCaseCardStore
+            // вњ… Р’РђР–РќРћ: РѕСЃС‚Р°РІР»СЏРµРј С‚РІРѕСЋ СЂР°Р±РѕС‡СѓСЋ Р·Р°РіСЂСѓР·РєСѓ РєРµР№СЃРѕРІ РёР· TestCaseCardStore
             reloadCasesFromDisk();
             applyFiltersToList();
 
@@ -374,17 +374,17 @@ public final class LeftPaneCoordinator {
             installCasesPickerCellFactory();
             updateCasesTrashSpacerItem();
 
-            // ✅ отмечаем уже добавленные справа кейсы
+            // вњ… РѕС‚РјРµС‡Р°РµРј СѓР¶Рµ РґРѕР±Р°РІР»РµРЅРЅС‹Рµ СЃРїСЂР°РІР° РєРµР№СЃС‹
             syncCasesPickerChecksFromRight();
             refreshAddAvailability();
         }
 
         updateSearchButtonVisibility();
 
-        // ✅ update sticky header title per current mode (i18n)
+        // вњ… update sticky header title per current mode (i18n)
         updateStickyHeaderTitle();
 
-        // ✅ notify external binders (tgThemeLeft)
+        // вњ… notify external binders (tgThemeLeft)
         if (onModeChanged != null) {
             try { onModeChanged.run(); } catch (Exception ignore) {}
         }
@@ -407,14 +407,14 @@ public final class LeftPaneCoordinator {
         if (stickyHeader != null && listStack != null) return;
 
         stickyHeader = new LeftListStickyHeader();
-        // ✅ important: allow scroll/clicks to pass through header overlay
+        // вњ… important: allow scroll/clicks to pass through header overlay
         stickyHeader.setMouseTransparent(true);
         stickyHeader.setPickOnBounds(false);
 
         listStack = new StackPane();
         listStack.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
-        // ✅ CRITICAL: casesSheet is VBox, stack must grow (fixes bottom clipping)
+        // вњ… CRITICAL: casesSheet is VBox, stack must grow (fixes bottom clipping)
         VBox.setVgrow(listStack, Priority.ALWAYS);
 
         // move ListView into stack
@@ -437,7 +437,7 @@ public final class LeftPaneCoordinator {
         v.casesSheet.getChildren().clear();
         v.casesSheet.getChildren().add(listStack);
 
-        // ✅ IMPORTANT: do NOT use ListView padding (it causes "scroll to header and stop").
+        // вњ… IMPORTANT: do NOT use ListView padding (it causes "scroll to header and stop").
         // We use a TOP spacer item that scrolls away.
         ensureTopSpacers();
 
@@ -454,7 +454,7 @@ public final class LeftPaneCoordinator {
 
         stickyHeader.setTitleKey(key);
 
-        // title may affect header height → update spacer height lazily by using supplier
+        // title may affect header height в†’ update spacer height lazily by using supplier
         // but also ensure spacer exists after mode switches/filters
         ensureTopSpacers();
     }
@@ -568,32 +568,32 @@ public final class LeftPaneCoordinator {
         LinkedHashSet<String> desiredIds = getCheckedCaseIds();
         LinkedHashSet<String> currentIds = new LinkedHashSet<>(right.getAddedCaseIds());
 
-        // toRemove: было справа, но сейчас не отмечено
+        // toRemove: Р±С‹Р»Рѕ СЃРїСЂР°РІР°, РЅРѕ СЃРµР№С‡Р°СЃ РЅРµ РѕС‚РјРµС‡РµРЅРѕ
         List<String> toRemove = new ArrayList<>();
         for (String id : currentIds) {
             if (id == null || id.isBlank()) continue;
             if (!desiredIds.contains(id)) toRemove.add(id);
         }
 
-        // toAdd: отмечено, но ещё нет справа
+        // toAdd: РѕС‚РјРµС‡РµРЅРѕ, РЅРѕ РµС‰С‘ РЅРµС‚ СЃРїСЂР°РІР°
         List<String> toAddIds = new ArrayList<>();
         for (String id : desiredIds) {
             if (id == null || id.isBlank()) continue;
             if (!currentIds.contains(id)) toAddIds.add(id);
         }
 
-        // 1) remove unchecked (сохраняем порядок оставшихся)
+        // 1) remove unchecked (СЃРѕС…СЂР°РЅСЏРµРј РїРѕСЂСЏРґРѕРє РѕСЃС‚Р°РІС€РёС…СЃСЏ)
         if (!toRemove.isEmpty()) {
             right.removeAddedCasesByIds(toRemove);
         }
 
-        // 2) add new — в порядке "по мере выбора" (casePickOrder), иначе fallback на порядок списка
+        // 2) add new вЂ” РІ РїРѕСЂСЏРґРєРµ "РїРѕ РјРµСЂРµ РІС‹Р±РѕСЂР°" (casePickOrder), РёРЅР°С‡Рµ fallback РЅР° РїРѕСЂСЏРґРѕРє СЃРїРёСЃРєР°
         if (!toAddIds.isEmpty()) {
             List<CycleCaseRef> toAdd = buildToAddRefsOrdered(toAddIds);
             if (!toAdd.isEmpty()) right.addAddedCases(toAdd);
         }
 
-        // ✅ режим и overlay остаются активными, просто обновляем доступность кнопки
+        // вњ… СЂРµР¶РёРј Рё overlay РѕСЃС‚Р°СЋС‚СЃСЏ Р°РєС‚РёРІРЅС‹РјРё, РїСЂРѕСЃС‚Рѕ РѕР±РЅРѕРІР»СЏРµРј РґРѕСЃС‚СѓРїРЅРѕСЃС‚СЊ РєРЅРѕРїРєРё
         refreshAddAvailability();
     }
 
@@ -622,7 +622,7 @@ public final class LeftPaneCoordinator {
     }
 
     private List<CycleCaseRef> buildToAddRefsOrdered(List<String> toAddIds) {
-        // 1) если есть order по чекбоксам — сортируем по нему
+        // 1) РµСЃР»Рё РµСЃС‚СЊ order РїРѕ С‡РµРєР±РѕРєСЃР°Рј вЂ” СЃРѕСЂС‚РёСЂСѓРµРј РїРѕ РЅРµРјСѓ
         List<String> ids = new ArrayList<>();
         for (String id : toAddIds) {
             if (id == null || id.isBlank()) continue;
@@ -638,7 +638,7 @@ public final class LeftPaneCoordinator {
             return Long.compare(oa, ob);
         });
 
-        // title lookup из caseAll/caseView
+        // title lookup РёР· caseAll/caseView
         Map<String, String> titleById = new HashMap<>();
         for (CaseListItem it : caseAll) {
             if (it == null) continue;
@@ -662,8 +662,8 @@ public final class LeftPaneCoordinator {
     }
 
     /**
-     * При входе/открытии overlay в CASES_PICKER:
-     * ✅ отмечаем уже добавленные справа кейсы и НЕ пишем их в order (это не "новое добавление")
+     * РџСЂРё РІС…РѕРґРµ/РѕС‚РєСЂС‹С‚РёРё overlay РІ CASES_PICKER:
+     * вњ… РѕС‚РјРµС‡Р°РµРј СѓР¶Рµ РґРѕР±Р°РІР»РµРЅРЅС‹Рµ СЃРїСЂР°РІР° РєРµР№СЃС‹ Рё РќР• РїРёС€РµРј РёС… РІ order (СЌС‚Рѕ РЅРµ "РЅРѕРІРѕРµ РґРѕР±Р°РІР»РµРЅРёРµ")
      */
     private void syncCasesPickerChecksFromRight() {
         if (right == null || !right.isOpen()) return;
@@ -690,7 +690,7 @@ public final class LeftPaneCoordinator {
         if (p != null) return p;
 
         SimpleBooleanProperty prop = new SimpleBooleanProperty(false);
-        // ✅ фиксируем порядок выбора пользователем
+        // вњ… С„РёРєСЃРёСЂСѓРµРј РїРѕСЂСЏРґРѕРє РІС‹Р±РѕСЂР° РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј
         prop.addListener((obs, oldV, newV) -> {
             if (suppressPickOrder) return;
 
@@ -765,7 +765,7 @@ public final class LeftPaneCoordinator {
                 TRASH_SPACER_ID,
                 () -> cyclesTrashOverlay != null ? cyclesTrashOverlay.scrollSpacerPx() : 1.0,
                 it -> ((CycleListItem) it).id(),
-                // ✅ UI-строку собираем тут (i18n), без утечки id
+                // вњ… UI-СЃС‚СЂРѕРєСѓ СЃРѕР±РёСЂР°РµРј С‚СѓС‚ (i18n), Р±РµР· СѓС‚РµС‡РєРё id
                 it -> {
                     CycleListItem c = (CycleListItem) it;
 
@@ -775,7 +775,7 @@ public final class LeftPaneCoordinator {
                     if (t.isBlank()) t = I18n.t(I18N_CY_UNTITLED);
                     if (d.isBlank()) return t;
 
-                    // формат: "<title> <date>"
+                    // С„РѕСЂРјР°С‚: "<title> <date>"
                     return t + " " + d;
                 },
                 this::refreshCyclesDeleteAvailability,
@@ -802,7 +802,10 @@ public final class LeftPaneCoordinator {
                 it -> ((CaseListItem) it).id(),
                 it -> ((CaseListItem) it).title(),
                 this::refreshAddAvailability,
-                null
+                it -> {
+                    if (!(it instanceof CaseListItem c)) return;
+                    right.openTestCaseCard(c.id());
+                }
         );
     }
 
@@ -890,7 +893,7 @@ public final class LeftPaneCoordinator {
     private void refreshAddAvailability() {
         if (casesAddOverlay == null) return;
 
-        // ✅ кнопка активна только если есть diff относительно правой зоны
+        // вњ… РєРЅРѕРїРєР° Р°РєС‚РёРІРЅР° С‚РѕР»СЊРєРѕ РµСЃР»Рё РµСЃС‚СЊ diff РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РїСЂР°РІРѕР№ Р·РѕРЅС‹
         boolean enable = hasCasesPickerDiff();
         casesAddOverlay.setAddEnabled(enable);
     }
@@ -911,7 +914,7 @@ public final class LeftPaneCoordinator {
     }
 
     private void setAllTrashChecks(boolean v) {
-        // ✅ select-all не должен ломать "порядок добавления" — это массовая операция
+        // вњ… select-all РЅРµ РґРѕР»Р¶РµРЅ Р»РѕРјР°С‚СЊ "РїРѕСЂСЏРґРѕРє РґРѕР±Р°РІР»РµРЅРёСЏ" вЂ” СЌС‚Рѕ РјР°СЃСЃРѕРІР°СЏ РѕРїРµСЂР°С†РёСЏ
         suppressPickOrder = true;
         try {
             for (var it : caseView) {
@@ -1014,7 +1017,7 @@ public final class LeftPaneCoordinator {
 
     private void reloadCasesFromDisk() {
         caseAll.clear();
-        trashChecks.clear(); // ✅ как было: при входе в режим выборки — чистый выбор
+        trashChecks.clear(); // вњ… РєР°Рє Р±С‹Р»Рѕ: РїСЂРё РІС…РѕРґРµ РІ СЂРµР¶РёРј РІС‹Р±РѕСЂРєРё вЂ” С‡РёСЃС‚С‹Р№ РІС‹Р±РѕСЂ
         casePickOrder.clear();
         casePickSeq = 0L;
 
@@ -1026,7 +1029,7 @@ public final class LeftPaneCoordinator {
                 String id = safeTrim(tc.getId());
                 if (id.isEmpty()) continue;
 
-                // ✅ как было в рабочем варианте: показываем "CODE-NUMBER Title" (или head если title пустой)
+                // вњ… РєР°Рє Р±С‹Р»Рѕ РІ СЂР°Р±РѕС‡РµРј РІР°СЂРёР°РЅС‚Рµ: РїРѕРєР°Р·С‹РІР°РµРј "CODE-NUMBER Title" (РёР»Рё head РµСЃР»Рё title РїСѓСЃС‚РѕР№)
                 String title = buildLeftTitle(tc);
                 caseAll.add(new CaseListItem(id, title));
             }
@@ -1076,7 +1079,7 @@ public final class LeftPaneCoordinator {
                 String name = p.getFileName().toString();
                 String id = name.replace(".json", "");
 
-                // читаем title и meta.createdAtUi из json
+                // С‡РёС‚Р°РµРј title Рё meta.createdAtUi РёР· json
                 CycleCardJsonReader.CycleListMeta meta = CycleCardJsonReader.readListMeta(p);
 
                 String title = meta != null ? safeTrim(meta.title) : "";
@@ -1085,7 +1088,7 @@ public final class LeftPaneCoordinator {
                 cycleAll.add(new CycleListItem(id, title, createdAtUi));
             }
 
-            // сортировка по title (пустые уйдут наверх — это ок, отображение решаем i18n)
+            // СЃРѕСЂС‚РёСЂРѕРІРєР° РїРѕ title (РїСѓСЃС‚С‹Рµ СѓР№РґСѓС‚ РЅР°РІРµСЂС… вЂ” СЌС‚Рѕ РѕРє, РѕС‚РѕР±СЂР°Р¶РµРЅРёРµ СЂРµС€Р°РµРј i18n)
             cycleAll.sort(Comparator.comparing(CycleListItem::safeTitle, String.CASE_INSENSITIVE_ORDER));
 
         } catch (Exception ignore) {
@@ -1148,12 +1151,12 @@ public final class LeftPaneCoordinator {
         if (appliedSearch != null && !appliedSearch.isBlank()) {
             String q = appliedSearch.trim().toLowerCase();
 
-            // поиск по title (без даты)
+            // РїРѕРёСЃРє РїРѕ title (Р±РµР· РґР°С‚С‹)
             cycleView.removeIf(it -> it == null || it.id() == null || it.safeTitle() == null || !it.safeTitle().toLowerCase().contains(q));
             caseView.removeIf(it -> it == null || it.id() == null || it.title() == null || !it.title().toLowerCase().contains(q));
         }
 
-        // ✅ ensure top spacer exists and stays at index 0
+        // вњ… ensure top spacer exists and stays at index 0
         ensureTopSpacers();
 
         // ensure trash spacer rows are at bottom (if present)
@@ -1197,3 +1200,6 @@ public final class LeftPaneCoordinator {
         return v == null ? "" : v.trim();
     }
 }
+
+
+

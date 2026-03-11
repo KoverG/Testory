@@ -7,13 +7,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 public class CyclesViewRefs {
 
-    public final BorderPane root;
+    public final StackPane root;
 
     public final StackPane leftStack;
     public final VBox leftMain;
@@ -23,7 +22,7 @@ public class CyclesViewRefs {
     public final Button btnFolder;
     public final Button btnCreate;
 
-    // ✅ left toggle (Cycle/Cases)
+    // вњ… left toggle (Cycle/Cases)
     public final Object tgThemeLeft;
 
     public final Button btnTrash;
@@ -36,6 +35,7 @@ public class CyclesViewRefs {
     public final StackPane filterSheet;
     public final StackPane sortSheet;
     public final StackPane trashOverlay;
+    public final StackPane floatingOverlayRoot;
 
     public final StackPane rightRoot;
     public final VBox rightPlaceholder;
@@ -43,31 +43,31 @@ public class CyclesViewRefs {
     public final Label lblCycleCreatedAt;
     public final TaskLinkChip chipTaskLink;
 
-    // ✅ NEW: environment chip (desktop + mobile icons)
+    // вњ… NEW: environment chip (desktop + mobile icons)
     public final EnvironmentChip chipEnvironment;
 
     public final TextField tfCycleTitle;
 
     public final Label lblRightHint;
 
-    // ✅ кнопка меню (сама держит модалку/overlay внутри себя)
+    // вњ… РєРЅРѕРїРєР° РјРµРЅСЋ (СЃР°РјР° РґРµСЂР¶РёС‚ РјРѕРґР°Р»РєСѓ/overlay РІРЅСѓС‚СЂРё СЃРµР±СЏ)
     public final CycleCardMenuButton btnMenuRight;
 
-    // ✅ NEW: profile button in first row
+    // вњ… NEW: profile button in first row
     public final Button btnProfileRight;
 
     public final Button btnCloseRight;
 
     public final Button btnRightAddCases;
 
-    // ✅ NEW: top trash toggle (delete-mode for rows)
+    // вњ… NEW: top trash toggle (delete-mode for rows)
     public final Button btnRightTrashCases;
 
     public final Label lblAddedCasesCount;
 
     public final VBox vbAddedCases;
 
-    // ✅ DELETE (right)
+    // вњ… DELETE (right)
     public final Button btnDeleteRight;
     public final StackPane deleteLayer;
     public final VBox deleteModal;
@@ -77,7 +77,7 @@ public class CyclesViewRefs {
     public final Button btnSaveRight;
 
     public CyclesViewRefs(
-            BorderPane root,
+            StackPane root,
             StackPane leftStack,
             VBox leftMain,
             TextField tfSearch,
@@ -93,6 +93,7 @@ public class CyclesViewRefs {
             StackPane filterSheet,
             StackPane sortSheet,
             StackPane trashOverlay,
+            StackPane floatingOverlayRoot,
             StackPane rightRoot,
             VBox rightPlaceholder,
             Label lblCycleCreatedAt,
@@ -135,6 +136,7 @@ public class CyclesViewRefs {
         this.filterSheet = filterSheet;
         this.sortSheet = sortSheet;
         this.trashOverlay = trashOverlay;
+        this.floatingOverlayRoot = floatingOverlayRoot;
 
         this.rightRoot = rightRoot;
         this.rightPlaceholder = rightPlaceholder;

@@ -8,6 +8,7 @@ import app.domain.testcases.ui.LeftDeleteConfirm;
 import app.domain.testcases.ui.RightChipFactory;
 import app.domain.testcases.ui.RightDeleteConfirm;
 import app.domain.testcases.ui.SmoothScrollSupport;
+import app.domain.testcases.ui.TestCaseCardController;
 import app.domain.testcases.ui.TestCaseRightPane;
 import app.domain.testcases.ui.TestCasesSheets;
 import app.domain.testcases.ui.TestCasesTrashOverlay;
@@ -142,6 +143,9 @@ public class TestCasesController {
     @FXML private StackPane filterSheet;
     @FXML private StackPane sortSheet;
 
+    // RIGHT (fragment controller)
+    @FXML private TestCaseCardController testcaseCardController;
+
     // RIGHT
     @FXML private ScrollPane spRight;
     @FXML private VBox rightScrollRoot;
@@ -236,6 +240,60 @@ public class TestCasesController {
     @FXML
     private void initialize() {
         System.out.println("[TestCasesController] initialize OK " + getClass().getName());
+
+        // ===================== bind fragment nodes + callbacks =====================
+        if (testcaseCardController != null) {
+            // wire callbacks from reusable fragment to existing screen handlers
+            testcaseCardController.setOnEditPriv(this::onEditPriv);
+            testcaseCardController.setOnEdit(this::onEdit);
+            testcaseCardController.setOnCloseRight(this::onCloseRight);
+            testcaseCardController.setOnAddRightLabel(this::onAddRightLabel);
+            testcaseCardController.setOnAddRightTag(this::onAddRightTag);
+            testcaseCardController.setOnAddStep(this::onAddStep);
+
+            // take node references from fragment controller
+            rightCard = testcaseCardController.rightCard();
+            rightTopRow = testcaseCardController.rightTopRow();
+
+            tfPrivTop = testcaseCardController.tfPrivTop();
+            btnEditPriv = testcaseCardController.btnEditPriv();
+            tfTop2 = testcaseCardController.tfTop2();
+
+            rightInlineStripBox = testcaseCardController.rightInlineStripBox();
+            lbRightInlineTitle = testcaseCardController.lbRightInlineTitle();
+
+            rightStack = testcaseCardController.rightStack();
+
+            titleWrap = testcaseCardController.titleWrap();
+            tfTitle = testcaseCardController.tfTitle();
+            lbTitleDisplay = testcaseCardController.lbTitleDisplay();
+
+            spRight = testcaseCardController.spRight();
+            rightScrollRoot = testcaseCardController.rightScrollRoot();
+
+            fpRightLabels = testcaseCardController.fpRightLabels();
+            tfRightLabel = testcaseCardController.tfRightLabel();
+            btnAddRightLabel = testcaseCardController.btnAddRightLabel();
+
+            fpRightTags = testcaseCardController.fpRightTags();
+            tfRightTag = testcaseCardController.tfRightTag();
+            btnAddRightTag = testcaseCardController.btnAddRightTag();
+
+            taRightDescription = testcaseCardController.taRightDescription();
+
+            btnAddStep = testcaseCardController.btnAddStep();
+            stepsBox = testcaseCardController.stepsBox();
+
+            btnCloseRight = testcaseCardController.btnCloseRight();
+            btnSaveRight = testcaseCardController.btnSaveRight();
+            btnDeleteRight = testcaseCardController.btnDeleteRight();
+
+            rightScrollBottomSpacer = testcaseCardController.rightScrollBottomSpacer();
+
+            // edit button is inside fragment too
+            btnEdit = testcaseCardController.btnEdit();
+        }
+        // ==========================================================================
 
         installCasesSheetClip();
         installRightStackClip();
