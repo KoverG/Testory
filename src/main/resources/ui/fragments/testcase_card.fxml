@@ -225,6 +225,30 @@
                 <StackPane maxWidth="Infinity"
                            pickOnBounds="false">
 
+                    <HBox fx:id="cycleNavigationBox"
+                          spacing="8"
+                          alignment="CENTER_LEFT"
+                          visible="false"
+                          managed="false"
+                          pickOnBounds="false"
+                          StackPane.alignment="BOTTOM_LEFT">
+                        <StackPane.margin>
+                            <Insets left="10" bottom="18"/>
+                        </StackPane.margin>
+
+                        <Button fx:id="btnCyclePrev"
+                                focusTraversable="false"
+                                visible="false"
+                                managed="false"
+                                styleClass="icon-btn,sm,wide,danger,cy-cycle-nav-btn,cy-cycle-nav-btn-prev"/>
+
+                        <Button fx:id="btnCycleNext"
+                                focusTraversable="false"
+                                visible="false"
+                                managed="false"
+                                styleClass="icon-btn,sm,wide,danger,cy-cycle-nav-btn,cy-cycle-nav-btn-next"/>
+                    </HBox>
+
                     <!-- TRASH -->
                     <Button fx:id="btnDeleteRight"
                             focusTraversable="false"

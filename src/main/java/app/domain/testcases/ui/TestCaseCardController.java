@@ -77,6 +77,9 @@ public class TestCaseCardController {
     @FXML private Region rightScrollBottomSpacer;
 
     // Bottom overlay buttons
+    @FXML private HBox cycleNavigationBox;
+    @FXML private Button btnCyclePrev;
+    @FXML private Button btnCycleNext;
     @FXML private Button btnDeleteRight;
     @FXML private Button btnSaveRight;
 
@@ -173,6 +176,9 @@ public class TestCaseCardController {
     public VBox rightScrollContent() { return rightScrollContent; }
     public Region rightScrollBottomSpacer() { return rightScrollBottomSpacer; }
 
+    public HBox cycleNavigationBox() { return cycleNavigationBox; }
+    public Button btnCyclePrev() { return btnCyclePrev; }
+    public Button btnCycleNext() { return btnCycleNext; }
     public Button btnDeleteRight() { return btnDeleteRight; }
     public Button btnSaveRight() { return btnSaveRight; }
 }
