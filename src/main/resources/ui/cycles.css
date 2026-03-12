@@ -461,27 +461,27 @@
     -fx-border-color: rgba(0,0,0,0.10);
 }
 
-.cy-added-case-row {
+.cy-added-case-titlebox-clickable {
     -fx-cursor: hand;
 }
 
-.cy-added-case-row:hover .cy-added-case-titlebox {
+.cy-added-case-titlebox-clickable:hover {
     -fx-background-color: rgba(255,255,255,0.06);
     -fx-border-color: rgba(255,255,255,0.14);
 }
 
-.root.theme-light .cy-added-case-row:hover .cy-added-case-titlebox {
+.root.theme-light .cy-added-case-titlebox-clickable:hover {
     -fx-background-color: rgb(236, 234, 233);
     -fx-border-color: rgba(0,0,0,0.14);
 }
 
-.cy-added-case-row:pressed .cy-added-case-titlebox {
+.cy-added-case-titlebox-clickable:pressed {
     -fx-background-color: rgba(255,255,255,0.03);
     -fx-border-color: rgba(255,255,255,0.14);
     -fx-translate-y: 1;
 }
 
-.root.theme-light .cy-added-case-row:pressed .cy-added-case-titlebox {
+.root.theme-light .cy-added-case-titlebox-clickable:pressed {
     -fx-background-color: rgb(228, 226, 224);
     -fx-border-color: rgba(0,0,0,0.14);
     -fx-translate-y: 1;
@@ -490,6 +490,76 @@
 .cy-added-case-row .cy-added-case-titlebox {
     -fx-translate-y: 0;
 }
+
+.cy-testcase-cycles-box {
+    -fx-spacing: 8;
+}
+
+.cy-testcase-cycle-row {
+    -fx-background-color: rgba(255,255,255,0.04);
+    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-padding: 8 12 8 12;
+}
+
+.root.theme-light .cy-testcase-cycle-row {
+    -fx-background-color: rgba(0,0,0,0.04);
+    -fx-border-color: rgba(0,0,0,0.10);
+}
+
+.cy-testcase-current-row {
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.cy-testcase-current-meta {
+    -fx-spacing: 4;
+}
+
+.cy-testcase-current-underline {
+    -fx-min-height: 1;
+    -fx-pref-height: 1;
+    -fx-max-height: 1;
+    -fx-background-color: rgba(255,255,255,0.14);
+    -fx-background-radius: 999;
+}
+
+.root.theme-light .cy-testcase-current-underline {
+    -fx-background-color: rgba(0,0,0,0.16);
+}
+
+.cy-testcase-cycle-name {
+    -fx-text-fill: -fx-text-color;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+.cy-testcase-cycle-status {
+    -fx-text-fill: derive(-fx-text-color, -12%);
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+.cy-testcase-comment-preview {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+    -fx-text-fill: -fx-muted-color;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-alignment: center-right;
+    -fx-text-alignment: right;
+}
+
+.cy-testcase-comment-preview:hover {
+    -fx-text-fill: -fx-text-color;
+}
+.root.theme-light .cy-testcase-cycle-status {
+    -fx-text-fill: derive(-fx-text-color, -8%);
+}
+
 
 .cy-added-case-title {
     -fx-text-fill: -fx-text-color;
@@ -1017,4 +1087,76 @@
 .cy-profile-remember-xs.tc-trash-check .mark {
     -fx-scale-x: 0.70;
     -fx-scale-y: 0.70;
+}
+
+
+
+
+.cy-testcase-save-hint {
+    -fx-text-fill: -fx-muted-color;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+.cy-testcase-save-btn {
+    -fx-padding: 0;
+}
+
+.cy-testcase-current-row {
+    -fx-fill-height: true;
+}
+
+.cy-testcase-current-actions {
+    -fx-alignment: center-right;
+}
+
+.cy-testcase-comment-preview {
+    -fx-min-width: 180px;
+    -fx-pref-width: 180px;
+    -fx-max-width: 180px;
+}
+
+.cy-testcase-current-row {
+    -fx-alignment: center;
+    -fx-spacing: 10;
+}
+
+.cy-testcase-current-meta {
+    -fx-alignment: center;
+}
+
+.cy-testcase-current-actions {
+    -fx-alignment: center-left;
+}
+
+.cy-testcase-current-underline {
+    -fx-min-height: 1;
+    -fx-pref-height: 1;
+    -fx-max-height: 1;
+    -fx-background-color: rgba(255,255,255,0.14);
+    -fx-background-radius: 999;
+}
+
+.root.theme-light .cy-testcase-current-underline {
+    -fx-background-color: rgba(0,0,0,0.16);
+}
+
+.cy-testcase-comment-preview {
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+}
+
+.cy-testcase-cycle-name-clickable {
+    -fx-cursor: hand;
+}
+.cy-testcase-copy-hint {
+    -fx-text-fill: -fx-muted-color;
+    -fx-font-size: 10px;
+    -fx-font-weight: 600;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+}
+.cy-testcase-cycle-comment-preview {
+    -fx-alignment: center-left;
+    -fx-text-alignment: left;
 }

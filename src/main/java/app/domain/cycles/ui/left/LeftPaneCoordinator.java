@@ -333,7 +333,7 @@ public final class LeftPaneCoordinator {
                 v.btnTrash.setDisable(false);
                 if (cyclesTrashOverlay != null) {
                     cyclesTrashOverlay.init(v.btnTrash);
-                    cyclesTrashOverlay.setButtonText("РЈРґР°Р»РёС‚СЊ");
+                    cyclesTrashOverlay.setButtonText("Удалить");
                 }
                 refreshCyclesDeleteAvailability();
             }
@@ -357,7 +357,7 @@ public final class LeftPaneCoordinator {
 
                 if (casesAddOverlay != null) {
                     casesAddOverlay.init(v.btnTrash);
-                    casesAddOverlay.setButtonText("Р”РѕР±Р°РІРёС‚СЊ");
+                    casesAddOverlay.setButtonText("Добавить");
                 }
             }
 
@@ -804,7 +804,7 @@ public final class LeftPaneCoordinator {
                 this::refreshAddAvailability,
                 it -> {
                     if (!(it instanceof CaseListItem c)) return;
-                    right.openTestCaseCard(c.id());
+                    right.openTestCaseCardFromList(c.id());
                 }
         );
     }
@@ -1200,6 +1200,7 @@ public final class LeftPaneCoordinator {
         return v == null ? "" : v.trim();
     }
 }
+
 
 
 

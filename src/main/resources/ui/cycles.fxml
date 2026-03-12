@@ -155,7 +155,7 @@
                                    styleClass="cy-meta-label"/>
 
                             <Label fx:id="lblCycleCreatedAt"
-                                   text="вЂ”"
+                                   text="РІР‚вЂќ"
                                    styleClass="cy-meta-value"/>
 
                             <TaskLinkChip fx:id="chipTaskLink" minWidth="70"/>
@@ -270,111 +270,6 @@
                         </StackPane>
                     </VBox>
 
-                    <StackPane fx:id="menuLayer"
-                               visible="false"
-                               managed="false"
-                               pickOnBounds="false"
-                               maxWidth="Infinity"
-                               maxHeight="Infinity"
-                               StackPane.alignment="TOP_LEFT">
-
-                        <Region maxWidth="Infinity"
-                                maxHeight="Infinity"
-                                StackPane.alignment="TOP_LEFT"/>
-
-                        <VBox fx:id="menuModal"
-                              alignment="CENTER"
-                              styleClass="tc-right-confirm"
-                              StackPane.alignment="TOP_LEFT"
-                              prefWidth="300"
-                              maxWidth="300"
-                              minHeight="-2"
-                              maxHeight="-2">
-
-                            <Label text="%cy.menu.title"
-                                   wrapText="false"
-                                   maxWidth="Infinity"
-                                   styleClass="tc-delete-title">
-                                <VBox.margin>
-                                    <Insets top="4"/>
-                                </VBox.margin>
-                            </Label>
-
-                            <Region prefHeight="20" minHeight="20" maxHeight="20"/>
-
-                            <VBox spacing="10" alignment="CENTER">
-                                <Button fx:id="btnMenuCopy"
-                                        text="%cy.menu.copy"
-                                        focusTraversable="false"
-                                        prefWidth="220"
-                                        minWidth="220"
-                                        maxWidth="220"
-                                        styleClass="tc-btn"/>
-
-                                <Button fx:id="btnMenuPause"
-                                        text="%cy.menu.pause"
-                                        focusTraversable="false"
-                                        prefWidth="220"
-                                        minWidth="220"
-                                        maxWidth="220"
-                                        styleClass="tc-btn"/>
-
-                                <Button fx:id="btnMenuStats"
-                                        text="%cy.menu.stats"
-                                        focusTraversable="false"
-                                        prefWidth="220"
-                                        minWidth="220"
-                                        maxWidth="220"
-                                        styleClass="tc-btn"/>
-
-                                <Button fx:id="btnMenuReport"
-                                        text="%cy.menu.report"
-                                        focusTraversable="false"
-                                        prefWidth="220"
-                                        minWidth="220"
-                                        maxWidth="220"
-                                        styleClass="tc-btn"/>
-
-                                <Button fx:id="btnMenuEdit"
-                                        text="%cy.menu.edit"
-                                        focusTraversable="false"
-                                        disable="true"
-                                        prefWidth="220"
-                                        minWidth="220"
-                                        maxWidth="220"
-                                        styleClass="tc-btn"/>
-
-                                <Button fx:id="btnMenuSource"
-                                        text="%cy.menu.source"
-                                        focusTraversable="false"
-                                        disable="true"
-                                        prefWidth="220"
-                                        minWidth="220"
-                                        maxWidth="220"
-                                        styleClass="tc-btn"/>
-
-                                <Button fx:id="btnMenuDelete"
-                                        text="%cy.menu.delete"
-                                        focusTraversable="false"
-                                        prefWidth="220"
-                                        minWidth="220"
-                                        maxWidth="220"
-                                        styleClass="tc-btn,tc-danger-btn"/>
-                            </VBox>
-
-                            <Region prefHeight="20" minHeight="20" maxHeight="20"/>
-
-                            <Label text="%cy.menu.hint"
-                                   wrapText="true"
-                                   maxWidth="Infinity"
-                                   styleClass="tc-delete-hint">
-                                <VBox.margin>
-                                    <Insets bottom="2"/>
-                                </VBox.margin>
-                            </Label>
-
-                        </VBox>
-                    </StackPane>
 
                     <StackPane fx:id="deleteLayer"
                                visible="false"
@@ -397,7 +292,7 @@
                               prefHeight="200"
                               maxHeight="210">
 
-                            <Label text="%tc.delete.title"
+                            <Label text="%cy.delete.title"
                                    wrapText="false"
                                    maxWidth="Infinity"
                                    styleClass="tc-delete-title">
@@ -410,7 +305,7 @@
 
                             <VBox spacing="10" alignment="CENTER">
                                 <Button fx:id="btnDeleteCancel"
-                                        text="%tc.delete.cancel"
+                                        text="%cy.delete.cancel"
                                         focusTraversable="false"
                                         prefWidth="220"
                                         minWidth="220"
@@ -418,7 +313,7 @@
                                         styleClass="tc-btn"/>
 
                                 <Button fx:id="btnDeleteConfirm"
-                                        text="%tc.delete.confirm"
+                                        text="%cy.delete.confirm"
                                         focusTraversable="false"
                                         prefWidth="220"
                                         minWidth="220"
@@ -428,7 +323,7 @@
 
                             <Region prefHeight="20" minHeight="20" maxHeight="20"/>
 
-                            <Label text="%tc.delete.hint"
+                            <Label text="%cy.delete.hint"
                                    wrapText="true"
                                    maxWidth="Infinity"
                                    styleClass="tc-delete-hint">

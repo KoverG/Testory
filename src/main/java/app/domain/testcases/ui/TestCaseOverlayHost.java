@@ -78,6 +78,7 @@ public final class TestCaseOverlayHost {
     private final StackPane rightStack;
     private final ScrollPane spRight;
     private final VBox rightScrollRoot;
+    private final VBox rightScrollContent;
     private final FlowPane fpRightLabels;
     private final TextField tfRightLabel;
     private final Button btnAddRightLabel;
@@ -90,6 +91,8 @@ public final class TestCaseOverlayHost {
     private final Button btnDeleteRight;
     private final Button btnSaveRight;
     private final Region rightScrollBottomSpacer;
+    private javafx.scene.Node bottomAccessory;
+    private final TestCaseCyclesAccessory cyclesAccessory;
 
     private final SmoothScrollSupport smoothScroll = new SmoothScrollSupport();
     private final RightChipFactory chipFactory;
@@ -154,6 +157,9 @@ public final class TestCaseOverlayHost {
         this.taRightDescription = testcaseCardController.taRightDescription();
         this.stepsBox = testcaseCardController.stepsBox();
         this.btnAddStep = testcaseCardController.btnAddStep();
+        this.rightScrollContent = testcaseCardController.rightScrollContent();
+        this.cyclesAccessory = new TestCaseCyclesAccessory(rightRootStack);
+        setBottomAccessory(cyclesAccessory.node());
         this.btnDeleteRight = testcaseCardController.btnDeleteRight();
         this.btnSaveRight = testcaseCardController.btnSaveRight();
         this.rightScrollBottomSpacer = testcaseCardController.rightScrollBottomSpacer();
@@ -259,6 +265,17 @@ public final class TestCaseOverlayHost {
         this.onSaved = onSaved;
     }
 
+    public void setBottomAccessory(javafx.scene.Node node) {
+        if (rightScrollContent == null) return;
+        if (bottomAccessory != null) {
+            rightScrollContent.getChildren().remove(bottomAccessory);
+        }
+        bottomAccessory = node;
+        if (node != null && !rightScrollContent.getChildren().contains(node)) {
+            rightScrollContent.getChildren().add(node);
+        }
+    }
+
     public void setOnVisibilityChanged(Runnable onVisibilityChanged) {
         this.onVisibilityChanged = onVisibilityChanged;
     }
@@ -282,6 +299,10 @@ public final class TestCaseOverlayHost {
     }
 
     public void openExisting(String caseId) {
+        openExisting(caseId, null);
+    }
+
+    public void openExisting(String caseId, TestCaseCyclesAccessory.CurrentCycleContext cycleContext) {
         String id = safeTrim(caseId);
         if (id.isBlank()) return;
 
@@ -301,6 +322,7 @@ public final class TestCaseOverlayHost {
         hostRoot.setMouseTransparent(false);
         open = true;
         rightPaneCtl.openExisting(file);
+        cyclesAccessory.showForCase(id, cycleContext);
         updateSaveGateUi();
         refreshDeleteAvailability();
         notifyVisibilityChanged();
@@ -314,6 +336,7 @@ public final class TestCaseOverlayHost {
         overlayBackdrop.setManaged(false);
         openedCaseId = null;
         saveGateValidationArmed = false;
+        cyclesAccessory.clear();
         rightPaneCtl.close();
         closeTransition.stop();
         closeTransition.playFromStart();
@@ -786,3 +809,5 @@ public final class TestCaseOverlayHost {
         return v == null ? "" : v.trim();
     }
 }
+
+

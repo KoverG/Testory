@@ -200,9 +200,16 @@ public final class CycleCardJsonReader {
 
             String id = readString(obj, "id");
             String title = readString(obj, "title");
+            String status = readString(obj, "status");
+            String comment = readString(obj, "comment");
 
             if (id != null && !id.isBlank()) {
-                out.add(new CycleCaseRef(id.trim(), title == null ? "" : title.trim()));
+                out.add(new CycleCaseRef(
+                        id.trim(),
+                        title == null ? "" : title.trim(),
+                        status == null ? "" : status.trim(),
+                        comment == null ? "" : comment.trim()
+                ));
             }
 
             i = objEnd + 1;
@@ -459,3 +466,4 @@ public final class CycleCardJsonReader {
         return out.toString().trim();
     }
 }
+

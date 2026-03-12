@@ -10,7 +10,8 @@ public final class CycleJson {
     private static final char NL = (char) 10;
     private static final char BS = (char) 92;
 
-    private CycleJson() {}
+    private CycleJson() {
+    }
 
     public static String toJson(CycleDraft d) {
         if (d == null) d = new CycleDraft();
@@ -27,15 +28,10 @@ public final class CycleJson {
         sb.append("  },").append(NL);
 
         sb.append("  \"title\": ").append(q(d.title)).append(",").append(NL);
-
-        // ✅ QA responsible
         sb.append("  \"qaResponsible\": ").append(q(d.qaResponsible)).append(",").append(NL);
-
-        // ✅ environment
         sb.append("  \"envType\": ").append(q(d.envType)).append(",").append(NL);
         sb.append("  \"envUrl\": ").append(q(d.envUrl)).append(",").append(NL);
         sb.append("  \"envLinks\": ").append(arrStrings(d.envLinks)).append(",").append(NL);
-
         sb.append("  \"cases\": ").append(arrCaseRefs(d.cases)).append(",").append(NL);
 
         sb.append("  \"taskLink\": {").append(NL);
@@ -44,20 +40,16 @@ public final class CycleJson {
         sb.append("  }").append(NL);
 
         sb.append("}").append(NL);
-
         return sb.toString();
     }
 
     private static String q(String raw) {
         if (raw == null) raw = "";
-        String s = raw;
-
-        StringBuilder out = new StringBuilder(s.length() + 8);
+        StringBuilder out = new StringBuilder(raw.length() + 8);
         out.append('"');
 
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-
+        for (int i = 0; i < raw.length(); i++) {
+            char c = raw.charAt(i);
             if (c == '"') out.append(BS).append('"');
             else if (c == BS) out.append(BS).append(BS);
             else if (c == '\n' || c == '\r' || c == '\t') out.append(' ');
@@ -89,12 +81,10 @@ public final class CycleJson {
         return sb.toString();
     }
 
-    // ✅ cases: [{ "number": 1, "id": "...", "title": "..." }, ...]
-    // ✅ каждый следующий объект — с новой строки
     private static String arrCaseRefs(List<CycleCaseRef> xs) {
         if (xs == null || xs.isEmpty()) return "[]";
 
-        StringBuilder sb = new StringBuilder(xs.size() * 64 + 16);
+        StringBuilder sb = new StringBuilder(xs.size() * 88 + 16);
         sb.append("[");
 
         int emitted = 0;
@@ -107,6 +97,8 @@ public final class CycleJson {
             if (id.isEmpty()) continue;
 
             String title = ref.safeTitleSnapshot();
+            String status = ref.safeStatus();
+            String comment = ref.safeComment();
 
             if (emitted > 0) {
                 sb.append(",").append(NL).append("    ");
@@ -115,7 +107,9 @@ public final class CycleJson {
             sb.append("{");
             sb.append("\"number\": ").append(number).append(", ");
             sb.append("\"id\": ").append(q(id)).append(", ");
-            sb.append("\"title\": ").append(q(title));
+            sb.append("\"title\": ").append(q(title)).append(", ");
+            sb.append("\"status\": ").append(q(status)).append(", ");
+            sb.append("\"comment\": ").append(q(comment));
             sb.append("}");
 
             emitted++;
@@ -126,3 +120,5 @@ public final class CycleJson {
         return sb.toString();
     }
 }
+
+

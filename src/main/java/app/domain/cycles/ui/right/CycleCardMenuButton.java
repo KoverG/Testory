@@ -92,7 +92,7 @@ public final class CycleCardMenuButton extends Button {
 
     // ===================== PUBLIC API (actions) =====================
 
-    public void setOnCopy(Runnable r) { this.onCopy = nz(r); }
+    public void setOnCopyAction(Runnable r) { this.onCopy = nz(r); }
     public void setOnPause(Runnable r) { this.onPause = nz(r); }
     public void setOnStats(Runnable r) { this.onStats = nz(r); }
     public void setOnReport(Runnable r) { this.onReport = nz(r); }
@@ -111,7 +111,6 @@ public final class CycleCardMenuButton extends Button {
     }
 
     // ===================== UI =====================
-
     private VBox buildMenuModal() {
         VBox modal = new VBox();
         modal.setAlignment(Pos.CENTER);
@@ -127,10 +126,10 @@ public final class CycleCardMenuButton extends Button {
         modal.setMinHeight(Region.USE_PREF_SIZE);
         modal.setMaxHeight(Region.USE_PREF_SIZE);
 
-        // clicks inside modal must not close it
-        modal.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> e.consume());
-        modal.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> e.consume());
-
+        // clicks inside modal must not close it, but inner buttons must still receive action events
+        modal.addEventHandler(MouseEvent.MOUSE_PRESSED, e -> {
+            if (e.getTarget() == modal) e.consume();
+        });
         Label title = new Label(I18n.t("cy.menu.title"));
         title.setWrapText(false);
         title.setMaxWidth(Double.MAX_VALUE);
@@ -174,7 +173,6 @@ public final class CycleCardMenuButton extends Button {
 
         modal.getChildren().addAll(title, topGap, buttonsBox, bottomGap, hint);
 
-        // wire handlers
         btnCopy.setOnAction(e -> onCopy.run());
         btnPause.setOnAction(e -> onPause.run());
         btnStats.setOnAction(e -> onStats.run());

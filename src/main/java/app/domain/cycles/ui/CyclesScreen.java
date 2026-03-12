@@ -35,7 +35,10 @@ public final class CyclesScreen {
         right.setOnClose(() -> left.setMode(LeftMode.CYCLES_LIST));
 
         // после сохранения — обновить cycles list
-        right.setOnSaved(() -> left.refreshCyclesFromDisk());
+        right.setOnSaved(() -> {
+            left.setMode(LeftMode.CYCLES_LIST);
+            left.refreshCyclesFromDisk();
+        });
 
         // ✅ после удаления — обновить cycles list
         right.setOnDeleted(() -> left.refreshCyclesFromDisk());

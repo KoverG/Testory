@@ -1,12 +1,17 @@
 package app.domain.cycles.usecase;
 
 /**
- * Ссылка на тесткейс внутри цикла.
- *
- * id — стабильный идентификатор для навигации.
- * titleSnapshot — снимок названия на момент добавления (для быстрого UI и как fallback).
+ * Reference to a testcase inside a cycle card.
  */
-public record CycleCaseRef(String id, String titleSnapshot) {
+public record CycleCaseRef(String id, String titleSnapshot, String status, String comment) {
+
+    public CycleCaseRef(String id, String titleSnapshot) {
+        this(id, titleSnapshot, "", "");
+    }
+
+    public CycleCaseRef(String id, String titleSnapshot, String status) {
+        this(id, titleSnapshot, status, "");
+    }
 
     public String safeId() {
         return id == null ? "" : id.trim();
@@ -14,5 +19,13 @@ public record CycleCaseRef(String id, String titleSnapshot) {
 
     public String safeTitleSnapshot() {
         return titleSnapshot == null ? "" : titleSnapshot.trim();
+    }
+
+    public String safeStatus() {
+        return status == null ? "" : status.trim();
+    }
+
+    public String safeComment() {
+        return comment == null ? "" : comment.trim();
     }
 }

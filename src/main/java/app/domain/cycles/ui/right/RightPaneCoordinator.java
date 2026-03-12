@@ -9,6 +9,7 @@ import app.domain.cycles.usecase.CreateCycleUseCase;
 import app.domain.cycles.usecase.CycleCaseRef;
 import app.domain.cycles.usecase.CycleDraft;
 import app.domain.testcases.ui.RightPaneAnimator;
+import app.domain.testcases.ui.TestCaseCyclesAccessory;
 import app.domain.testcases.ui.TestCaseOverlayHost;
 import app.ui.UiSaveFeedback;
 import app.ui.UiSvg;
@@ -40,6 +41,7 @@ import java.util.Locale;
 public final class RightPaneCoordinator {
 
     private static final String I18N_NO_CASES = "cy.right.cases.none";
+    private static final String I18N_COPY_TITLE_SUFFIX = "cy.copy.suffix";
 
     private static final String DISABLED_BASE_CLASS = "tc-disabled-base";
     private static final String SAVE_HINT_INSTALLED_KEY = "tc.save.hint.installed";
@@ -54,14 +56,14 @@ public final class RightPaneCoordinator {
 
     private Runnable onSaved;
 
-    // Р Р†РЎС™РІР‚В¦ NEW: callback after delete
+    // РІСљвЂ¦ NEW: callback after delete
     private Runnable onDeleted;
 
     private AddedCasesListUi addedCasesList;
     private TestCaseOverlayHost testcaseOverlay;
     private boolean testcaseOverlayHadCycleUnderlay = false;
 
-    // Р Р†РЎС™РІР‚В¦ NEW: delete mode for added cases rows
+    // РІСљвЂ¦ NEW: delete mode for added cases rows
     private boolean casesDeleteMode = false;
 
     private final List<CycleCaseRef> selectedCases = new ArrayList<>();
@@ -89,15 +91,16 @@ public final class RightPaneCoordinator {
     private String baselineEnvUrl = "";
     private List<String> baselineEnvLinks = List.of();
 
-    // ===================== SAVE GATE (Р В РЎвЂќР В Р’В°Р В РЎвЂќ TestCases) =====================
+    // ===================== SAVE GATE (Р С”Р В°Р С” TestCases) =====================
 
     private Label saveDisabledHintLabel;
     private String lastSaveBlockMessage = "closed";
 
     private String baselineTitle = "";
     private List<String> baselineCaseIds = List.of();
+    private List<CycleCaseRef> baselineCases = List.of();
 
-    // Р Р†РЎС™РІР‚В¦ NEW: task link baseline participates in dirty detection
+    // РІСљвЂ¦ NEW: task link baseline participates in dirty detection
     private String baselineTaskLinkTitle = "";
     private String baselineTaskLinkUrl = "";
 
@@ -127,12 +130,13 @@ public final class RightPaneCoordinator {
     public void init() {
         snapClosed();
 
-        // Р Р†РЎС™РІР‚В¦ MENU: Р В РЎвЂќР В Р вЂ¦Р В РЎвЂўР В РЎвЂ”Р В РЎвЂќР В Р’В° Р РЋР С“Р В Р’В°Р В РЎВР В Р’В° Р В РўвЂР В Р’ВµР РЋР вЂљР В Р’В¶Р В РЎвЂР РЋРІР‚С™/Р РЋР вЂљР В РЎвЂР РЋР С“Р РЋРЎвЂњР В Р’ВµР РЋРІР‚С™ Р В РЎВР В РЎвЂўР В РўвЂР В Р’В°Р В Р’В»Р В РЎвЂќР РЋРЎвЂњ Р В РЎвЂ overlay
+        // РІСљвЂ¦ MENU: Р С”Р Р…Р С•Р С—Р С”Р В° РЎРѓР В°Р СР В° Р Т‘Р ВµРЎР‚Р В¶Р С‘РЎвЂљ/РЎР‚Р С‘РЎРѓРЎС“Р ВµРЎвЂљ Р СР С•Р Т‘Р В°Р В»Р С”РЎС“ Р С‘ overlay
         if (v.btnMenuRight != null) {
             v.btnMenuRight.install(v.rightRoot, this::hideDeleteConfirm);
 
             UiSvg.setButtonSvg(v.btnMenuRight, "menu.svg", getIconSizeFromUserData(v.btnMenuRight, 14));
             v.btnMenuRight.setFocusTraversable(false);
+            v.btnMenuRight.setOnCopyAction(this::copyCurrentCycle);
         }
 
         if (v.btnCloseRight != null) {
@@ -141,7 +145,7 @@ public final class RightPaneCoordinator {
             v.btnCloseRight.setOnAction(e -> close());
         }
 
-        // Р Р†РЎС™РІР‚В¦ PROFILE BUTTON + MODAL
+        // РІСљвЂ¦ PROFILE BUTTON + MODAL
         if (v.btnProfileRight != null) {
             UiSvg.setButtonSvg(v.btnProfileRight, "profile.svg", getIconSizeFromUserData(v.btnProfileRight, 14));
             v.btnProfileRight.setFocusTraversable(false);
@@ -153,9 +157,9 @@ public final class RightPaneCoordinator {
                         if (testcaseOverlay != null && testcaseOverlay.isOpen()) testcaseOverlay.close();
         if (v.btnMenuRight != null) v.btnMenuRight.closeMenu();
                         hideDeleteConfirm();
-                        // Р В Р’В·Р В Р’В°Р В РЎвЂќР РЋР вЂљР РЋРІР‚в„–Р В Р вЂ Р В Р’В°Р В Р’ВµР В РЎВ Р В РЎВР В РЎвЂўР В РўвЂР В Р’В°Р В Р’В»Р В РЎвЂќР РЋРЎвЂњ TaskLink, Р В Р’ВµР РЋР С“Р В Р’В»Р В РЎвЂ Р В РЎвЂўР В Р вЂ¦Р В Р’В° Р В Р’В±Р РЋРІР‚в„–Р В Р’В»Р В Р’В° Р В РЎвЂўР РЋРІР‚С™Р В РЎвЂќР РЋР вЂљР РЋРІР‚в„–Р РЋРІР‚С™Р В Р’В°
+                        // Р В·Р В°Р С”РЎР‚РЎвЂ№Р Р†Р В°Р ВµР С Р СР С•Р Т‘Р В°Р В»Р С”РЎС“ TaskLink, Р ВµРЎРѓР В»Р С‘ Р С•Р Р…Р В° Р В±РЎвЂ№Р В»Р В° Р С•РЎвЂљР С”РЎР‚РЎвЂ№РЎвЂљР В°
                         if (v.chipTaskLink != null) v.chipTaskLink.closeModalIfOpen();
-                        // Р В Р’В·Р В Р’В°Р В РЎвЂќР РЋР вЂљР РЋРІР‚в„–Р В Р вЂ Р В Р’В°Р В Р’ВµР В РЎВ Р В РЎВР В РЎвЂўР В РўвЂР В Р’В°Р В Р’В»Р В РЎвЂќР РЋРЎвЂњ Environment, Р В Р’ВµР РЋР С“Р В Р’В»Р В РЎвЂ Р В РЎвЂўР В Р вЂ¦Р В Р’В° Р В Р’В±Р РЋРІР‚в„–Р В Р’В»Р В Р’В° Р В РЎвЂўР РЋРІР‚С™Р В РЎвЂќР РЋР вЂљР РЋРІР‚в„–Р РЋРІР‚С™Р В Р’В°
+                        // Р В·Р В°Р С”РЎР‚РЎвЂ№Р Р†Р В°Р ВµР С Р СР С•Р Т‘Р В°Р В»Р С”РЎС“ Environment, Р ВµРЎРѓР В»Р С‘ Р С•Р Р…Р В° Р В±РЎвЂ№Р В»Р В° Р С•РЎвЂљР С”РЎР‚РЎвЂ№РЎвЂљР В°
                         if (v.chipEnvironment != null) v.chipEnvironment.closeModalIfOpen();
                     },
                     () -> currentQaResponsible,
@@ -176,7 +180,7 @@ public final class RightPaneCoordinator {
             });
         }
 
-        // Р Р†РЎС™РІР‚В¦ NEW: top trash button toggles delete mode
+        // РІСљвЂ¦ NEW: top trash button toggles delete mode
         if (v.btnRightTrashCases != null) {
             UiSvg.setButtonSvg(v.btnRightTrashCases, "trash.svg", getIconSizeFromUserData(v.btnRightTrashCases, 14));
             v.btnRightTrashCases.setFocusTraversable(false);
@@ -184,7 +188,7 @@ public final class RightPaneCoordinator {
             v.btnRightTrashCases.setOnAction(e -> toggleCasesDeleteMode());
         }
 
-        // Р Р†РЎС™РІР‚В¦ DELETE: svg + open confirm overlay (Р В РЎвЂќР В Р’В°Р В РЎвЂќ TestCases)
+        // РІСљвЂ¦ DELETE: svg + open confirm overlay (Р С”Р В°Р С” TestCases)
         initRightDelete();
 
         // SAVE
@@ -223,6 +227,8 @@ public final class RightPaneCoordinator {
             if (ref == null) return;
             openTestCaseCard(ref.safeId());
         });
+        addedCasesList.setOnStatusChanged((ref, status) -> updateAddedCaseStatus(ref, status));
+        addedCasesList.setOnCommentChanged((ref, comment) -> updateAddedCaseComment(ref, comment));
         addedCasesList.setDeleteMode(false);
 
         if (v.floatingOverlayRoot != null) {
@@ -238,11 +244,11 @@ public final class RightPaneCoordinator {
             testcaseOverlay.setOnVisibilityChanged(this::syncOverlayVisibilityState);
         }
 
-        // Р Р†РЎС™РІР‚В¦ init task link chip
+        // РІСљвЂ¦ init task link chip
         if (v.chipTaskLink != null) {
             v.chipTaskLink.setTaskLink("", "");
 
-            // Р Р†РЎС™РІР‚В¦ IMPORTANT: install overlay root for modal
+            // РІСљвЂ¦ IMPORTANT: install overlay root for modal
             if (v.rightRoot instanceof StackPane sp) {
                 v.chipTaskLink.install(
                         sp,
@@ -250,21 +256,21 @@ public final class RightPaneCoordinator {
                             if (testcaseOverlay != null && testcaseOverlay.isOpen()) testcaseOverlay.close();
         if (v.btnMenuRight != null) v.btnMenuRight.closeMenu();
                             hideDeleteConfirm();
-                            // Р В Р’В·Р В Р’В°Р В РЎвЂќР РЋР вЂљР РЋРІР‚в„–Р В Р вЂ Р В Р’В°Р В Р’ВµР В РЎВ Р В РЎвЂ”Р РЋР вЂљР В РЎвЂўР РЋРІР‚С›Р В РЎвЂР В Р’В»Р РЋР Р‰-Р В РЎВР В РЎвЂўР В РўвЂР В Р’В°Р В Р’В»Р В РЎвЂќР РЋРЎвЂњ, Р В Р’ВµР РЋР С“Р В Р’В»Р В РЎвЂ Р В Р’В±Р РЋРІР‚в„–Р В Р’В»Р В Р’В° Р В РЎвЂўР РЋРІР‚С™Р В РЎвЂќР РЋР вЂљР РЋРІР‚в„–Р РЋРІР‚С™Р В Р’В°
+                            // Р В·Р В°Р С”РЎР‚РЎвЂ№Р Р†Р В°Р ВµР С Р С—РЎР‚Р С•РЎвЂћР С‘Р В»РЎРЉ-Р СР С•Р Т‘Р В°Р В»Р С”РЎС“, Р ВµРЎРѓР В»Р С‘ Р В±РЎвЂ№Р В»Р В° Р С•РЎвЂљР С”РЎР‚РЎвЂ№РЎвЂљР В°
                             if (profileModal != null) profileModal.close();
-                            // Р В Р’В·Р В Р’В°Р В РЎвЂќР РЋР вЂљР РЋРІР‚в„–Р В Р вЂ Р В Р’В°Р В Р’ВµР В РЎВ env-Р В РЎВР В РЎвЂўР В РўвЂР В Р’В°Р В Р’В»Р В РЎвЂќР РЋРЎвЂњ, Р В Р’ВµР РЋР С“Р В Р’В»Р В РЎвЂ Р В Р’В±Р РЋРІР‚в„–Р В Р’В»Р В Р’В° Р В РЎвЂўР РЋРІР‚С™Р В РЎвЂќР РЋР вЂљР РЋРІР‚в„–Р РЋРІР‚С™Р В Р’В°
+                            // Р В·Р В°Р С”РЎР‚РЎвЂ№Р Р†Р В°Р ВµР С env-Р СР С•Р Т‘Р В°Р В»Р С”РЎС“, Р ВµРЎРѓР В»Р С‘ Р В±РЎвЂ№Р В»Р В° Р С•РЎвЂљР С”РЎР‚РЎвЂ№РЎвЂљР В°
                             if (v.chipEnvironment != null) v.chipEnvironment.closeModalIfOpen();
                         },
-                        // Р Р†РЎС™РІР‚В¦ must NOT anchor to menu button; modal anchors to chip
+                        // РІСљвЂ¦ must NOT anchor to menu button; modal anchors to chip
                         null
                 );
             }
 
-            // Р Р†РЎС™РІР‚В¦ any change inside chip should participate in save-gate
+            // РІСљвЂ¦ any change inside chip should participate in save-gate
             v.chipTaskLink.setOnTaskLinkChanged(this::updateSaveGateUi);
         }
 
-        // Р Р†РЎС™РІР‚В¦ init environment chip (RightAnchoredModal) + binding to state
+        // РІСљвЂ¦ init environment chip (RightAnchoredModal) + binding to state
         if (v.chipEnvironment != null) {
             if (v.rightRoot instanceof StackPane sp) {
                 v.chipEnvironment.setCurrentSuppliers(
@@ -327,6 +333,14 @@ public final class RightPaneCoordinator {
     }
 
     public void openTestCaseCard(String caseId) {
+        openTestCaseCard(caseId, true);
+    }
+
+    public void openTestCaseCardFromList(String caseId) {
+        openTestCaseCard(caseId, false);
+    }
+
+    private void openTestCaseCard(String caseId, boolean showCurrentCycleStatus) {
         if (testcaseOverlay == null) return;
 
         String id = safe(caseId);
@@ -345,13 +359,46 @@ public final class RightPaneCoordinator {
         if (v.chipTaskLink != null) v.chipTaskLink.closeModalIfOpen();
         if (v.chipEnvironment != null) v.chipEnvironment.closeModalIfOpen();
 
-        testcaseOverlay.openExisting(id);
+        testcaseOverlay.openExisting(id, showCurrentCycleStatus ? buildCurrentCycleContext(id) : null);
+    }
+
+    private TestCaseCyclesAccessory.CurrentCycleContext buildCurrentCycleContext(String caseId) {
+        String id = safe(caseId);
+        String cycleId = openedDraft == null ? "" : safe(openedDraft.id);
+        String cycleTitle = safe(v.tfCycleTitle == null ? "" : v.tfCycleTitle.getText());
+        String createdAt = safe(v.lblCycleCreatedAt == null ? "" : v.lblCycleCreatedAt.getText());
+        String status = "";
+        String comment = "";
+        int caseNumber = 0;
+        int caseTotal = selectedCases.size();
+
+        for (int i = 0; i < selectedCases.size(); i++) {
+            CycleCaseRef ref = selectedCases.get(i);
+            if (ref == null || !id.equals(ref.safeId())) continue;
+            status = ref.safeStatus();
+            comment = ref.safeComment();
+            caseNumber = i + 1;
+            break;
+        }
+
+        return new TestCaseCyclesAccessory.CurrentCycleContext(
+                cycleId,
+                cycleTitle,
+                createdAt,
+                status,
+                comment,
+                caseNumber,
+                caseTotal,
+                newStatus -> updateAddedCaseStatus(new CycleCaseRef(id, ""), newStatus),
+                newComment -> updateAddedCaseComment(new CycleCaseRef(id, ""), newComment),
+                this::onSave
+        );
     }
 
     public void openExistingCard(Path file) {
         if (file == null) return;
 
-        // Р Р†РЎС™РІР‚В¦ switching card => close primary modals from previous card
+        // РІСљвЂ¦ switching card => close primary modals from previous card
         closePrimaryModals();
         resetCasesDeleteMode();
 
@@ -370,7 +417,7 @@ public final class RightPaneCoordinator {
 
         if (v.lblCycleCreatedAt != null) {
             String created = safe(d.createdAtUi);
-            if (created.isEmpty()) created = "Р Р†Р вЂљРІР‚Сњ";
+            if (created.isEmpty()) created = "РІР‚вЂќ";
             v.lblCycleCreatedAt.setText(created);
         }
 
@@ -393,7 +440,7 @@ public final class RightPaneCoordinator {
                 if (ref == null) continue;
                 String id = ref.safeId();
                 if (id.isEmpty()) continue;
-                selectedCases.add(new CycleCaseRef(id, ref.safeTitleSnapshot()));
+                selectedCases.add(new CycleCaseRef(id, ref.safeTitleSnapshot(), ref.safeStatus(), ref.safeComment()));
             }
         }
         syncAddedCasesUi();
@@ -429,7 +476,7 @@ public final class RightPaneCoordinator {
     public void openCreateCard() {
         boolean wasOpen = open;
 
-        // Р Р†РЎС™РІР‚В¦ switching to create-card => close primary modals from previous card
+        // РІСљвЂ¦ switching to create-card => close primary modals from previous card
         closePrimaryModals();
         resetCasesDeleteMode();
 
@@ -591,7 +638,7 @@ public final class RightPaneCoordinator {
             if (id.isEmpty()) continue;
 
             String title = ref.safeTitleSnapshot();
-            selectedCases.add(new CycleCaseRef(id, title));
+            selectedCases.add(new CycleCaseRef(id, title, ref.safeStatus(), ref.safeComment()));
         }
 
         syncAddedCasesUi();
@@ -631,7 +678,7 @@ public final class RightPaneCoordinator {
 
             if (hasAddedCase(id)) continue;
 
-            selectedCases.add(new CycleCaseRef(id, ref.safeTitleSnapshot()));
+            selectedCases.add(new CycleCaseRef(id, ref.safeTitleSnapshot(), ref.safeStatus(), ref.safeComment()));
         }
 
         syncAddedCasesUi();
@@ -663,7 +710,7 @@ public final class RightPaneCoordinator {
         updateSaveGateUi();
     }
 
-    // Р Р†РЎС™РІР‚В¦ NEW: delete single case by id (row trash button)
+    // РІСљвЂ¦ NEW: delete single case by id (row trash button)
     private void removeAddedCaseById(String idRaw) {
         String id = safe(idRaw);
         if (id.isEmpty()) return;
@@ -671,7 +718,7 @@ public final class RightPaneCoordinator {
         boolean removed = selectedCases.removeIf(ref -> ref == null || id.equals(ref.safeId()));
         if (!removed) return;
 
-        // Р В Р’ВµР РЋР С“Р В Р’В»Р В РЎвЂ Р РЋР С“Р В РЎвЂ”Р В РЎвЂР РЋР С“Р В РЎвЂўР В РЎвЂќ Р РЋР С“Р РЋРІР‚С™Р В Р’В°Р В Р’В» Р В РЎвЂ”Р РЋРЎвЂњР РЋР С“Р РЋРІР‚С™Р РЋРІР‚в„–Р В РЎВ Р Р†Р вЂљРІР‚Сњ Р В Р вЂ Р РЋРІР‚в„–Р РЋРІР‚В¦Р В РЎвЂўР В РўвЂР В РЎвЂР В РЎВ Р В РЎвЂР В Р’В· delete-mode
+        // Р ВµРЎРѓР В»Р С‘ РЎРѓР С—Р С‘РЎРѓР С•Р С” РЎРѓРЎвЂљР В°Р В» Р С—РЎС“РЎРѓРЎвЂљРЎвЂ№Р С РІР‚вЂќ Р Р†РЎвЂ№РЎвЂ¦Р С•Р Т‘Р С‘Р С Р С‘Р В· delete-mode
         if (selectedCases.isEmpty()) {
             casesDeleteMode = false;
         }
@@ -680,11 +727,71 @@ public final class RightPaneCoordinator {
         updateSaveGateUi();
     }
 
-    // Р Р†РЎС™РІР‚В¦ NEW: toggle delete-mode (top trash button)
+    // РІСљвЂ¦ NEW: toggle delete-mode (top trash button)
+    private void updateAddedCaseStatus(CycleCaseRef ref, String status) {
+        if (ref == null) return;
+
+        String id = ref.safeId();
+        if (id.isEmpty()) return;
+
+        String normalizedStatus = safe(status);
+        boolean changed = false;
+
+        for (int i = 0; i < selectedCases.size(); i++) {
+            CycleCaseRef current = selectedCases.get(i);
+            if (current == null || !id.equals(current.safeId())) continue;
+
+            CycleCaseRef updated = new CycleCaseRef(current.safeId(), current.safeTitleSnapshot(), normalizedStatus, current.safeComment());
+            if (!sameCaseRef(current, updated)) {
+                selectedCases.set(i, updated);
+                changed = true;
+            }
+            break;
+        }
+
+        if (!changed) return;
+
+        syncAddedCasesUi();
+        updateSaveGateUi();
+    }
+
+
+    private void updateAddedCaseComment(CycleCaseRef ref, String comment) {
+        if (ref == null) return;
+
+        String id = ref.safeId();
+        if (id.isEmpty()) return;
+
+        String normalizedComment = safe(comment);
+        boolean changed = false;
+
+        for (int i = 0; i < selectedCases.size(); i++) {
+            CycleCaseRef current = selectedCases.get(i);
+            if (current == null || !id.equals(current.safeId())) continue;
+
+            CycleCaseRef updated = new CycleCaseRef(
+                    current.safeId(),
+                    current.safeTitleSnapshot(),
+                    current.safeStatus(),
+                    normalizedComment
+            );
+            if (!sameCaseRef(current, updated)) {
+                selectedCases.set(i, updated);
+                changed = true;
+            }
+            break;
+        }
+
+        if (!changed) return;
+
+        syncAddedCasesUi();
+        updateSaveGateUi();
+    }
+
     private void toggleCasesDeleteMode() {
         if (!open) return;
 
-        // Р В Р’ВµР РЋР С“Р В Р’В»Р В РЎвЂ Р РЋР С“Р В РЎвЂ”Р В РЎвЂР РЋР С“Р В РЎвЂўР В РЎвЂќ Р В РЎвЂ”Р РЋРЎвЂњР РЋР С“Р РЋРІР‚С™ Р Р†Р вЂљРІР‚Сњ Р В РЎвЂ”Р РЋР вЂљР В РЎвЂўР РЋР С“Р РЋРІР‚С™Р В РЎвЂў Р В РЎвЂР В РЎвЂ“Р В Р вЂ¦Р В РЎвЂўР РЋР вЂљ
+        // Р ВµРЎРѓР В»Р С‘ РЎРѓР С—Р С‘РЎРѓР С•Р С” Р С—РЎС“РЎРѓРЎвЂљ РІР‚вЂќ Р С—РЎР‚Р С•РЎРѓРЎвЂљР С• Р С‘Р С–Р Р…Р С•РЎР‚
         if (selectedCases.isEmpty()) {
             casesDeleteMode = false;
             if (addedCasesList != null) addedCasesList.setDeleteMode(false);
@@ -848,6 +955,32 @@ public final class RightPaneCoordinator {
         v.rightRoot.setManaged(true);
     }
 
+    private void copyCurrentCycle() {
+        if (!open) return;
+        if (openedFile == null || openedDraft == null) return;
+        if (!Files.exists(openedFile)) return;
+
+        CycleDraft copy = buildDraftFromUi();
+        copy.id = CycleDraft.newStableId();
+        copy.createdAtIso = CycleDraft.nowIso();
+        copy.savedAtIso = "";
+        copy.createdAtUi = LocalDate.now()
+                .format(DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.forLanguageTag(I18n.lang())));
+        copy.title = buildCopyTitle(copy.title);
+
+        Path saved = createUseCase.create(copy);
+        openExistingCard(saved);
+        if (onSaved != null) onSaved.run();
+    }
+
+    private static String buildCopyTitle(String title) {
+        String base = safe(title);
+        String suffix = safe(I18n.t(I18N_COPY_TITLE_SUFFIX));
+        if (suffix.isEmpty()) suffix = " (copy)";
+        if (base.isEmpty()) return suffix.trim();
+        return base + suffix;
+    }
+
     private void deleteCurrentCycleToTrash() {
         if (openedFile == null) return;
         if (!Files.exists(openedFile)) return;
@@ -928,7 +1061,6 @@ public final class RightPaneCoordinator {
 
         CycleDraft draft = buildDraftFromUi();
 
-        boolean savingExisting = openedFile != null;
 
         Path saved;
         if (openedFile != null) {
@@ -937,20 +1069,15 @@ public final class RightPaneCoordinator {
             openedDraft = draft;
         } else {
             saved = createUseCase.create(draft);
-
-            openedFile = null;
-            openedDraft = null;
+            openedFile = saved;
+            openedDraft = draft;
         }
 
         System.out.println("[Cycles] saved: " + saved.toAbsolutePath());
 
         if (saveFx != null) saveFx.success();
 
-        if (savingExisting) {
-            captureBaselineFromCurrentUi();
-        } else {
-            captureBaselineEmptyForCreate();
-        }
+        captureBaselineFromCurrentUi();
 
         updateSaveGateUi();
         refreshDeleteAvailability();
@@ -988,7 +1115,7 @@ public final class RightPaneCoordinator {
             d.taskLinkUrl = "";
         }
 
-        // Р Р†РЎС™РІР‚В¦ env persistence
+        // РІСљвЂ¦ env persistence
         d.envType = safe(currentEnvType);
         d.envUrl = safe(currentEnvUrl);
         d.envLinks = new ArrayList<>(currentEnvLinks);
@@ -1022,7 +1149,7 @@ public final class RightPaneCoordinator {
 
         boolean mob = CyclePrivateConfig.rememberedEnvMobile();
 
-        // Р Р†РЎС™РІР‚В¦ Remembered env keeps ONLY type (mobile/desktop). Builds value must be empty.
+        // РІСљвЂ¦ Remembered env keeps ONLY type (mobile/desktop). Builds value must be empty.
         currentEnvType = mob ? "mobile" : "desktop";
         currentEnvUrl = "";
         currentEnvLinks = new ArrayList<>();
@@ -1075,6 +1202,7 @@ public final class RightPaneCoordinator {
     private void captureBaselineFromCurrentUi() {
         baselineTitle = safe(v.tfCycleTitle == null ? "" : v.tfCycleTitle.getText());
         baselineCaseIds = List.copyOf(getAddedCaseIds());
+        baselineCases = snapshotCases(selectedCases);
 
         baselineTaskLinkTitle = safe(v.chipTaskLink == null ? "" : v.chipTaskLink.getTitle());
         baselineTaskLinkUrl = safe(v.chipTaskLink == null ? "" : v.chipTaskLink.getUrl());
@@ -1089,6 +1217,7 @@ public final class RightPaneCoordinator {
     private void captureBaselineEmptyForCreate() {
         baselineTitle = "";
         baselineCaseIds = List.of();
+        baselineCases = snapshotCases(selectedCases);
 
         baselineTaskLinkTitle = "";
         baselineTaskLinkUrl = "";
@@ -1112,7 +1241,7 @@ public final class RightPaneCoordinator {
         if (!nowTLTitle.equals(baselineTaskLinkTitle)) return true;
         if (!nowTLUrl.equals(baselineTaskLinkUrl)) return true;
 
-        // Р Р†РЎС™РІР‚В¦ env dirty detection (toggle+builds+links)
+        // РІСљвЂ¦ env dirty detection (toggle+builds+links)
         if (!safe(currentEnvType).equals(baselineEnvType)) return true;
         if (!safe(currentEnvUrl).equals(baselineEnvUrl)) return true;
         if (!List.copyOf(currentEnvLinks).equals(baselineEnvLinks)) return true;
@@ -1123,7 +1252,37 @@ public final class RightPaneCoordinator {
         for (int i = 0; i < baselineCaseIds.size(); i++) {
             if (!baselineCaseIds.get(i).equals(nowIds.get(i))) return true;
         }
+
+        List<CycleCaseRef> nowCases = snapshotCases(selectedCases);
+        if (baselineCases.size() != nowCases.size()) return true;
+        for (int i = 0; i < baselineCases.size(); i++) {
+            if (!sameCaseRef(baselineCases.get(i), nowCases.get(i))) return true;
+        }
         return false;
+    }
+
+    private static List<CycleCaseRef> snapshotCases(List<CycleCaseRef> refs) {
+        if (refs == null || refs.isEmpty()) return List.of();
+
+        List<CycleCaseRef> out = new ArrayList<>();
+        for (CycleCaseRef ref : refs) {
+            if (ref == null) continue;
+
+            String id = ref.safeId();
+            if (id.isEmpty()) continue;
+
+            out.add(new CycleCaseRef(id, ref.safeTitleSnapshot(), ref.safeStatus(), ref.safeComment()));
+        }
+        return List.copyOf(out);
+    }
+
+    private static boolean sameCaseRef(CycleCaseRef left, CycleCaseRef right) {
+        if (left == right) return true;
+        if (left == null || right == null) return false;
+        return left.safeId().equals(right.safeId())
+                && left.safeTitleSnapshot().equals(right.safeTitleSnapshot())
+                && left.safeStatus().equals(right.safeStatus())
+                && left.safeComment().equals(right.safeComment());
     }
 
     private void installSaveDisabledHintUnderButton() {
@@ -1233,6 +1392,16 @@ public final class RightPaneCoordinator {
         return s == null ? "" : s.trim();
     }
 }
+
+
+
+
+
+
+
+
+
+
 
 
 

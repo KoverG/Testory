@@ -90,6 +90,7 @@ public class CyclesController {
 
     @FXML
     private void initialize() {
+
         attachCyclesStylesheet();
         installCasesSheetClip();
 

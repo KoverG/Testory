@@ -9,6 +9,7 @@ import app.domain.testcases.ui.RightChipFactory;
 import app.domain.testcases.ui.RightDeleteConfirm;
 import app.domain.testcases.ui.SmoothScrollSupport;
 import app.domain.testcases.ui.TestCaseCardController;
+import app.domain.testcases.ui.TestCaseCyclesAccessory;
 import app.domain.testcases.ui.TestCaseRightPane;
 import app.domain.testcases.ui.TestCasesSheets;
 import app.domain.testcases.ui.TestCasesTrashOverlay;
@@ -149,6 +150,7 @@ public class TestCasesController {
     // RIGHT
     @FXML private ScrollPane spRight;
     @FXML private VBox rightScrollRoot;
+    private VBox rightScrollContent;
 
     @FXML private VBox rightPane;
     @FXML private VBox rightCard;
@@ -210,6 +212,7 @@ public class TestCasesController {
     private TestCasesSheets sheets;
     private TestCaseRightPane rightPaneCtl;
     private RightChipFactory chipFactory;
+    private TestCaseCyclesAccessory cyclesAccessory;
 
     // ✅ delete confirm as separate class
     private RightDeleteConfirm deleteConfirm;
@@ -270,6 +273,7 @@ public class TestCasesController {
 
             spRight = testcaseCardController.spRight();
             rightScrollRoot = testcaseCardController.rightScrollRoot();
+            rightScrollContent = testcaseCardController.rightScrollContent();
 
             fpRightLabels = testcaseCardController.fpRightLabels();
             tfRightLabel = testcaseCardController.tfRightLabel();
@@ -386,6 +390,12 @@ public class TestCasesController {
 
         // ✅ NEW: пересчитывать save-gate при любых изменениях в правой форме (title/desc/labels/tags/steps)
         rightPaneCtl.setOnUserChanged(() -> Platform.runLater(this::updateSaveGateUi));
+
+        cyclesAccessory = new TestCaseCyclesAccessory(rightStack);
+        if (rightScrollContent != null && !rightScrollContent.getChildren().contains(cyclesAccessory.node())) {
+            rightScrollContent.getChildren().add(cyclesAccessory.node());
+        }
+        cyclesAccessory.clear();
 
         // TRASH overlay
         trashOverlay = new TestCasesTrashOverlay(leftStack);
@@ -836,6 +846,7 @@ public class TestCasesController {
                         rightOpenCaseId = null;
                         lvCases.getSelectionModel().clearSelection();
                         rightPaneCtl.close();
+                        if (cyclesAccessory != null) cyclesAccessory.clear();
 
                         resetSaveGateValidation();
                         updateSaveGateUi();
@@ -850,6 +861,7 @@ public class TestCasesController {
 
                     Path file = TestCaseCardStore.fileOf(id);
                     rightPaneCtl.openExisting(file);
+                    if (cyclesAccessory != null) cyclesAccessory.showForCase(id, null);
 
                     updateSaveGateUi();
                     refreshDeleteAvailability();
@@ -954,6 +966,11 @@ public class TestCasesController {
         if (sheets != null) sheets.refreshFilterChipsIfOpen();
 
         applyFiltersToList();
+
+        if (cyclesAccessory != null) {
+            if (rightOpenCaseId != null && rightPaneCtl != null && rightPaneCtl.isOpen()) cyclesAccessory.showForCase(rightOpenCaseId, null);
+            else cyclesAccessory.clear();
+        }
 
         updateSaveGateUi();
         refreshDeleteAvailability();
@@ -1509,6 +1526,7 @@ public class TestCasesController {
         resetSaveGateValidation();
 
         rightPaneCtl.openNew();
+        if (cyclesAccessory != null) cyclesAccessory.clear();
         updateSaveGateUi();
 
         refreshDeleteAvailability();
@@ -1561,6 +1579,7 @@ public class TestCasesController {
         rightNewOpen = false;
         rightOpenCaseId = null;
         if (rightPaneCtl != null) rightPaneCtl.close();
+        if (cyclesAccessory != null) cyclesAccessory.clear();
 
         resetSaveGateValidation();
         updateSaveGateUi();
@@ -1607,3 +1626,4 @@ public class TestCasesController {
         refreshDeleteAvailability();
     }
 }
+
