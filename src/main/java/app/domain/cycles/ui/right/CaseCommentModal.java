@@ -189,7 +189,7 @@ public final class CaseCommentModal {
         }
 
         String current = safe(ta.getText());
-        btnSave.setDisable(current.isEmpty() || current.equals(initialValue));
+        btnSave.setDisable(current.equals(initialValue));
     }
 
     private void requestModalAndBackdropLayout() {

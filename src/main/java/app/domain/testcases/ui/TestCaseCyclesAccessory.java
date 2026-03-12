@@ -34,6 +34,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.shape.StrokeLineCap;
@@ -61,12 +62,14 @@ public final class TestCaseCyclesAccessory {
             int caseTotal,
             Consumer<String> onStatusChanged,
             Consumer<String> onCommentChanged,
-            Runnable onSaveRequested
+            Runnable onSaveRequested,
+            Runnable onNavigatePrev,
+            Runnable onNavigateNext
     ) {
     }
 
     private static final double SAVE_ICON_SIZE = 12.0;
-    private static final double SAVE_INDICATOR_SIZE = 16.0;
+    private static final double SAVE_INDICATOR_SIZE = 18.0;
     private static final double SAVE_MIN_SPINNER_MS = 700.0;
     private static final double SAVE_CHECK_HOLD_MS = 900.0;
     private static final double COMMENT_PREVIEW_WIDTH = 180.0;
@@ -259,7 +262,7 @@ public final class TestCaseCyclesAccessory {
         currentSaveSpinner.setPrefSize(SAVE_INDICATOR_SIZE, SAVE_INDICATOR_SIZE);
         currentSaveSpinner.setMinSize(SAVE_INDICATOR_SIZE, SAVE_INDICATOR_SIZE);
         currentSaveSpinner.setMaxSize(SAVE_INDICATOR_SIZE, SAVE_INDICATOR_SIZE);
-        currentSaveSpinner.getStyleClass().add("ui-savefx-spinner");
+        currentSaveSpinner.getStyleClass().addAll("ui-savefx-spinner", "cy-testcase-save-spinner");
 
         currentSaveAnimatedCheck.setContent("M2 10 L8 16 L18 4");
         currentSaveAnimatedCheck.setFill(null);
@@ -271,6 +274,7 @@ public final class TestCaseCyclesAccessory {
 
         currentSavePaintListener = (obs, oldPaint, newPaint) -> applyCurrentSavePaint(newPaint);
         currentSaveButton.textFillProperty().addListener(currentSavePaintListener);
+        currentSaveButton.disabledProperty().addListener((obs, wasDisabled, isDisabled) -> applyCurrentSavePaint(currentSaveButton.getTextFill()));
         applyCurrentSavePaint(currentSaveButton.getTextFill());
 
         currentSaveGraphic.setMinSize(SAVE_INDICATOR_SIZE, SAVE_INDICATOR_SIZE);
@@ -281,9 +285,16 @@ public final class TestCaseCyclesAccessory {
     }
 
     private void applyCurrentSavePaint(Paint paint) {
-        if (paint == null) return;
-        currentSaveAnimatedCheck.setStroke(paint);
-        currentSaveSpinner.setStyle("-fx-progress-color: " + paint.toString().replace("0x", "#") + ";");
+        boolean lightDisabled = currentSaveButton.isDisabled() && isLightTheme(currentSaveButton);
+        currentSaveAnimatedCheck.setStroke(lightDisabled ? Color.web("#161616") : Color.WHITE);
+        currentSaveSpinner.setStyle(lightDisabled ? "-fx-progress-color: #161616;" : "-fx-progress-color: white;");
+    }
+
+    private static boolean isLightTheme(Node node) {
+        return node != null
+                && node.getScene() != null
+                && node.getScene().getRoot() != null
+                && node.getScene().getRoot().getStyleClass().contains("theme-light");
     }
 
     private void handleCurrentStatusChanged(String status) {

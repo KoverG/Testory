@@ -381,6 +381,9 @@ public final class RightPaneCoordinator {
             break;
         }
 
+        Runnable navigatePrev = caseNumber > 1 ? () -> openAdjacentCycleCase(id, -1) : null;
+        Runnable navigateNext = caseNumber > 0 && caseNumber < caseTotal ? () -> openAdjacentCycleCase(id, 1) : null;
+
         return new TestCaseCyclesAccessory.CurrentCycleContext(
                 cycleId,
                 cycleTitle,
@@ -391,8 +394,30 @@ public final class RightPaneCoordinator {
                 caseTotal,
                 newStatus -> updateAddedCaseStatus(new CycleCaseRef(id, ""), newStatus),
                 newComment -> updateAddedCaseComment(new CycleCaseRef(id, ""), newComment),
-                this::onSave
+                this::onSave,
+                navigatePrev,
+                navigateNext
         );
+    }
+
+    private void openAdjacentCycleCase(String caseId, int offset) {
+        String currentId = safe(caseId);
+        if (currentId.isEmpty() || offset == 0 || testcaseOverlay == null) return;
+
+        for (int i = 0; i < selectedCases.size(); i++) {
+            CycleCaseRef ref = selectedCases.get(i);
+            if (ref == null || !currentId.equals(ref.safeId())) continue;
+
+            int targetIndex = i + offset;
+            if (targetIndex < 0 || targetIndex >= selectedCases.size()) return;
+
+            CycleCaseRef target = selectedCases.get(targetIndex);
+            if (target == null || target.safeId().isEmpty()) return;
+
+            String targetId = target.safeId();
+            testcaseOverlay.openExisting(targetId, buildCurrentCycleContext(targetId));
+            return;
+        }
     }
 
     public void openExistingCard(Path file) {

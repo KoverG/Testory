@@ -41,6 +41,7 @@ public final class TestCaseOverlayHost {
 
     private static final String ICON_PENCIL = "pencil.svg";
     private static final String ICON_CLOSE = "close.svg";
+    private static final String ICON_BACK = "back.svg";
     private static final String ICON_CHECK = "check.svg";
     private static final String ICON_PLUS = "plus.svg";
     private static final String ICON_GRIP = "grip.svg";
@@ -88,6 +89,9 @@ public final class TestCaseOverlayHost {
     private final TextArea taRightDescription;
     private final VBox stepsBox;
     private final Button btnAddStep;
+    private final HBox cycleNavigationBox;
+    private final Button btnCyclePrev;
+    private final Button btnCycleNext;
     private final Button btnDeleteRight;
     private final Button btnSaveRight;
     private final Region rightScrollBottomSpacer;
@@ -109,6 +113,7 @@ public final class TestCaseOverlayHost {
     private boolean open = false;
     private boolean saveGateValidationArmed = false;
     private String openedCaseId;
+    private TestCaseCyclesAccessory.CurrentCycleContext currentCycleContext;
     private String tfTitlePrompt = "";
 
     public TestCaseOverlayHost(StackPane parent) {
@@ -160,6 +165,9 @@ public final class TestCaseOverlayHost {
         this.rightScrollContent = testcaseCardController.rightScrollContent();
         this.cyclesAccessory = new TestCaseCyclesAccessory(rightRootStack);
         setBottomAccessory(cyclesAccessory.node());
+        this.cycleNavigationBox = testcaseCardController.cycleNavigationBox();
+        this.btnCyclePrev = testcaseCardController.btnCyclePrev();
+        this.btnCycleNext = testcaseCardController.btnCycleNext();
         this.btnDeleteRight = testcaseCardController.btnDeleteRight();
         this.btnSaveRight = testcaseCardController.btnSaveRight();
         this.rightScrollBottomSpacer = testcaseCardController.rightScrollBottomSpacer();
@@ -240,6 +248,19 @@ public final class TestCaseOverlayHost {
         if (btnDeleteRight != null) {
             UiSvg.setButtonSvg(btnDeleteRight, ICON_TRASH, getIconSizeFromUserData(btnDeleteRight, 10));
         }
+        if (btnCyclePrev != null) {
+            UiSvg.setButtonSvg(btnCyclePrev, ICON_BACK, 14);
+            btnCyclePrev.setContentDisplay(javafx.scene.control.ContentDisplay.RIGHT);
+            btnCyclePrev.setGraphicTextGap(6.0);
+            btnCyclePrev.setOnAction(e -> runCycleNavigation(currentCycleContext == null ? null : currentCycleContext.onNavigatePrev()));
+        }
+        if (btnCycleNext != null) {
+            UiSvg.setButtonSvg(btnCycleNext, ICON_BACK, 14);
+            btnCycleNext.setContentDisplay(javafx.scene.control.ContentDisplay.RIGHT);
+            btnCycleNext.setGraphicTextGap(6.0);
+            if (btnCycleNext.getGraphic() != null) btnCycleNext.getGraphic().setRotate(180.0);
+            btnCycleNext.setOnAction(e -> runCycleNavigation(currentCycleContext == null ? null : currentCycleContext.onNavigateNext()));
+        }
 
         installDigitsOnly(tfTop2);
         installRightScrollWidthBinding();
@@ -312,6 +333,7 @@ public final class TestCaseOverlayHost {
         closeTransition.stop();
         reloadAllCases();
         openedCaseId = id;
+        currentCycleContext = cycleContext;
         saveGateValidationArmed = false;
         overlayWrap.setVisible(true);
         overlayWrap.setManaged(true);
@@ -321,6 +343,7 @@ public final class TestCaseOverlayHost {
         hostRoot.setManaged(true);
         hostRoot.setMouseTransparent(false);
         open = true;
+        updateCycleNavigationUi(cycleContext);
         rightPaneCtl.openExisting(file);
         cyclesAccessory.showForCase(id, cycleContext);
         updateSaveGateUi();
@@ -335,7 +358,9 @@ public final class TestCaseOverlayHost {
         overlayBackdrop.setVisible(false);
         overlayBackdrop.setManaged(false);
         openedCaseId = null;
+        currentCycleContext = null;
         saveGateValidationArmed = false;
+        updateCycleNavigationUi(null);
         cyclesAccessory.clear();
         rightPaneCtl.close();
         closeTransition.stop();
@@ -549,6 +574,58 @@ public final class TestCaseOverlayHost {
         Platform.runLater(this::updateSaveGateUi);
     }
 
+    private void runCycleNavigation(Runnable action) {
+        if (action == null) return;
+        action.run();
+        scrollRightToTop();
+    }
+
+    private void scrollRightToTop() {
+        if (spRight == null) return;
+        spRight.setVvalue(0.0);
+        Platform.runLater(() -> {
+            if (spRight == null) return;
+            spRight.setVvalue(0.0);
+            Platform.runLater(() -> {
+                if (spRight == null) return;
+                spRight.setVvalue(0.0);
+            });
+        });
+    }
+
+    private void updateCycleNavigationUi(TestCaseCyclesAccessory.CurrentCycleContext cycleContext) {
+        boolean hasPrev = cycleContext != null && cycleContext.onNavigatePrev() != null;
+        boolean hasNext = cycleContext != null && cycleContext.onNavigateNext() != null;
+        boolean visible = hasPrev || hasNext;
+
+        configureCycleNavigationButton(btnCyclePrev, hasPrev, buildCycleNavigationButtonText(cycleContext, -1));
+        configureCycleNavigationButton(btnCycleNext, hasNext, buildCycleNavigationButtonText(cycleContext, 1));
+
+        if (cycleNavigationBox != null) {
+            cycleNavigationBox.setVisible(visible);
+            cycleNavigationBox.setManaged(visible);
+        }
+    }
+
+    private static void configureCycleNavigationButton(Button button, boolean visible, String text) {
+        if (button == null) return;
+        button.setText(visible ? safeNavText(text) : "");
+        button.setVisible(visible);
+        button.setManaged(visible);
+    }
+
+    private static String buildCycleNavigationButtonText(TestCaseCyclesAccessory.CurrentCycleContext cycleContext, int offset) {
+        if (cycleContext == null || offset == 0) return "";
+
+        int total = cycleContext.caseTotal();
+        int target = cycleContext.caseNumber() + offset;
+        if (target <= 0 || total <= 0 || target > total) return "";
+        return Integer.toString(target);
+    }
+
+    private static String safeNavText(String value) {
+        return value == null ? "" : value.trim();
+    }
     private void onCloseRight(javafx.event.ActionEvent e) {
         close();
     }

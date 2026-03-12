@@ -2672,6 +2672,25 @@
     -fx-text-fill: white;
 }
 
+.tc-save-btn .svg-path {
+    -fx-fill: white;
+}
+
+.cy-testcase-save-spinner {
+    -fx-progress-color: white;
+}
+
+.cy-testcase-save-spinner > .track {
+    -fx-background-color: rgba(255,255,255,0.24);
+}
+.root.theme-light .button.tc-save-btn.tc-disabled-base:disabled .svg-path {
+    -fx-fill: #161616;
+}
+
+.root.theme-light .button.tc-save-btn.tc-disabled-base:disabled .cy-testcase-save-spinner > .track {
+    -fx-background-color: rgba(0,0,0,0.18);
+}
+
 .tc-save-hint {
     -fx-font-size: 11px;
     -fx-opacity: 0.85;
@@ -2715,6 +2734,64 @@
     -fx-border-color: -fx-background-border-level-2-light;
     -fx-background-radius: 14;
     -fx-border-radius: 14;
+}
+.icon-btn.sm.wide.cy-cycle-nav-btn {
+    -fx-min-width: 68;
+    -fx-pref-width: 68;
+    -fx-max-width: 68;
+    -fx-min-height: 36;
+    -fx-pref-height: 36;
+    -fx-max-height: 36;
+    -fx-padding: 0 8 1 8;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: rgba(255,255,255,0.68);
+    -fx-content-display: left;
+    -fx-graphic-text-gap: 6;
+    -fx-alignment: center;
+}
+
+.root.theme-light .icon-btn.sm.wide.cy-cycle-nav-btn {
+    -fx-text-fill: rgba(22,22,22,0.58);
+}
+.icon-btn.sm.wide.cy-cycle-nav-btn-prev {
+    -fx-content-display: left;
+}
+
+.icon-btn.sm.wide.cy-cycle-nav-btn-next {
+    -fx-content-display: right;
+}
+
+.icon-btn.danger.cy-cycle-nav-btn {
+    -fx-background-color: -fx-background-level-2-dark;
+    -fx-border-color: rgba(245, 0, 73, 0.70);
+}
+
+.root.theme-light .icon-btn.danger.cy-cycle-nav-btn {
+    -fx-background-color: -fx-background-level-2-light;
+    -fx-border-color: rgba(245, 0, 73, 0.58);
+}
+
+.icon-btn.danger.cy-cycle-nav-btn:hover {
+    -fx-background-color: rgb(72, 68, 67);
+    -fx-border-color: rgba(245, 0, 73, 0.88);
+}
+
+.root.theme-light .icon-btn.danger.cy-cycle-nav-btn:hover {
+    -fx-background-color: rgb(232, 229, 228);
+    -fx-border-color: rgba(245, 0, 73, 0.72);
+}
+
+.icon-btn.danger.cy-cycle-nav-btn:pressed {
+    -fx-background-color: rgb(58, 54, 53);
+    -fx-border-color: rgba(245, 0, 73, 0.96);
+    -fx-translate-y: 1;
+}
+
+.root.theme-light .icon-btn.danger.cy-cycle-nav-btn:pressed {
+    -fx-background-color: rgb(223, 219, 217);
+    -fx-border-color: rgba(245, 0, 73, 0.82);
+    -fx-translate-y: 1;
 }
 
 /* Иконка. Кнопка удалить карточку - изменение коэффициента увеличения*/
