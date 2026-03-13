@@ -2,6 +2,7 @@ package app.domain.cycles.repo;
 
 import app.domain.cycles.usecase.CycleCaseRef;
 import app.domain.cycles.usecase.CycleDraft;
+import app.domain.cycles.usecase.CycleRunState;
 
 import java.util.List;
 
@@ -16,7 +17,7 @@ public final class CycleJson {
     public static String toJson(CycleDraft d) {
         if (d == null) d = new CycleDraft();
 
-        StringBuilder sb = new StringBuilder(768);
+        StringBuilder sb = new StringBuilder(896);
 
         sb.append("{").append(NL);
 
@@ -32,6 +33,9 @@ public final class CycleJson {
         sb.append("  \"envType\": ").append(q(d.envType)).append(",").append(NL);
         sb.append("  \"envUrl\": ").append(q(d.envUrl)).append(",").append(NL);
         sb.append("  \"envLinks\": ").append(arrStrings(d.envLinks)).append(",").append(NL);
+        sb.append("  \"runState\": ").append(q(CycleRunState.normalize(d.runState))).append(",").append(NL);
+        sb.append("  \"runElapsedSeconds\": ").append(Math.max(0L, d.runElapsedSeconds)).append(",").append(NL);
+        sb.append("  \"runStartedAtIso\": ").append(q(d.runStartedAtIso)).append(",").append(NL);
         sb.append("  \"cases\": ").append(arrCaseRefs(d.cases)).append(",").append(NL);
 
         sb.append("  \"taskLink\": {").append(NL);
@@ -120,5 +124,3 @@ public final class CycleJson {
         return sb.toString();
     }
 }
-
-

@@ -23,14 +23,14 @@ public final class CycleDraft {
 
     public String title = "";
 
-    // ✅ QA responsible (profile modal)
+    // QA responsible (profile modal)
     public String qaResponsible = "";
 
-    // ✅ task link (service-agnostic)
+    // task link (service-agnostic)
     public String taskLinkTitle = "";
     public String taskLinkUrl = "";
 
-    // ✅ environment (Environment modal)
+    // environment (Environment modal)
     // envType: "desktop" | "mobile" | "" (empty means not set)
     public String envType = "";
     // envUrl: поле "Builds"
@@ -38,7 +38,12 @@ public final class CycleDraft {
     // envLinks: chips links
     public List<String> envLinks = new ArrayList<>();
 
-    // ✅ cases: refs (id + snapshot title)
+    // cycle run state
+    public String runState = CycleRunState.IDLE;
+    public long runElapsedSeconds = 0L;
+    public String runStartedAtIso = "";
+
+    // cases: refs (id + snapshot title)
     public List<CycleCaseRef> cases = new ArrayList<>();
 
     // cy_YYYYMMDDHHMMSSmmm_RRR

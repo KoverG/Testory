@@ -2,6 +2,7 @@ package app.domain.cycles.repo;
 
 import app.domain.cycles.usecase.CycleCaseRef;
 import app.domain.cycles.usecase.CycleDraft;
+import app.domain.cycles.usecase.CycleRunState;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -15,13 +16,13 @@ import java.util.List;
  * - title (root)
  * - meta.createdAtUi
  *
- * + ✅ Ридер полного драфта для открытия карточки цикла справа.
+ * + ридер полного драфта для открытия карточки цикла справа.
  *
  * Без JSON-библиотек. Устойчиво к пробелам/переносам строк и "title" внутри cases.
  */
 public final class CycleCardJsonReader {
 
-    private static final char Q  = '"';
+    private static final char Q = '"';
     private static final char BS = '\\';
     private static final char NL = '\n';
     private static final char CR = '\r';
@@ -49,16 +50,11 @@ public final class CycleCardJsonReader {
             return null;
         }
 
-        // createdAtUi строго из meta-блока
         String createdAtUi = readMetaString(json, "createdAtUi");
-
-        // title строго из root (после meta-блока), чтобы не поймать "title" из cases
         String title = readRootTitleAfterMeta(json);
-
         return new CycleListMeta(title, createdAtUi);
     }
 
-    // ✅ full draft for opening existing card
     public static CycleDraft readDraft(Path file) {
         if (file == null) return null;
 
@@ -77,18 +73,14 @@ public final class CycleCardJsonReader {
         d.createdAtUi = readMetaString(json, "createdAtUi");
 
         d.title = readRootTitleAfterMeta(json);
-
-        // ✅ qaResponsible stored on root, after meta
         d.qaResponsible = readRootStringAfterMeta(json, "qaResponsible");
-
-        // ✅ env stored on root, after meta
         d.envType = readRootStringAfterMeta(json, "envType");
         d.envUrl = readRootStringAfterMeta(json, "envUrl");
         d.envLinks = readRootStringArrayAfterMeta(json, "envLinks");
-
+        d.runState = CycleRunState.normalize(readRootStringAfterMeta(json, "runState"));
+        d.runElapsedSeconds = readRootLongAfterMeta(json, "runElapsedSeconds");
+        d.runStartedAtIso = readRootStringAfterMeta(json, "runStartedAtIso");
         d.cases = readCaseRefsAfterMeta(json);
-
-        // ✅ task link (service-agnostic)
         d.taskLinkTitle = readTaskLinkStringAfterMeta(json, "title");
         d.taskLinkUrl = readTaskLinkStringAfterMeta(json, "url");
 
@@ -97,48 +89,27 @@ public final class CycleCardJsonReader {
 
     private static String readRootTitleAfterMeta(String json) {
         if (json == null || json.isBlank()) return "";
-
-        int metaKey = json.indexOf(Q + "meta" + Q);
-        int from = 0;
-
-        if (metaKey >= 0) {
-            int objStart = json.indexOf('{', metaKey);
-            if (objStart >= 0) {
-                int objEnd = findObjectEnd(json, objStart);
-                if (objEnd > objStart) {
-                    from = objEnd + 1; // ✅ ищем root title строго после meta {}
-                }
-            }
-        }
-
-        return readStringFrom(json, "title", from);
+        return readStringFrom(json, "title", findRootSearchStart(json));
     }
 
     private static String readRootStringAfterMeta(String json, String key) {
         if (json == null || json.isBlank() || key == null || key.isBlank()) return "";
+        return readStringFrom(json, key, findRootSearchStart(json));
+    }
 
-        int metaKey = json.indexOf(Q + "meta" + Q);
-        int from = 0;
-
-        if (metaKey >= 0) {
-            int objStart = json.indexOf('{', metaKey);
-            if (objStart >= 0) {
-                int objEnd = findObjectEnd(json, objStart);
-                if (objEnd > objStart) {
-                    from = objEnd + 1;
-                }
-            }
-        }
-
-        return readStringFrom(json, key, from);
+    private static long readRootLongAfterMeta(String json, String key) {
+        if (json == null || json.isBlank() || key == null || key.isBlank()) return 0L;
+        return readLongFrom(json, key, findRootSearchStart(json));
     }
 
     private static List<String> readRootStringArrayAfterMeta(String json, String key) {
         if (json == null || json.isBlank() || key == null || key.isBlank()) return new ArrayList<>();
+        return readStringArrayFrom(json, key, findRootSearchStart(json));
+    }
 
+    private static int findRootSearchStart(String json) {
         int metaKey = json.indexOf(Q + "meta" + Q);
         int from = 0;
-
         if (metaKey >= 0) {
             int objStart = json.indexOf('{', metaKey);
             if (objStart >= 0) {
@@ -148,28 +119,14 @@ public final class CycleCardJsonReader {
                 }
             }
         }
-
-        return readStringArrayFrom(json, key, from);
+        return from;
     }
 
     private static List<CycleCaseRef> readCaseRefsAfterMeta(String json) {
         List<CycleCaseRef> out = new ArrayList<>();
         if (json == null || json.isBlank()) return out;
 
-        int metaKey = json.indexOf(Q + "meta" + Q);
-        int from = 0;
-
-        if (metaKey >= 0) {
-            int objStart = json.indexOf('{', metaKey);
-            if (objStart >= 0) {
-                int objEnd = findObjectEnd(json, objStart);
-                if (objEnd > objStart) {
-                    from = objEnd + 1;
-                }
-            }
-        }
-
-        int k = json.indexOf(Q + "cases" + Q, from);
+        int k = json.indexOf(Q + "cases" + Q, findRootSearchStart(json));
         if (k < 0) return out;
 
         k = json.indexOf(':', k);
@@ -177,27 +134,28 @@ public final class CycleCardJsonReader {
 
         k++;
         k = skipWs(json, k);
-
         if (k >= json.length() || json.charAt(k) != '[') return out;
 
         int i = k + 1;
-
         while (i < json.length()) {
             i = skipWs(json, i);
             if (i >= json.length()) break;
 
             char c = json.charAt(i);
-
             if (c == ']') break;
-            if (c == ',') { i++; continue; }
-
-            if (c != '{') { i++; continue; }
+            if (c == ',') {
+                i++;
+                continue;
+            }
+            if (c != '{') {
+                i++;
+                continue;
+            }
 
             int objEnd = findObjectEnd(json, i);
             if (objEnd <= i) break;
 
             String obj = json.substring(i, objEnd + 1);
-
             String id = readString(obj, "id");
             String title = readString(obj, "title");
             String status = readString(obj, "status");
@@ -221,20 +179,7 @@ public final class CycleCardJsonReader {
     private static String readTaskLinkStringAfterMeta(String json, String key) {
         if (json == null || json.isBlank()) return "";
 
-        int metaKey = json.indexOf(Q + "meta" + Q);
-        int from = 0;
-
-        if (metaKey >= 0) {
-            int objStart = json.indexOf('{', metaKey);
-            if (objStart >= 0) {
-                int objEnd = findObjectEnd(json, objStart);
-                if (objEnd > objStart) {
-                    from = objEnd + 1;
-                }
-            }
-        }
-
-        int k = json.indexOf(Q + "taskLink" + Q, from);
+        int k = json.indexOf(Q + "taskLink" + Q, findRootSearchStart(json));
         if (k < 0) return "";
 
         k = json.indexOf(':', k);
@@ -242,7 +187,6 @@ public final class CycleCardJsonReader {
 
         k++;
         k = skipWs(json, k);
-
         if (k >= json.length() || json.charAt(k) != '{') return "";
 
         int objEnd = findObjectEnd(json, k);
@@ -275,7 +219,6 @@ public final class CycleCardJsonReader {
 
         for (int i = objStart; i < json.length(); i++) {
             char c = json.charAt(i);
-
             if (inStr) {
                 if (esc) {
                     esc = false;
@@ -285,9 +228,7 @@ public final class CycleCardJsonReader {
                     esc = true;
                     continue;
                 }
-                if (c == Q) {
-                    inStr = false;
-                }
+                if (c == Q) inStr = false;
                 continue;
             }
 
@@ -295,7 +236,6 @@ public final class CycleCardJsonReader {
                 inStr = true;
                 continue;
             }
-
             if (c == '{') depth++;
             else if (c == '}') {
                 depth--;
@@ -312,7 +252,6 @@ public final class CycleCardJsonReader {
 
         for (int i = arrStart; i < json.length(); i++) {
             char c = json.charAt(i);
-
             if (inStr) {
                 if (esc) {
                     esc = false;
@@ -322,9 +261,7 @@ public final class CycleCardJsonReader {
                     esc = true;
                     continue;
                 }
-                if (c == Q) {
-                    inStr = false;
-                }
+                if (c == Q) inStr = false;
                 continue;
             }
 
@@ -332,7 +269,6 @@ public final class CycleCardJsonReader {
                 inStr = true;
                 continue;
             }
-
             if (c == '[') depth++;
             else if (c == ']') {
                 depth--;
@@ -356,7 +292,6 @@ public final class CycleCardJsonReader {
 
         i++;
         i = skipWs(json, i);
-
         if (i >= json.length() || json.charAt(i) != '[') return out;
 
         int end = findArrayEnd(json, i);
@@ -368,9 +303,11 @@ public final class CycleCardJsonReader {
             if (p >= end) break;
 
             char c = json.charAt(p);
-            if (c == ',') { p++; continue; }
+            if (c == ',') {
+                p++;
+                continue;
+            }
             if (c == ']') break;
-
             if (c != Q) {
                 p++;
                 continue;
@@ -381,10 +318,8 @@ public final class CycleCardJsonReader {
 
             String val = unescape(json.substring(p + 1, qEnd));
             if (!val.isBlank()) out.add(val.trim());
-
             p = qEnd + 1;
         }
-
         return out;
     }
 
@@ -401,13 +336,43 @@ public final class CycleCardJsonReader {
 
         i++;
         i = skipWs(json, i);
-
         if (i >= json.length() || json.charAt(i) != Q) return "";
 
         int j = findStringEnd(json, i + 1);
         if (j < 0) return "";
-
         return unescape(json.substring(i + 1, j));
+    }
+
+    private static long readLongFrom(String json, String key, int fromIndex) {
+        if (json == null || key == null) return 0L;
+        if (fromIndex < 0) fromIndex = 0;
+        if (fromIndex >= json.length()) return 0L;
+
+        int i = json.indexOf(Q + key + Q, fromIndex);
+        if (i < 0) return 0L;
+
+        i = json.indexOf(':', i);
+        if (i < 0) return 0L;
+
+        i++;
+        i = skipWs(json, i);
+
+        int j = i;
+        while (j < json.length()) {
+            char c = json.charAt(j);
+            if ((c >= '0' && c <= '9') || c == '-') {
+                j++;
+                continue;
+            }
+            break;
+        }
+
+        if (j <= i) return 0L;
+        try {
+            return Math.max(0L, Long.parseLong(json.substring(i, j).trim()));
+        } catch (Exception ignore) {
+            return 0L;
+        }
     }
 
     private static String readString(String json, String key) {
@@ -427,17 +392,14 @@ public final class CycleCardJsonReader {
         boolean esc = false;
         for (int i = from; i < s.length(); i++) {
             char c = s.charAt(i);
-
             if (esc) {
                 esc = false;
                 continue;
             }
-
             if (c == BS) {
                 esc = true;
                 continue;
             }
-
             if (c == Q) return i;
         }
         return -1;
@@ -453,17 +415,24 @@ public final class CycleCardJsonReader {
                 out.append(c);
                 continue;
             }
-
             if (i + 1 >= s.length()) break;
             char n = s.charAt(i + 1);
 
-            if (n == Q) { out.append(Q); i++; }
-            else if (n == BS) { out.append(BS); i++; }
-            else if (n == 'n' || n == 'r' || n == 't') { out.append(' '); i++; }
-            else { out.append(n); i++; }
+            if (n == Q) {
+                out.append(Q);
+                i++;
+            } else if (n == BS) {
+                out.append(BS);
+                i++;
+            } else if (n == 'n' || n == 'r' || n == 't') {
+                out.append(' ');
+                i++;
+            } else {
+                out.append(n);
+                i++;
+            }
         }
 
         return out.toString().trim();
     }
 }
-

@@ -60,9 +60,15 @@ public final class TestCaseCyclesAccessory {
             String caseComment,
             int caseNumber,
             int caseTotal,
+            String runState,
+            long runElapsedSeconds,
+            String runStartedAtIso,
             Consumer<String> onStatusChanged,
             Consumer<String> onCommentChanged,
             Runnable onSaveRequested,
+            Runnable onRunStart,
+            Runnable onRunPauseResume,
+            Runnable onRunReset,
             Runnable onNavigatePrev,
             Runnable onNavigateNext
     ) {

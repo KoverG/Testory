@@ -171,6 +171,12 @@ public final class TestCaseOverlayHost {
         this.btnDeleteRight = testcaseCardController.btnDeleteRight();
         this.btnSaveRight = testcaseCardController.btnSaveRight();
         this.rightScrollBottomSpacer = testcaseCardController.rightScrollBottomSpacer();
+        var cyclesCss = getClass().getResource("/ui/cycles.css");
+        if (cyclesCss != null && !hostRoot.getStylesheets().contains(cyclesCss.toExternalForm())) {
+            hostRoot.getStylesheets().add(cyclesCss.toExternalForm());
+        }
+
+
 
         testcaseCardController.setOnEditPriv(this::onEditPriv);
         testcaseCardController.setOnEdit(this::onEdit);
@@ -349,6 +355,12 @@ public final class TestCaseOverlayHost {
         updateSaveGateUi();
         refreshDeleteAvailability();
         notifyVisibilityChanged();
+    }
+
+    public void refreshCurrentCycleContext(TestCaseCyclesAccessory.CurrentCycleContext cycleContext) {
+        currentCycleContext = cycleContext;
+        updateCycleNavigationUi(cycleContext);
+        cyclesAccessory.showForCase(openedCaseId, cycleContext);
     }
 
     public void close() {
@@ -574,11 +586,6 @@ public final class TestCaseOverlayHost {
         Platform.runLater(this::updateSaveGateUi);
     }
 
-    private void runCycleNavigation(Runnable action) {
-        if (action == null) return;
-        action.run();
-        scrollRightToTop();
-    }
 
     private void scrollRightToTop() {
         if (spRight == null) return;
@@ -594,6 +601,7 @@ public final class TestCaseOverlayHost {
     }
 
     private void updateCycleNavigationUi(TestCaseCyclesAccessory.CurrentCycleContext cycleContext) {
+
         boolean hasPrev = cycleContext != null && cycleContext.onNavigatePrev() != null;
         boolean hasNext = cycleContext != null && cycleContext.onNavigateNext() != null;
         boolean visible = hasPrev || hasNext;
@@ -604,6 +612,12 @@ public final class TestCaseOverlayHost {
         if (cycleNavigationBox != null) {
             cycleNavigationBox.setVisible(visible);
             cycleNavigationBox.setManaged(visible);
+            Parent parent = cycleNavigationBox.getParent();
+            boolean wrapVisible = visible;
+            if (parent != null && Boolean.TRUE.equals(parent.getProperties().get("cy.run.wrap"))) {
+                parent.setVisible(wrapVisible);
+                parent.setManaged(wrapVisible);
+            }
         }
     }
 
@@ -621,6 +635,10 @@ public final class TestCaseOverlayHost {
         int target = cycleContext.caseNumber() + offset;
         if (target <= 0 || total <= 0 || target > total) return "";
         return Integer.toString(target);
+    }
+
+    private void runCycleNavigation(Runnable action) {
+        if (action != null) action.run();
     }
 
     private static String safeNavText(String value) {
