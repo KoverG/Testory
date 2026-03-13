@@ -26,6 +26,9 @@ public final class AddedCasesListUi {
     private static final String ICON_COMMENT = "comment.svg";
     private static final String ICON_CASE_DELETE = "trash.svg";
     private static final String ROW_DELETE_BTN_KEY = "cy.added.case.delete.btn";
+    private static final double INDEX_COLUMN_WIDTH = 36.0;
+    private static final double INDEX_TO_TITLE_GAP = 12.0;
+    private static final double TITLE_TO_STATUS_GAP = 12.0;
 
     private final CyclesViewRefs v;
 
@@ -91,24 +94,38 @@ public final class AddedCasesListUi {
     private void addRow(int index, CycleCaseRef ref) {
         if (v.vbAddedCases == null) return;
 
-        HBox row = new HBox(10.0);
+        HBox row = new HBox(0.0);
         row.getStyleClass().add("cy-added-case-row");
         row.setAlignment(Pos.CENTER_LEFT);
+        row.setMaxWidth(Double.MAX_VALUE);
 
         Label lbIndex = new Label(String.valueOf(index));
         lbIndex.getStyleClass().add("cy-added-case-index");
-        lbIndex.setMinWidth(26.0);
-        lbIndex.setPrefWidth(26.0);
-        lbIndex.setMaxWidth(26.0);
+        if (index >= 1000) {
+            lbIndex.getStyleClass().add("cy-added-case-index-compact");
+        }
+        lbIndex.setMinWidth(INDEX_COLUMN_WIDTH);
+        lbIndex.setPrefWidth(INDEX_COLUMN_WIDTH);
+        lbIndex.setMaxWidth(INDEX_COLUMN_WIDTH);
+
+        Region indexGap = new Region();
+        indexGap.setMinWidth(INDEX_TO_TITLE_GAP);
+        indexGap.setPrefWidth(INDEX_TO_TITLE_GAP);
+        indexGap.setMaxWidth(INDEX_TO_TITLE_GAP);
 
         HBox titleBox = new HBox(8.0);
         titleBox.setAlignment(Pos.CENTER_LEFT);
+        titleBox.setMinWidth(0.0);
+        titleBox.setPrefWidth(0.0);
+        titleBox.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(titleBox, Priority.ALWAYS);
         titleBox.getStyleClass().add("cy-added-case-titlebox");
 
         String title = ref.safeTitleSnapshot();
         Label lbTitle = new Label(title);
         lbTitle.getStyleClass().add("cy-added-case-title");
+        lbTitle.setMinWidth(0.0);
+        lbTitle.setPrefWidth(0.0);
         lbTitle.setMaxWidth(Double.MAX_VALUE);
         lbTitle.setTextOverrun(OverrunStyle.ELLIPSIS);
         HBox.setHgrow(lbTitle, Priority.ALWAYS);
@@ -151,7 +168,7 @@ public final class AddedCasesListUi {
         titleBox.getChildren().addAll(lbTitle, btnKebab, btnTrash);
 
         ComboBox<String> cb = CaseStatusComboSupport.createCombo("cy-added-case-combo");
-        HBox.setMargin(cb, new Insets(0, 10, 0, 0));
+        HBox.setMargin(cb, new Insets(0, 10, 0, TITLE_TO_STATUS_GAP));
         CaseStatusComboSupport.install(cb, status -> {
             if (onStatusChanged != null) onStatusChanged.accept(safeRef, status);
         });
@@ -183,7 +200,7 @@ public final class AddedCasesListUi {
             modal.toggle();
         });
 
-        row.getChildren().addAll(lbIndex, titleBox, cb, btnComment);
+        row.getChildren().addAll(lbIndex, indexGap, titleBox, cb, btnComment);
         v.vbAddedCases.getChildren().add(row);
     }
 

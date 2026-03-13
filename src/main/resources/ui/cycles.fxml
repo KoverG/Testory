@@ -225,6 +225,13 @@
                                               maxWidth="Infinity"
                                               styleClass="cy-added-cases-list"/>
 
+                                        <Region minHeight="10"/>
+
+                                        <Region fx:id="rightCycleScrollBottomSpacer"
+                                                minHeight="22"
+                                                prefHeight="22"
+                                                maxHeight="22"/>
+
                                     </VBox>
                                 </content>
                             </ScrollPane>

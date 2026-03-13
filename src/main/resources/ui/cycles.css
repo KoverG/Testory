@@ -438,6 +438,9 @@
 
 .cy-added-case-index {
     -fx-text-fill: -fx-muted-color;
+    -fx-min-width: 36;
+    -fx-pref-width: 36;
+    -fx-max-width: 36;
 
     /* РІСљвЂ¦ РЎС“Р Р†Р ВµР В»Р С‘РЎвЂЎР С‘РЎвЂљРЎРЉ РЎв‚¬РЎР‚Р С‘РЎвЂћРЎвЂљ Р Р…РЎС“Р СР ВµРЎР‚Р В°РЎвЂ Р С‘Р С‘ */
     -fx-font-size: 12px;
@@ -445,7 +448,11 @@
 
     /* РІСљвЂ¦ Р Р†РЎвЂ№РЎР‚Р В°Р Р†Р Р…Р С‘Р Р†Р В°Р Р…Р С‘Р Вµ Р С‘ "РЎРѓР Т‘Р Р†Р С‘Р С– Р Р†Р С—РЎР‚Р В°Р Р†Р С•" Р Т‘Р ВµР В»Р В°Р ВµР С Р С—Р В°Р Т‘Р Т‘Р С‘Р Р…Р С–Р С•Р С (РЎв‚¬Р С‘РЎР‚Р С‘Р Р…Р В° Р В°Р Р†РЎвЂљР С• Р С‘Р В· Java) */
     -fx-alignment: CENTER_RIGHT;
-    -fx-padding: 0 0 0 6px;
+    -fx-padding: 0;
+}
+
+.cy-added-case-index-compact {
+    -fx-font-size: 10px;
 }
 
 .cy-added-case-titlebox {
