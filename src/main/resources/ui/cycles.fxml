@@ -236,15 +236,6 @@
                                 </content>
                             </ScrollPane>
 
-                            <Button fx:id="btnDeleteRight"
-                                    focusTraversable="false"
-                                    userData="14"
-                                    styleClass="icon-btn,sm,tc-delete-btn"
-                                    StackPane.alignment="BOTTOM_RIGHT">
-                                <StackPane.margin>
-                                    <Insets right="10" bottom="10"/>
-                                </StackPane.margin>
-                            </Button>
 
                         </StackPane>
 
