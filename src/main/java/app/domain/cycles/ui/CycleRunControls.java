@@ -202,7 +202,7 @@ public final class CycleRunControls {
             return;
         }
 
-        stateChip.setText(textFinish());
+        stateChip.setText(CycleRunState.isFinished(this.runState) ? textFinished() : textFinish());
         applyChipStyle();
         stateChip.setDisable(CycleRunState.isFinished(this.runState));
 
@@ -320,7 +320,13 @@ public final class CycleRunControls {
     }
 
     private String chipStyle(boolean active, boolean hovered, boolean pressed) {
-        String base = "-fx-background-radius: 999; -fx-border-radius: 999; -fx-padding: 0 14 0 14; -fx-font-size: 13px; -fx-font-weight: 800;";
+        String base = "-fx-background-radius: 999; -fx-border-radius: 999; -fx-padding: 0 14 0 14; -fx-font-size: 13px; -fx-font-weight: 800; -fx-opacity: 1;";
+        if (CycleRunState.isFinished(runState)) {
+            if (isLightTheme()) {
+                return base + " -fx-background-color: rgb(214, 230, 220); -fx-border-color: rgba(67, 117, 92, 0.36); -fx-border-width: 1; -fx-text-fill: rgb(31, 62, 47);";
+            }
+            return base + " -fx-background-color: rgb(58, 95, 78); -fx-border-color: rgba(148, 199, 171, 0.26); -fx-border-width: 1; -fx-text-fill: white;";
+        }
         if (active) {
             if (pressed) {
                 return base + " -fx-background-color: rgb(122, 12, 36); -fx-border-color: rgba(255,255,255,0.28); -fx-border-width: 1; -fx-text-fill: white; -fx-effect: innershadow(gaussian, rgba(0,0,0,0.42), 6, 0.2, 0, 1);";
@@ -362,6 +368,10 @@ public final class CycleRunControls {
 
     private String textFinish() {
         return localizedText("cy.run.finish", "Finish");
+    }
+
+    private String textFinished() {
+        return localizedText("cy.run.finished", "Finished");
     }
 
     private String textPause() {

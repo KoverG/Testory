@@ -30,6 +30,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 import javafx.util.Duration;
 
+import java.awt.Desktop;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -49,6 +50,8 @@ public final class RightPaneCoordinator {
     private static final String DISABLED_BASE_CLASS = "tc-disabled-base";
     private static final String SAVE_HINT_INSTALLED_KEY = "tc.save.hint.installed";
     private static final double RUN_CONTROLS_WIDTH = 225.0;
+    private static final double REPORT_CAPSULE_WIDTH = 180.0;
+    private static final double REPORT_CHIP_WIDTH = 84.0;
 
     private final CyclesViewRefs v;
     private final RightPaneAnimator anim;
@@ -69,6 +72,7 @@ public final class RightPaneCoordinator {
 
     // Р В Р’В Р вЂ™Р’В Р В РІР‚в„ўР вЂ™Р’В Р В Р’В Р вЂ™Р’В Р В Р вЂ Р В РІР‚С™Р вЂ™Р’В Р В Р’В Р вЂ™Р’В Р В Р’В Р В РІР‚в„–Р В Р’В Р В Р вЂ№Р В Р вЂ Р Р†Р вЂљРЎвЂєР РЋРЎвЂєР В Р’В Р вЂ™Р’В Р В Р’В Р Р†Р вЂљР’В Р В Р’В Р вЂ™Р’В Р В Р вЂ Р В РІР‚С™Р РЋРІвЂћСћР В Р’В Р Р†Р вЂљРІвЂћСћР В РІР‚в„ўР вЂ™Р’В¦ NEW: delete mode for added cases rows
     private boolean casesDeleteMode = false;
+    private boolean editMode = false;
 
     private final List<CycleCaseRef> selectedCases = new ArrayList<>();
 
@@ -76,6 +80,8 @@ public final class RightPaneCoordinator {
     private long currentRunElapsedSeconds = 0L;
     private String currentRunStartedAtIso = "";
     private CycleRunControls cycleRunControls;
+    private javafx.scene.layout.HBox reportActionCapsule;
+    private Button btnReportRight;
 
     private final FileCycleRepository repo = new FileCycleRepository();
     private final CreateCycleUseCase createUseCase = new CreateCycleUseCase(repo);
@@ -146,6 +152,14 @@ public final class RightPaneCoordinator {
             UiSvg.setButtonSvg(v.btnMenuRight, "menu.svg", getIconSizeFromUserData(v.btnMenuRight, 14));
             v.btnMenuRight.setFocusTraversable(false);
             v.btnMenuRight.setOnCopyAction(this::copyCurrentCycle);
+            v.btnMenuRight.setRunActions(
+                    this::togglePrimaryCycleRunAction,
+                    this::togglePauseResumeCycleRun,
+                    this::resetCycleRun
+            );
+            v.btnMenuRight.setOnEdit(this::toggleEditModeFromMenu);
+            v.btnMenuRight.setOnSource(this::openCurrentCycleSourceFile);
+            v.btnMenuRight.setOnDelete(this::showDeleteConfirmIfAllowed);
         }
 
         if (v.btnCloseRight != null) {
@@ -244,6 +258,7 @@ public final class RightPaneCoordinator {
         addedCasesList.setOnStatusChanged((ref, status) -> updateAddedCaseStatus(ref, status));
         addedCasesList.setOnCommentChanged((ref, comment) -> updateAddedCaseComment(ref, comment));
         addedCasesList.setDeleteMode(false);
+        syncEditModeUi();
 
         if (v.floatingOverlayRoot != null) {
             testcaseOverlay = new TestCaseOverlayHost(v.floatingOverlayRoot);
@@ -450,23 +465,37 @@ public final class RightPaneCoordinator {
 
         StackPane.setAlignment(cycleRunControls.node(), Pos.BOTTOM_LEFT);
         StackPane.setMargin(cycleRunControls.node(), new Insets(0, 0, bottom + hintHeight + 4.0, 28));
+        updateReportActionAnchor();
     }
 
     private void syncCycleRunControls() {
-        if (cycleRunControls == null) return;
-
         boolean available = open && openedFile != null;
-        cycleRunControls.setActions(
-                available ? this::togglePrimaryCycleRunAction : null,
-                available ? this::togglePauseResumeCycleRun : null,
-                available ? this::resetCycleRun : null
-        );
-        cycleRunControls.update(
-                currentRunState,
-                resolveCurrentElapsedSeconds(),
-                currentRunStartedAtIso,
-                available
-        );
+
+        if (cycleRunControls != null) {
+            cycleRunControls.setActions(
+                    available ? this::togglePrimaryCycleRunAction : null,
+                    available ? this::togglePauseResumeCycleRun : null,
+                    available ? this::resetCycleRun : null
+            );
+            cycleRunControls.update(
+                    currentRunState,
+                    resolveCurrentElapsedSeconds(),
+                    currentRunStartedAtIso,
+                    available
+            );
+        }
+
+        if (v.btnMenuRight != null) {
+            v.btnMenuRight.setRunContext(
+                    currentRunState,
+                    available,
+                    resolveCurrentElapsedSeconds(),
+                    currentRunStartedAtIso
+            );
+            v.btnMenuRight.setReportEnabled(canShowReportAction());
+        }
+
+        updateReportActionVisibility();
     }
 
     private void refreshTestcaseOverlayRunContext() {
@@ -662,6 +691,7 @@ public final class RightPaneCoordinator {
 
         openedFile = file;
         openedDraft = d;
+        editMode = false;
         applyRunStateFromDraft(d);
 
         if (v.lblCycleCreatedAt != null) {
@@ -693,6 +723,7 @@ public final class RightPaneCoordinator {
             }
         }
         syncAddedCasesUi();
+        syncEditModeUi();
         syncCycleRunControls();
 
         captureBaselineFromCurrentUi();
@@ -735,6 +766,7 @@ public final class RightPaneCoordinator {
 
         openedFile = null;
         openedDraft = null;
+        editMode = true;
         currentRunState = CycleRunState.IDLE;
         currentRunElapsedSeconds = 0L;
         currentRunStartedAtIso = "";
@@ -760,6 +792,7 @@ public final class RightPaneCoordinator {
 
         selectedCases.clear();
         syncAddedCasesUi();
+        syncEditModeUi();
         syncCycleRunControls();
 
         captureBaselineFromCurrentUi();
@@ -811,6 +844,8 @@ public final class RightPaneCoordinator {
         currentRunState = CycleRunState.IDLE;
         currentRunElapsedSeconds = 0L;
         currentRunStartedAtIso = "";
+        editMode = false;
+        syncEditModeUi();
         syncCycleRunControls();
 
         currentQaResponsible = "";
@@ -853,6 +888,8 @@ public final class RightPaneCoordinator {
         currentRunState = CycleRunState.IDLE;
         currentRunElapsedSeconds = 0L;
         currentRunStartedAtIso = "";
+        editMode = false;
+        syncEditModeUi();
         syncCycleRunControls();
 
         currentQaResponsible = "";
@@ -884,6 +921,8 @@ public final class RightPaneCoordinator {
 
         v.btnMenuRight.setVisible(can);
         v.btnMenuRight.setManaged(can);
+        v.btnMenuRight.setEditEnabled(can);
+        v.btnMenuRight.setSourceEnabled(can);
 
         if (!can) {
             v.btnMenuRight.closeMenu();
@@ -1090,17 +1129,11 @@ public final class RightPaneCoordinator {
         }
 
         if (v.btnRightTrashCases != null) {
-            v.btnRightTrashCases.setDisable(selectedCases.isEmpty());
+            v.btnRightTrashCases.setDisable(!editMode || selectedCases.isEmpty());
         }
     }
 
     private void initRightDelete() {
-        if (v.btnDeleteRight != null) {
-            UiSvg.setButtonSvg(v.btnDeleteRight, "trash.svg", getIconSizeFromUserData(v.btnDeleteRight, 10));
-            v.btnDeleteRight.setFocusTraversable(false);
-            v.btnDeleteRight.setOnAction(e -> showDeleteConfirmIfAllowed());
-        }
-
         if (v.btnDeleteCancel != null) {
             v.btnDeleteCancel.setFocusTraversable(false);
             v.btnDeleteCancel.setOnAction(e -> hideDeleteConfirm());
@@ -1127,19 +1160,12 @@ public final class RightPaneCoordinator {
     }
 
     private void refreshDeleteAvailability() {
-        if (v.btnDeleteRight == null) return;
-
-        boolean can = open && openedFile != null && Files.exists(openedFile);
-
-        v.btnDeleteRight.setVisible(can);
-        v.btnDeleteRight.setManaged(can);
-
-        if (!can) hideDeleteConfirm();
+        if (!canDeleteCurrentCycle()) hideDeleteConfirm();
     }
 
     private void showDeleteConfirmIfAllowed() {
         refreshDeleteAvailability();
-        if (v.btnDeleteRight == null || !v.btnDeleteRight.isVisible()) return;
+        if (!canDeleteCurrentCycle()) return;
 
         if (testcaseOverlay != null && testcaseOverlay.isOpen()) testcaseOverlay.close();
         if (v.btnMenuRight != null) v.btnMenuRight.closeMenu();
@@ -1157,6 +1183,79 @@ public final class RightPaneCoordinator {
         if (v.deleteLayer != null) {
             v.deleteLayer.setVisible(false);
             v.deleteLayer.setManaged(false);
+        }
+    }
+    private void toggleEditModeFromMenu() {
+        if (!editMode) {
+            enterEditMode();
+            return;
+        }
+
+        boolean noPendingChanges = v.btnSaveRight == null || v.btnSaveRight.isDisabled();
+        if (noPendingChanges) {
+            exitEditMode();
+            if (v.btnMenuRight != null) v.btnMenuRight.closeMenu();
+            return;
+        }
+
+        if (v.btnMenuRight != null) {
+            v.btnMenuRight.showEditApplyHint();
+        }
+    }
+
+
+    private void enterEditMode() {
+        if (!open || openedFile == null || !Files.exists(openedFile)) return;
+        editMode = true;
+        if (v.btnMenuRight != null) v.btnMenuRight.closeMenu();
+        syncEditModeUi();
+        if (v.tfCycleTitle != null) {
+            v.tfCycleTitle.requestFocus();
+            v.tfCycleTitle.end();
+        }
+    }
+
+    private void exitEditMode() {
+        editMode = false;
+        resetCasesDeleteMode();
+        syncEditModeUi();
+    }
+
+    private void syncEditModeUi() {
+        if (v.tfCycleTitle != null) {
+            v.tfCycleTitle.setEditable(editMode);
+            v.tfCycleTitle.setFocusTraversable(editMode);
+            v.tfCycleTitle.setMouseTransparent(!editMode);
+        }
+        if (v.btnRightAddCases != null) {
+            v.btnRightAddCases.setDisable(!editMode);
+        }
+        if (v.btnRightTrashCases != null) {
+            v.btnRightTrashCases.setDisable(!editMode || selectedCases.isEmpty());
+        }
+        if (v.btnMenuRight != null) {
+            v.btnMenuRight.setEditActive(editMode);
+        }
+    }
+
+    private boolean canDeleteCurrentCycle() {
+        return open && openedFile != null && Files.exists(openedFile);
+    }
+
+    private boolean canShowReportAction() {
+        return open
+                && openedFile != null
+                && Files.exists(openedFile)
+                && CycleRunState.isFinished(currentRunState);
+    }
+
+    private void openCurrentCycleSourceFile() {
+        if (openedFile == null || !Files.exists(openedFile)) return;
+        if (!Desktop.isDesktopSupported()) return;
+
+        try {
+            Desktop.getDesktop().open(openedFile.toFile());
+        } catch (Exception ignore) {
         }
     }
 
@@ -1344,6 +1443,7 @@ public final class RightPaneCoordinator {
         if (saveFx != null) saveFx.success();
 
         captureBaselineFromCurrentUi();
+        exitEditMode();
 
         updateSaveGateUi();
         refreshDeleteAvailability();
@@ -1609,6 +1709,8 @@ public final class RightPaneCoordinator {
 
         pane.getChildren().remove(v.btnSaveRight);
 
+        ensureReportActionCreated();
+
         VBox wrap = new VBox(4.0);
         wrap.setAlignment(Pos.CENTER);
         wrap.setFillWidth(true);
@@ -1625,6 +1727,9 @@ public final class RightPaneCoordinator {
         if (pane instanceof StackPane) {
             if (spAlign != null) StackPane.setAlignment(wrap, spAlign);
             if (spMargin != null) StackPane.setMargin(wrap, spMargin);
+            if (!pane.getChildren().contains(reportActionCapsule)) {
+                pane.getChildren().add(reportActionCapsule);
+            }
         }
         updateCycleRunControlsAnchor();
     }
@@ -1655,6 +1760,62 @@ public final class RightPaneCoordinator {
 
         saveDisabledHintLabel.setText(text);
         saveDisabledHintLabel.setOpacity(1.0);
+    }
+
+    private void ensureReportActionCreated() {
+        if (reportActionCapsule != null) return;
+
+        reportActionCapsule = new javafx.scene.layout.HBox();
+        reportActionCapsule.setAlignment(Pos.CENTER);
+        reportActionCapsule.setPickOnBounds(false);
+        reportActionCapsule.getStyleClass().add("cy-report-capsule");
+        reportActionCapsule.setMinWidth(REPORT_CAPSULE_WIDTH);
+        reportActionCapsule.setPrefWidth(REPORT_CAPSULE_WIDTH);
+        reportActionCapsule.setMaxWidth(REPORT_CAPSULE_WIDTH);
+
+        String reportText = localizedTextOrFallback("cy.menu.report", "Report");
+
+        btnReportRight = new Button(reportText);
+        btnReportRight.setFocusTraversable(false);
+        btnReportRight.getStyleClass().add("cy-report-chip");
+        btnReportRight.setMinWidth(REPORT_CHIP_WIDTH);
+        btnReportRight.setPrefWidth(REPORT_CHIP_WIDTH);
+        btnReportRight.setMaxWidth(REPORT_CHIP_WIDTH);
+        btnReportRight.setTooltip(new Tooltip(reportText));
+        btnReportRight.setOnAction(e -> { });
+
+        reportActionCapsule.getChildren().add(btnReportRight);
+        updateReportActionVisibility();
+    }
+
+    private void updateReportActionAnchor() {
+        if (reportActionCapsule == null || v.btnSaveRight == null) return;
+        Parent parent = reportActionCapsule.getParent();
+        if (!(parent instanceof StackPane)) return;
+
+        Insets saveMargin = StackPane.getMargin(v.btnSaveRight);
+        double bottom = saveMargin == null ? 18.0 : saveMargin.getBottom();
+        double hintHeight = 0.0;
+        if (saveDisabledHintLabel != null) {
+            hintHeight = Math.max(0.0, saveDisabledHintLabel.prefHeight(-1));
+        }
+
+        StackPane.setAlignment(reportActionCapsule, Pos.BOTTOM_RIGHT);
+        StackPane.setMargin(reportActionCapsule, new Insets(0, 28, bottom + hintHeight + 4.0, 0));
+    }
+
+    private void updateReportActionVisibility() {
+        if (reportActionCapsule == null) return;
+
+        boolean visible = canShowReportAction();
+
+        reportActionCapsule.setVisible(visible);
+        reportActionCapsule.setManaged(visible);
+    }
+
+    private String localizedTextOrFallback(String key, String fallback) {
+        String value = safe(I18n.t(key));
+        return value.isEmpty() || value.equals(key) || value.equals("!" + key + "!") ? fallback : value;
     }
 
     private static String safe(String s) {
