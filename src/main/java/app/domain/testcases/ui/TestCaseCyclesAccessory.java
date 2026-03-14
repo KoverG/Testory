@@ -52,7 +52,13 @@ import java.util.stream.Stream;
 
 public final class TestCaseCyclesAccessory {
 
+    public enum CurrentCycleMode {
+        ADDED_CASE,
+        PICKER_PREVIEW
+    }
+
     public record CurrentCycleContext(
+            CurrentCycleMode mode,
             String cycleId,
             String cycleTitle,
             String cycleCreatedAt,
@@ -60,6 +66,7 @@ public final class TestCaseCyclesAccessory {
             String caseComment,
             int caseNumber,
             int caseTotal,
+            List<String> navigationCaseIds,
             String runState,
             long runElapsedSeconds,
             String runStartedAtIso,
@@ -426,7 +433,7 @@ public final class TestCaseCyclesAccessory {
     }
 
     private void renderCurrentBlock() {
-        boolean visible = currentContext != null;
+        boolean visible = currentContext != null && currentContext.mode() == CurrentCycleMode.ADDED_CASE;
         currentBlock.setVisible(visible);
         currentBlock.setManaged(visible);
         if (!visible) {

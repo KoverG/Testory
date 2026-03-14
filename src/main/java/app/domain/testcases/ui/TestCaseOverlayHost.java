@@ -325,6 +325,10 @@ public final class TestCaseOverlayHost {
         return openedCaseId == null ? "" : openedCaseId;
     }
 
+    public TestCaseCyclesAccessory.CurrentCycleContext currentCycleContext() {
+        return currentCycleContext;
+    }
+
     public void openExisting(String caseId) {
         openExisting(caseId, null);
     }
