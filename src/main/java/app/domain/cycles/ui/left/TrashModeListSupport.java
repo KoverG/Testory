@@ -23,6 +23,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 
 import java.util.Map;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -64,7 +65,9 @@ public final class TrashModeListSupport {
             Function<T, String> idGetter,
             Function<T, String> titleGetter,
             Runnable onSelectionChanged,
-            Consumer<T> onNormalClick
+            Consumer<T> onNormalClick,
+            Consumer<T> onTrashModeClick,
+            BiPredicate<T, String> keepSelectionInTrashMode
     ) {
         if (lv == null) return;
 
@@ -131,6 +134,7 @@ public final class TrashModeListSupport {
 
                 // click row toggles checkbox in trash-mode (same UX as cases)
                 // + in normal mode: delegate click to opener (Cycles requirement)
+
                 setOnMouseClicked(ev -> {
                     if (ev.getButton() != javafx.scene.input.MouseButton.PRIMARY) return;
                     if (ev.getClickCount() != 1) return;
@@ -156,10 +160,15 @@ public final class TrashModeListSupport {
                     boolean inTrashMode = trashShiftPx.get() > 0.5;
 
                     if (inTrashMode) {
+                        boolean keepSelection = keepSelectionInTrashMode != null
+                                && keepSelectionInTrashMode.test(raw, id);
                         BooleanProperty p = checks.computeIfAbsent(id, k -> new SimpleBooleanProperty(false));
-                        p.set(!p.get());
+                        if (!keepSelection) {
+                            p.set(!p.get());
+                        }
 
                         if (onSelectionChanged != null) onSelectionChanged.run();
+                        if (onTrashModeClick != null) onTrashModeClick.accept(raw);
                         return;
                     }
 
@@ -298,6 +307,41 @@ public final class TrashModeListSupport {
     }
 
     /**
+     * ✅ Backward compatible overload for the full signature without trash-mode click callback.
+     */
+    public static <T> void install(
+            ListView<T> lv,
+            ObservableList<T> viewItems,
+            DoubleProperty trashShiftPx,
+            Map<String, BooleanProperty> checks,
+            String topSpacerId,
+            Supplier<Double> topSpacerHeightSupplier,
+            String spacerId,
+            Supplier<Double> spacerHeightSupplier,
+            Function<T, String> idGetter,
+            Function<T, String> titleGetter,
+            Runnable onSelectionChanged,
+            Consumer<T> onNormalClick
+    ) {
+        install(
+                lv,
+                viewItems,
+                trashShiftPx,
+                checks,
+                topSpacerId,
+                topSpacerHeightSupplier,
+                spacerId,
+                spacerHeightSupplier,
+                idGetter,
+                titleGetter,
+                onSelectionChanged,
+                onNormalClick,
+                null,
+                null
+        );
+    }
+
+    /**
      * ✅ Backward compatible overload (old signature).
      * Treats single spacerId as bottom spacer only.
      */
@@ -325,10 +369,11 @@ public final class TrashModeListSupport {
                 idGetter,
                 titleGetter,
                 onSelectionChanged,
-                onNormalClick
+                onNormalClick,
+                null,
+                null
         );
     }
-
     public static <T> void ensureSpacerRow(
             ObservableList<T> viewItems,
             String spacerId,

@@ -39,6 +39,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 
@@ -62,6 +63,8 @@ public final class RightPaneCoordinator {
     private Runnable onAddCases;
 
     private Runnable onSaved;
+
+    private Runnable onUiStateChanged;
 
     // Р В Р’В Р вЂ™Р’В Р В РІР‚в„ўР вЂ™Р’В Р В Р’В Р вЂ™Р’В Р В Р вЂ Р В РІР‚С™Р вЂ™Р’В Р В Р’В Р вЂ™Р’В Р В Р’В Р В РІР‚в„–Р В Р’В Р В Р вЂ№Р В Р вЂ Р Р†Р вЂљРЎвЂєР РЋРЎвЂєР В Р’В Р вЂ™Р’В Р В Р’В Р Р†Р вЂљР’В Р В Р’В Р вЂ™Р’В Р В Р вЂ Р В РІР‚С™Р РЋРІвЂћСћР В Р’В Р Р†Р вЂљРІвЂћСћР В РІР‚в„ўР вЂ™Р’В¦ NEW: callback after delete
     private Runnable onDeleted;
@@ -136,6 +139,10 @@ public final class RightPaneCoordinator {
 
     public void setOnSaved(Runnable onSaved) {
         this.onSaved = onSaved;
+    }
+
+    public void setOnUiStateChanged(Runnable onUiStateChanged) {
+        this.onUiStateChanged = onUiStateChanged;
     }
 
     public void setOnDeleted(Runnable onDeleted) {
@@ -361,15 +368,41 @@ public final class RightPaneCoordinator {
         return open;
     }
 
+    public boolean isEditModeEnabled() {
+        return open && editMode;
+    }
+
     public void openTestCaseCard(String caseId) {
-        openTestCaseCard(caseId, true);
+        openTestCaseCard(caseId, buildCurrentCycleContext(caseId));
     }
 
     public void openTestCaseCardFromList(String caseId) {
-        openTestCaseCard(caseId, false);
+        openTestCaseCardFromList(caseId, List.of());
     }
 
-    private void openTestCaseCard(String caseId, boolean showCurrentCycleStatus) {
+    public void openTestCaseCardFromList(String caseId, List<String> orderedCaseIds) {
+        openTestCaseCard(caseId, buildPickerPreviewCycleContext(caseId, orderedCaseIds));
+    }
+    public boolean isPickerPreviewCaseOpen(String caseId) {
+        if (testcaseOverlay == null || !testcaseOverlay.isOpen()) return false;
+
+        String id = safe(caseId);
+        if (id.isEmpty() || !id.equals(testcaseOverlay.openedCaseId())) return false;
+
+        TestCaseCyclesAccessory.CurrentCycleContext context = testcaseOverlay.currentCycleContext();
+        return context != null && context.mode() == TestCaseCyclesAccessory.CurrentCycleMode.PICKER_PREVIEW;
+    }
+
+    public void closePickerPreviewCaseCard() {
+        if (testcaseOverlay == null || !testcaseOverlay.isOpen()) return;
+
+        TestCaseCyclesAccessory.CurrentCycleContext context = testcaseOverlay.currentCycleContext();
+        if (context != null && context.mode() == TestCaseCyclesAccessory.CurrentCycleMode.PICKER_PREVIEW) {
+            testcaseOverlay.close();
+        }
+    }
+
+    private void openTestCaseCard(String caseId, TestCaseCyclesAccessory.CurrentCycleContext cycleContext) {
         if (testcaseOverlay == null) return;
 
         String id = safe(caseId);
@@ -388,32 +421,48 @@ public final class RightPaneCoordinator {
         if (v.chipTaskLink != null) v.chipTaskLink.closeModalIfOpen();
         if (v.chipEnvironment != null) v.chipEnvironment.closeModalIfOpen();
 
-        testcaseOverlay.openExisting(id, showCurrentCycleStatus ? buildCurrentCycleContext(id) : null);
+        testcaseOverlay.openExisting(id, cycleContext);
     }
 
     private TestCaseCyclesAccessory.CurrentCycleContext buildCurrentCycleContext(String caseId) {
+        return buildCycleContext(caseId, TestCaseCyclesAccessory.CurrentCycleMode.ADDED_CASE, getAddedCaseIds());
+    }
+
+    private TestCaseCyclesAccessory.CurrentCycleContext buildPickerPreviewCycleContext(String caseId, List<String> orderedCaseIds) {
+        return buildCycleContext(caseId, TestCaseCyclesAccessory.CurrentCycleMode.PICKER_PREVIEW, orderedCaseIds);
+    }
+
+    private TestCaseCyclesAccessory.CurrentCycleContext buildCycleContext(
+            String caseId,
+            TestCaseCyclesAccessory.CurrentCycleMode mode,
+            List<String> orderedCaseIds
+    ) {
         String id = safe(caseId);
+        if (id.isEmpty()) return null;
+
+        List<String> navigationIds = sanitizeNavigationCaseIds(orderedCaseIds, id);
         String cycleId = openedDraft == null ? "" : safe(openedDraft.id);
         String cycleTitle = safe(v.tfCycleTitle == null ? "" : v.tfCycleTitle.getText());
         String createdAt = safe(v.lblCycleCreatedAt == null ? "" : v.lblCycleCreatedAt.getText());
         String status = "";
         String comment = "";
-        int caseNumber = 0;
-        int caseTotal = selectedCases.size();
+        int caseNumber = indexOfCaseId(navigationIds, id) + 1;
+        int caseTotal = navigationIds.size();
 
-        for (int i = 0; i < selectedCases.size(); i++) {
-            CycleCaseRef ref = selectedCases.get(i);
-            if (ref == null || !id.equals(ref.safeId())) continue;
-            status = ref.safeStatus();
-            comment = ref.safeComment();
-            caseNumber = i + 1;
-            break;
+        if (mode == TestCaseCyclesAccessory.CurrentCycleMode.ADDED_CASE) {
+            for (CycleCaseRef ref : selectedCases) {
+                if (ref == null || !id.equals(ref.safeId())) continue;
+                status = ref.safeStatus();
+                comment = ref.safeComment();
+                break;
+            }
         }
 
-        Runnable navigatePrev = caseNumber > 1 ? () -> openAdjacentCycleCase(id, -1) : null;
-        Runnable navigateNext = caseNumber > 0 && caseNumber < caseTotal ? () -> openAdjacentCycleCase(id, 1) : null;
+        Runnable navigatePrev = caseNumber > 1 ? () -> openAdjacentCycleCase(id, navigationIds, mode, -1) : null;
+        Runnable navigateNext = caseNumber > 0 && caseNumber < caseTotal ? () -> openAdjacentCycleCase(id, navigationIds, mode, 1) : null;
 
         return new TestCaseCyclesAccessory.CurrentCycleContext(
+                mode,
                 cycleId,
                 cycleTitle,
                 createdAt,
@@ -421,18 +470,49 @@ public final class RightPaneCoordinator {
                 comment,
                 caseNumber,
                 caseTotal,
+                List.copyOf(navigationIds),
                 currentRunState,
                 resolveCurrentElapsedSeconds(),
                 currentRunStartedAtIso,
-                newStatus -> updateAddedCaseStatus(new CycleCaseRef(id, ""), newStatus),
-                newComment -> updateAddedCaseComment(new CycleCaseRef(id, ""), newComment),
-                this::onSave,
-                this::togglePrimaryCycleRunAction,
-                this::togglePauseResumeCycleRun,
-                this::resetCycleRun,
+                mode == TestCaseCyclesAccessory.CurrentCycleMode.ADDED_CASE
+                        ? newStatus -> updateAddedCaseStatus(new CycleCaseRef(id, ""), newStatus)
+                        : null,
+                mode == TestCaseCyclesAccessory.CurrentCycleMode.ADDED_CASE
+                        ? newComment -> updateAddedCaseComment(new CycleCaseRef(id, ""), newComment)
+                        : null,
+                mode == TestCaseCyclesAccessory.CurrentCycleMode.ADDED_CASE ? this::onSave : null,
+                mode == TestCaseCyclesAccessory.CurrentCycleMode.ADDED_CASE ? this::togglePrimaryCycleRunAction : null,
+                mode == TestCaseCyclesAccessory.CurrentCycleMode.ADDED_CASE ? this::togglePauseResumeCycleRun : null,
+                mode == TestCaseCyclesAccessory.CurrentCycleMode.ADDED_CASE ? this::resetCycleRun : null,
                 navigatePrev,
                 navigateNext
         );
+    }
+
+    private static List<String> sanitizeNavigationCaseIds(List<String> orderedCaseIds, String currentCaseId) {
+        LinkedHashSet<String> ids = new LinkedHashSet<>();
+
+        if (orderedCaseIds != null) {
+            for (String rawId : orderedCaseIds) {
+                String id = safe(rawId);
+                if (!id.isEmpty()) ids.add(id);
+            }
+        }
+
+        String currentId = safe(currentCaseId);
+        if (!currentId.isEmpty()) ids.add(currentId);
+
+        return new ArrayList<>(ids);
+    }
+
+    private static int indexOfCaseId(List<String> orderedCaseIds, String caseId) {
+        if (orderedCaseIds == null || orderedCaseIds.isEmpty()) return -1;
+
+        String targetId = safe(caseId);
+        for (int i = 0; i < orderedCaseIds.size(); i++) {
+            if (targetId.equals(safe(orderedCaseIds.get(i)))) return i;
+        }
+        return -1;
     }
 
 
@@ -500,11 +580,20 @@ public final class RightPaneCoordinator {
 
     private void refreshTestcaseOverlayRunContext() {
         if (testcaseOverlay == null || !testcaseOverlay.isOpen()) return;
+
         String caseId = testcaseOverlay.openedCaseId();
         if (caseId == null || caseId.isBlank()) return;
-        testcaseOverlay.refreshCurrentCycleContext(buildCurrentCycleContext(caseId));
-    }
 
+        TestCaseCyclesAccessory.CurrentCycleContext currentContext = testcaseOverlay.currentCycleContext();
+        if (currentContext == null) {
+            testcaseOverlay.refreshCurrentCycleContext(null);
+            return;
+        }
+
+        testcaseOverlay.refreshCurrentCycleContext(
+                buildCycleContext(caseId, currentContext.mode(), currentContext.navigationCaseIds())
+        );
+    }
     private void applyRunStateFromDraft(CycleDraft draft) {
         if (draft == null) {
             currentRunState = CycleRunState.IDLE;
@@ -652,26 +741,27 @@ public final class RightPaneCoordinator {
         syncCycleRunControls();
         refreshTestcaseOverlayRunContext();
     }
-    private void openAdjacentCycleCase(String caseId, int offset) {
+    private void openAdjacentCycleCase(
+            String caseId,
+            List<String> orderedCaseIds,
+            TestCaseCyclesAccessory.CurrentCycleMode mode,
+            int offset
+    ) {
         String currentId = safe(caseId);
         if (currentId.isEmpty() || offset == 0 || testcaseOverlay == null) return;
 
-        for (int i = 0; i < selectedCases.size(); i++) {
-            CycleCaseRef ref = selectedCases.get(i);
-            if (ref == null || !currentId.equals(ref.safeId())) continue;
+        List<String> navigationIds = sanitizeNavigationCaseIds(orderedCaseIds, currentId);
+        int currentIndex = indexOfCaseId(navigationIds, currentId);
+        if (currentIndex < 0) return;
 
-            int targetIndex = i + offset;
-            if (targetIndex < 0 || targetIndex >= selectedCases.size()) return;
+        int targetIndex = currentIndex + offset;
+        if (targetIndex < 0 || targetIndex >= navigationIds.size()) return;
 
-            CycleCaseRef target = selectedCases.get(targetIndex);
-            if (target == null || target.safeId().isEmpty()) return;
+        String targetId = safe(navigationIds.get(targetIndex));
+        if (targetId.isEmpty()) return;
 
-            String targetId = target.safeId();
-            testcaseOverlay.openExisting(targetId, buildCurrentCycleContext(targetId));
-            return;
-        }
+        testcaseOverlay.openExisting(targetId, buildCycleContext(targetId, mode, navigationIds));
     }
-
     public void openExistingCard(Path file) {
         if (file == null) return;
 
@@ -1236,6 +1326,7 @@ public final class RightPaneCoordinator {
         if (v.btnMenuRight != null) {
             v.btnMenuRight.setEditActive(editMode);
         }
+        if (onUiStateChanged != null) onUiStateChanged.run();
     }
 
     private boolean canDeleteCurrentCycle() {
