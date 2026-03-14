@@ -2,12 +2,9 @@ package app.domain.testcases.ui;
 
 import app.core.AppSettings;
 import app.core.I18n;
-import app.domain.cycles.repo.CycleCardJsonReader;
-import app.domain.cycles.repo.FileCycleRepository;
+import app.domain.cycles.repo.CaseHistoryIndexStore;
 import app.domain.cycles.ui.right.CaseCommentModal;
 import app.domain.cycles.ui.right.CaseStatusComboSupport;
-import app.domain.cycles.usecase.CycleCaseRef;
-import app.domain.cycles.usecase.CycleDraft;
 import app.ui.UiSvg;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
@@ -44,15 +41,10 @@ import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
 import javafx.util.Duration;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 public final class TestCaseCyclesAccessory {
 
@@ -99,7 +91,7 @@ public final class TestCaseCyclesAccessory {
     private static final String DISABLED_BASE_CLASS = "tc-disabled-base";
     private static final String HISTORY_TOGGLE_ICON = "link-add.svg";
 
-    private final FileCycleRepository cycleRepo = new FileCycleRepository();
+    private final CaseHistoryIndexStore historyIndexStore = new CaseHistoryIndexStore();
     private final StackPane modalHost;
 
     private final VBox root = new VBox(10.0);
@@ -596,7 +588,7 @@ public final class TestCaseCyclesAccessory {
     }
 
     private List<CycleEntry> mergeCurrentContext(List<CycleEntry> entries) {
-        if (currentContext == null) {
+        if (currentContext == null || currentContext.mode() != CurrentCycleMode.ADDED_CASE) {
             return entries;
         }
 
@@ -627,44 +619,18 @@ public final class TestCaseCyclesAccessory {
     }
 
     private List<CycleEntry> loadCycleEntries(String caseId) {
-        Path rootDir = cycleRepo.rootDir();
-        if (rootDir == null || !Files.isDirectory(rootDir)) {
-            return List.of();
-        }
-
         List<CycleEntry> entries = new ArrayList<>();
-
-        try (Stream<Path> files = Files.list(rootDir)) {
-            files.filter(Files::isRegularFile)
-                    .filter(path -> path.getFileName() != null && path.getFileName().toString().endsWith(".json"))
-                    .sorted(Comparator.comparing(path -> path.getFileName().toString().toLowerCase()))
-                    .forEach(path -> addCycleEntry(entries, path, caseId));
-        } catch (IOException ignore) {
-            return List.of();
-        }
-
-        return entries;
-    }
-
-    private void addCycleEntry(List<CycleEntry> entries, Path path, String caseId) {
-        CycleDraft draft = CycleCardJsonReader.readDraft(path);
-        if (draft == null || draft.cases == null || draft.cases.isEmpty()) {
-            return;
-        }
-
-        for (CycleCaseRef ref : draft.cases) {
-            if (ref == null) continue;
-            if (!safe(caseId).equals(ref.safeId())) continue;
-
+        for (CaseHistoryIndexStore.CycleHistoryEntry item : historyIndexStore.read(caseId)) {
+            if (item == null) continue;
             entries.add(new CycleEntry(
-                    safe(draft.id),
-                    safe(draft.title),
-                    safe(draft.createdAtUi),
-                    ref.safeStatus(),
-                    ref.safeComment()
+                    safe(item.cycleId()),
+                    safe(item.cycleTitle()),
+                    safe(item.createdAtUi()),
+                    safe(item.status()),
+                    safe(item.comment())
             ));
-            return;
         }
+        return entries;
     }
 
     private void openCommentModal(Button anchor, BooleanSupplier editableSupplier, String comment, Consumer<String> onSaved) {

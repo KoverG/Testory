@@ -1,0 +1,108 @@
+{
+  "formatVersion": 1,
+  "cases": {
+    "tc_20260112221801337_712": [
+      {
+        "cycleId": "cy_20260315000035660_122",
+        "cycleTitle": "Тест цикл 1",
+        "createdAtUi": "15.03.2026",
+        "status": "PASSED",
+        "comment": ""
+      },
+      {
+        "cycleId": "cy_20260315000118428_199",
+        "cycleTitle": "Тест цикл 2",
+        "createdAtUi": "15.03.2026",
+        "status": "PASSED",
+        "comment": ""
+      },
+      {
+        "cycleId": "cy_20260315000139083_115",
+        "cycleTitle": "Тест цикл 3",
+        "createdAtUi": "15.03.2026",
+        "status": "",
+        "comment": ""
+      }
+    ],
+    "tc_20260206003835923_696": [
+      {
+        "cycleId": "cy_20260315000035660_122",
+        "cycleTitle": "Тест цикл 1",
+        "createdAtUi": "15.03.2026",
+        "status": "PASSED",
+        "comment": ""
+      },
+      {
+        "cycleId": "cy_20260315000118428_199",
+        "cycleTitle": "Тест цикл 2",
+        "createdAtUi": "15.03.2026",
+        "status": "PASSED",
+        "comment": ""
+      },
+      {
+        "cycleId": "cy_20260315000139083_115",
+        "cycleTitle": "Тест цикл 3",
+        "createdAtUi": "15.03.2026",
+        "status": "",
+        "comment": ""
+      },
+      {
+        "cycleId": "cy_20260315000333989_376",
+        "cycleTitle": "Тест цикл 4",
+        "createdAtUi": "15.03.2026",
+        "status": "",
+        "comment": ""
+      }
+    ],
+    "tc_20251231111329926_846": [
+      {
+        "cycleId": "cy_20260315000035660_122",
+        "cycleTitle": "Тест цикл 1",
+        "createdAtUi": "15.03.2026",
+        "status": "FAILED",
+        "comment": ""
+      }
+    ],
+    "tc_20260123195837318_422": [
+      {
+        "cycleId": "cy_20260315000118428_199",
+        "cycleTitle": "Тест цикл 2",
+        "createdAtUi": "15.03.2026",
+        "status": "PASSED",
+        "comment": ""
+      },
+      {
+        "cycleId": "cy_20260315000139083_115",
+        "cycleTitle": "Тест цикл 3",
+        "createdAtUi": "15.03.2026",
+        "status": "",
+        "comment": ""
+      }
+    ],
+    "tc_20251231111400242_330": [
+      {
+        "cycleId": "cy_20260315000118428_199",
+        "cycleTitle": "Тест цикл 2",
+        "createdAtUi": "15.03.2026",
+        "status": "PASSED",
+        "comment": ""
+      },
+      {
+        "cycleId": "cy_20260315000139083_115",
+        "cycleTitle": "Тест цикл 3",
+        "createdAtUi": "15.03.2026",
+        "status": "",
+        "comment": ""
+      }
+    ],
+    "tc_20260101215433595_725": [
+      {
+        "cycleId": "cy_20260315000333989_376",
+        "cycleTitle": "Тест цикл 4",
+        "createdAtUi": "15.03.2026",
+        "status": "",
+        "comment": ""
+      }
+    ]
+  }
+}

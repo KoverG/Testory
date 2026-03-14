@@ -3,6 +3,7 @@ package app.domain.cycles.ui.right;
 import app.core.I18n;
 import app.domain.cycles.CyclePrivateConfig;
 import app.domain.cycles.repo.CycleCardJsonReader;
+import app.domain.cycles.repo.CaseHistoryIndexStore;
 import app.domain.cycles.repo.FileCycleRepository;
 import app.domain.cycles.ui.CycleRunControls;
 import app.domain.cycles.ui.CyclesViewRefs;
@@ -87,6 +88,7 @@ public final class RightPaneCoordinator {
     private Button btnReportRight;
 
     private final FileCycleRepository repo = new FileCycleRepository();
+    private final CaseHistoryIndexStore caseHistoryIndexStore = new CaseHistoryIndexStore();
     private final CreateCycleUseCase createUseCase = new CreateCycleUseCase(repo);
 
     private Path openedFile = null;
@@ -1481,6 +1483,7 @@ public final class RightPaneCoordinator {
 
             Files.move(src, target, StandardCopyOption.ATOMIC_MOVE);
 
+            caseHistoryIndexStore.removeCycle(readOpenedCycleId());
             close();
             if (onDeleted != null) onDeleted.run();
 
@@ -1502,6 +1505,7 @@ public final class RightPaneCoordinator {
 
                 Files.move(src, target);
 
+                caseHistoryIndexStore.removeCycle(readOpenedCycleId());
                 close();
                 if (onDeleted != null) onDeleted.run();
 
@@ -1545,6 +1549,7 @@ public final class RightPaneCoordinator {
         }
 
         System.out.println("[Cycles] saved: " + saved.toAbsolutePath());
+        caseHistoryIndexStore.upsertCycle(draft);
 
         if (saveFx != null) saveFx.success();
 
@@ -1558,6 +1563,21 @@ public final class RightPaneCoordinator {
         refreshTestcaseOverlayRunContext();
 
         if (onSaved != null) onSaved.run();
+    }
+
+    private String readOpenedCycleId() {
+        if (openedDraft != null && !safe(openedDraft.id).isEmpty()) {
+            return safe(openedDraft.id);
+        }
+        if (openedFile == null) return "";
+
+        try {
+            String name = String.valueOf(openedFile.getFileName());
+            if (name.endsWith(".json")) name = name.substring(0, name.length() - 5);
+            return safe(name);
+        } catch (Exception ignore) {
+            return "";
+        }
     }
 
     private CycleDraft buildDraftFromUi() {

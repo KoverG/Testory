@@ -2,6 +2,7 @@
 package app.domain.cycles.ui.left;
 
 import app.core.I18n;
+import app.domain.cycles.repo.CaseHistoryIndexStore;
 import app.domain.cycles.repo.CycleCardJsonReader;
 import app.domain.cycles.ui.CyclesViewRefs;
 import app.domain.cycles.ui.list.CaseListItem;
@@ -115,6 +116,7 @@ public final class LeftPaneCoordinator {
     private final CyclesViewRefs v;
     private final RightPaneCoordinator right;
     private final ListPresenter list;
+    private final CaseHistoryIndexStore caseHistoryIndexStore = new CaseHistoryIndexStore();
 
     private LeftMode mode = LeftMode.CYCLES_LIST;
     private LeftPaneActions actions;
@@ -1210,6 +1212,7 @@ public final class LeftPaneCoordinator {
 
                 Path dst = trashDir.resolve(id + ".json");
                 Files.move(src, dst, StandardCopyOption.REPLACE_EXISTING);
+                caseHistoryIndexStore.removeCycle(id);
             }
 
             // cleanup state
