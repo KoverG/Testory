@@ -26,6 +26,8 @@ public final class AddedCasesListUi {
     private static final String ICON_COMMENT = "comment.svg";
     private static final String ICON_CASE_DELETE = "trash.svg";
     private static final String ROW_DELETE_BTN_KEY = "cy.added.case.delete.btn";
+    private static final String ROW_STATUS_COMBO_KEY = "cy.added.case.status.combo";
+    private static final String ROW_COMMENT_BTN_KEY = "cy.added.case.comment.btn";
     private static final double INDEX_COLUMN_WIDTH = 36.0;
     private static final double INDEX_TO_TITLE_GAP = 12.0;
     private static final double TITLE_TO_STATUS_GAP = 12.0;
@@ -33,6 +35,7 @@ public final class AddedCasesListUi {
     private final CyclesViewRefs v;
 
     private boolean deleteMode = false;
+    private boolean caseEditAllowed = false;
     private Consumer<CycleCaseRef> onDeleteCase;
     private Consumer<CycleCaseRef> onOpenCase;
     private BiConsumer<CycleCaseRef, String> onStatusChanged;
@@ -74,6 +77,25 @@ public final class AddedCasesListUi {
             if (btn instanceof Button b) {
                 b.setVisible(deleteMode);
                 b.setManaged(deleteMode);
+            }
+        }
+    }
+
+    public void setCaseEditAllowed(boolean caseEditAllowed) {
+        this.caseEditAllowed = caseEditAllowed;
+        if (v.vbAddedCases == null) return;
+
+        for (javafx.scene.Node node : v.vbAddedCases.getChildren()) {
+            if (!(node instanceof HBox row)) continue;
+
+            Object combo = row.getProperties().get(ROW_STATUS_COMBO_KEY);
+            if (combo instanceof ComboBox<?> cb) {
+                cb.setDisable(!caseEditAllowed);
+            }
+
+            Object commentButton = row.getProperties().get(ROW_COMMENT_BTN_KEY);
+            if (commentButton instanceof Button b) {
+                b.setDisable(false);
             }
         }
     }
@@ -137,7 +159,6 @@ public final class AddedCasesListUi {
         UiSvg.setButtonSvg(btnKebab, ICON_KEBAB, 12);
         Tooltip.install(btnKebab, new Tooltip(title));
 
-
         Button btnTrash = new Button();
         btnTrash.getStyleClass().addAll("icon-btn", "xs", "cy-added-case-delete");
         btnTrash.setFocusTraversable(false);
@@ -173,6 +194,8 @@ public final class AddedCasesListUi {
             if (onStatusChanged != null) onStatusChanged.accept(safeRef, status);
         });
         CaseStatusComboSupport.setStatus(cb, safeRef.safeStatus());
+        cb.setDisable(!caseEditAllowed);
+        row.getProperties().put(ROW_STATUS_COMBO_KEY, cb);
 
         Button btnComment = new Button();
         btnComment.getStyleClass().addAll("icon-btn", "xs", "cy-added-case-comment");
@@ -181,6 +204,8 @@ public final class AddedCasesListUi {
         btnComment.setAlignment(Pos.CENTER);
         UiSvg.setButtonSvg(btnComment, ICON_COMMENT, 12);
         Tooltip.install(btnComment, new Tooltip(I18n.t("cy.case.comment.btn")));
+        btnComment.setDisable(false);
+        row.getProperties().put(ROW_COMMENT_BTN_KEY, btnComment);
 
         btnComment.setOnAction(e -> {
             if (v.rightRoot == null) return;
@@ -193,7 +218,7 @@ public final class AddedCasesListUi {
             }
 
             modal.setCurrentValueSupplier(safeRef::safeComment);
-            modal.setEditableSupplier(() -> true);
+            modal.setEditableSupplier(() -> caseEditAllowed);
             modal.setOnSaved(val -> {
                 if (onCommentChanged != null) onCommentChanged.accept(safeRef, safe(val));
             });
@@ -208,4 +233,3 @@ public final class AddedCasesListUi {
         return s == null ? "" : s.trim();
     }
 }
-

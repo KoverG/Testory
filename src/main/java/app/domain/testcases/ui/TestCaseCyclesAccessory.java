@@ -47,6 +47,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -70,6 +71,7 @@ public final class TestCaseCyclesAccessory {
             String runState,
             long runElapsedSeconds,
             String runStartedAtIso,
+            boolean caseEditAllowed,
             Consumer<String> onStatusChanged,
             Consumer<String> onCommentChanged,
             Runnable onSaveRequested,
@@ -192,7 +194,12 @@ public final class TestCaseCyclesAccessory {
         currentCommentPreview.setPrefWidth(COMMENT_PREVIEW_WIDTH);
         currentCommentPreview.setMaxWidth(COMMENT_PREVIEW_WIDTH);
         currentCommentPreview.setAlignment(Pos.CENTER);
-        currentCommentPreview.setOnAction(e -> openCommentModal(currentCommentPreview, true, currentComment, this::handleCurrentCommentChanged));
+        currentCommentPreview.setOnAction(e -> openCommentModal(
+                currentCommentPreview,
+                this::isCurrentCaseEditable,
+                currentComment,
+                this::handleCurrentCommentChanged
+        ));
 
         currentCommentUnderline.getStyleClass().add("cy-testcase-current-underline");
         currentCommentUnderline.setMaxWidth(Double.MAX_VALUE);
@@ -312,6 +319,7 @@ public final class TestCaseCyclesAccessory {
 
     private void handleCurrentStatusChanged(String status) {
         if (syncingCombo) return;
+        if (!isCurrentCaseEditable()) return;
 
         currentStatus = safe(status);
         if (currentContext != null && currentContext.onStatusChanged() != null) {
@@ -321,6 +329,7 @@ public final class TestCaseCyclesAccessory {
     }
 
     private void handleCurrentCommentChanged(String comment) {
+        if (!isCurrentCaseEditable()) return;
         currentComment = safe(comment);
         if (currentContext != null && currentContext.onCommentChanged() != null) {
             currentContext.onCommentChanged().accept(currentComment);
@@ -329,7 +338,7 @@ public final class TestCaseCyclesAccessory {
     }
 
     private void saveCurrentChanges() {
-        if (currentContext == null || !hasPendingCurrentChanges()) return;
+        if (currentContext == null || !isCurrentCaseEditable() || !hasPendingCurrentChanges()) return;
 
         String pendingStatus = safe(currentStatus);
         String pendingComment = safe(currentComment);
@@ -355,6 +364,10 @@ public final class TestCaseCyclesAccessory {
 
     private boolean hasPendingCurrentChanges() {
         return !savedStatus.equals(safe(currentStatus)) || !savedComment.equals(safe(currentComment));
+    }
+
+    private boolean isCurrentCaseEditable() {
+        return currentContext != null && currentContext.caseEditAllowed();
     }
 
     private void setCurrentSaveEnabled(boolean enabled) {
@@ -439,6 +452,8 @@ public final class TestCaseCyclesAccessory {
         if (!visible) {
             currentTitle.setText(I18n.t("cy.case.status.footer"));
             syncCurrentCombo("");
+            currentStatusCombo.setDisable(true);
+            currentCommentPreview.setDisable(false);
             currentCommentPreview.setText(formatCommentPreview(""));
             currentCommentPreview.setTooltip(null);
             setCurrentSaveEnabled(false);
@@ -457,10 +472,14 @@ public final class TestCaseCyclesAccessory {
             currentCycleTooltip.setText(currentCycleCaption);
         }
         currentCycleCopyHint.setText(I18n.t("cy.case.current.copy.hint"));
+
+        boolean editable = isCurrentCaseEditable();
         syncCurrentCombo(currentStatus);
+        currentStatusCombo.setDisable(!editable);
+        currentCommentPreview.setDisable(false);
         currentCommentPreview.setText(formatCommentPreview(currentComment));
         currentCommentPreview.setTooltip(buildCommentTooltip(currentComment));
-        setCurrentSaveEnabled(hasPendingCurrentChanges());
+        setCurrentSaveEnabled(editable && hasPendingCurrentChanges());
     }
 
     private void renderCyclesBlock(List<CycleEntry> entries) {
@@ -503,7 +522,7 @@ public final class TestCaseCyclesAccessory {
             commentPreview.setPrefWidth(COMMENT_PREVIEW_WIDTH);
             commentPreview.setMaxWidth(COMMENT_PREVIEW_WIDTH);
             commentPreview.setTooltip(buildCommentTooltip(entry.comment()));
-            commentPreview.setOnAction(e -> openCommentModal(commentPreview, false, entry.comment(), null));
+            commentPreview.setOnAction(e -> openCommentModal(commentPreview, () -> false, entry.comment(), null));
 
             row.getChildren().addAll(name, status, commentPreview);
             cyclesRows.getChildren().add(row);
@@ -601,7 +620,7 @@ public final class TestCaseCyclesAccessory {
         }
     }
 
-    private void openCommentModal(Button anchor, boolean editable, String comment, Consumer<String> onSaved) {
+    private void openCommentModal(Button anchor, BooleanSupplier editableSupplier, String comment, Consumer<String> onSaved) {
         if (anchor == null || modalHost == null) return;
 
         CaseCommentModal modal = (CaseCommentModal) anchor.getProperties().get("cy.case.comment.modal");
@@ -613,7 +632,7 @@ public final class TestCaseCyclesAccessory {
 
         String value = safe(comment);
         modal.setCurrentValueSupplier(() -> value);
-        modal.setEditableSupplier(() -> editable);
+        modal.setEditableSupplier(editableSupplier == null ? () -> false : editableSupplier);
         modal.setOnSaved(onSaved == null ? s -> {} : onSaved);
         modal.toggle();
     }
