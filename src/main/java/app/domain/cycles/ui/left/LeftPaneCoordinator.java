@@ -1289,6 +1289,25 @@ public final class LeftPaneCoordinator {
         return v == null ? "" : v.trim();
     }
 
+    public void toggleCasesPickerAddMode() {
+        if (mode != LeftMode.CASES_PICKER) {
+            openCasesPickerAddOverlay();
+            return;
+        }
+
+        if (casesAddOverlay == null) return;
+
+        if (casesAddOverlay.isOpen()) {
+            casesAddOverlay.close();
+            return;
+        }
+
+        syncCasesPickerChecksFromRight();
+        refreshAddAvailability();
+        refreshCasesAddButtonText();
+        casesAddOverlay.open();
+    }
+
     public static String safeTrim(String v) {
         return v == null ? "" : v.trim();
     }

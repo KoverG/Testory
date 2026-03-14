@@ -383,6 +383,10 @@ public final class TestCaseRightPane {
         return open;
     }
 
+    public boolean isEditEnabled() {
+        return !existingCard || editEnabled;
+    }
+
     public void openNew() {
         boolean wasOpen = open;
 

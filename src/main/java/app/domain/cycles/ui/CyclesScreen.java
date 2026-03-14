@@ -29,7 +29,7 @@ public final class CyclesScreen {
         // right button "Добавить кейсы" -> ТУМБЛЕР:
         // 1-й клик: cases picker + overlay "Добавить"
         // 2-й клик: вернуть исходное состояние (cycles list)
-        right.setOnAddCases(() -> left.toggleCasesPickerAddOverlay());
+        right.setOnAddCases(() -> left.toggleCasesPickerAddMode());
 
         // если пользователь закрыл правую зону — возвращаем левую зону к циклам
         right.setOnClose(() -> left.setMode(LeftMode.CYCLES_LIST));
