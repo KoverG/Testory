@@ -502,17 +502,71 @@
     -fx-spacing: 8;
 }
 
-.cy-testcase-cycle-row {
+.cy-testcase-cycles-panel {
     -fx-background-color: rgba(255,255,255,0.04);
     -fx-border-color: rgba(255,255,255,0.10);
-    -fx-background-radius: 12;
-    -fx-border-radius: 12;
-    -fx-padding: 8 12 8 12;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-padding: 0;
+}
+
+.root.theme-light .cy-testcase-cycles-panel {
+    -fx-background-color: rgba(0,0,0,0.04);
+    -fx-border-color: rgba(0,0,0,0.10);
+}
+
+.cy-testcase-cycles-header {
+    -fx-alignment: center-left;
+    -fx-padding: 10 12 8 12;
+    -fx-background-color: transparent;
+}
+
+.cy-testcase-cycles-header:hover {
+    -fx-background-color: rgba(255,255,255,0.03);
+    -fx-background-radius: 14 14 0 0;
+}
+
+.root.theme-light .cy-testcase-cycles-header:hover {
+    -fx-background-color: rgba(0,0,0,0.03);
+}
+
+
+.cy-testcase-cycles-rows {
+    -fx-padding: 0 12 4 12;
+}
+
+.cy-testcase-cycles-toggle-glyph {
+    -fx-min-width: 18;
+    -fx-pref-width: 18;
+    -fx-max-width: 18;
+    -fx-min-height: 18;
+    -fx-pref-height: 18;
+    -fx-max-height: 18;
+    -fx-alignment: center;
+}
+
+.cy-testcase-cycles-toggle-glyph .svg-path {
+    -fx-fill: -fx-muted-color;
+}
+
+.cy-testcase-cycles-header:hover .cy-testcase-cycles-toggle-glyph .svg-path {
+    -fx-fill: -fx-text-color;
+}
+
+.cy-testcase-cycle-row {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent rgba(255,255,255,0.10) transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 10 0 10 0;
+}
+
+.cy-testcase-cycle-row-last {
+    -fx-border-width: 0;
+    -fx-padding: 10 0 6 0;
 }
 
 .root.theme-light .cy-testcase-cycle-row {
-    -fx-background-color: rgba(0,0,0,0.04);
-    -fx-border-color: rgba(0,0,0,0.10);
+    -fx-border-color: transparent transparent rgba(0,0,0,0.10) transparent;
 }
 
 .cy-testcase-current-row {

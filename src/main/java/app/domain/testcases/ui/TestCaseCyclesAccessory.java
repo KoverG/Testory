@@ -1,5 +1,6 @@
 package app.domain.testcases.ui;
 
+import app.core.AppSettings;
 import app.core.I18n;
 import app.domain.cycles.repo.CycleCardJsonReader;
 import app.domain.cycles.repo.FileCycleRepository;
@@ -20,6 +21,7 @@ import javafx.animation.SequentialTransition;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -31,6 +33,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -90,7 +93,11 @@ public final class TestCaseCyclesAccessory {
     private static final double COMMENT_PREVIEW_WIDTH = 180.0;
     private static final double CURRENT_SIDE_WIDTH = 220.0;
     private static final double HISTORY_STATUS_WIDTH = 150.0;
+    private static final double HISTORY_TOGGLE_ICON_SIZE = 10.0;
+    private static final double HISTORY_EXPANDED_ROTATE = 0.0;
+    private static final double HISTORY_COLLAPSED_ROTATE = -90.0;
     private static final String DISABLED_BASE_CLASS = "tc-disabled-base";
+    private static final String HISTORY_TOGGLE_ICON = "link-add.svg";
 
     private final FileCycleRepository cycleRepo = new FileCycleRepository();
     private final StackPane modalHost;
@@ -116,7 +123,11 @@ public final class TestCaseCyclesAccessory {
     private Node currentSaveIdleIcon;
 
     private final VBox cyclesBlock = new VBox(8.0);
+    private final HBox cyclesHeader = new HBox(8.0);
     private final Label cyclesTitle = new Label(I18n.t("cy.case.cycles.footer"));
+    private final Region cyclesHeaderSpacer = new Region();
+    private final StackPane cyclesToggleGlyph = new StackPane();
+    private final Node cyclesToggleIcon = UiSvg.createSvg(HISTORY_TOGGLE_ICON, HISTORY_TOGGLE_ICON_SIZE);
     private final VBox cyclesRows = new VBox(8.0);
 
     private String currentCaseId = "";
@@ -130,6 +141,7 @@ public final class TestCaseCyclesAccessory {
     private Animation currentSaveAnimation;
     private ChangeListener<Paint> currentSavePaintListener;
     private Animation currentCycleCopyHintAnimation;
+    private boolean cyclesCollapsed = AppSettings.caseHistoryCollapsed();
 
     public TestCaseCyclesAccessory(StackPane modalHost) {
         this.modalHost = modalHost;
@@ -138,6 +150,20 @@ public final class TestCaseCyclesAccessory {
 
         currentTitle.getStyleClass().add("tc-btnlike-title");
         cyclesTitle.getStyleClass().add("tc-btnlike-title");
+        cyclesBlock.getStyleClass().add("cy-testcase-cycles-panel");
+        cyclesRows.getStyleClass().add("cy-testcase-cycles-rows");
+        cyclesHeader.getStyleClass().add("cy-testcase-cycles-header");
+        cyclesHeader.setAlignment(Pos.CENTER_LEFT);
+        cyclesHeader.setCursor(Cursor.HAND);
+        HBox.setHgrow(cyclesHeaderSpacer, Priority.ALWAYS);
+
+        cyclesTitle.getStyleClass().add("cy-testcase-cycles-header-title");
+        cyclesToggleGlyph.getStyleClass().add("cy-testcase-cycles-toggle-glyph");
+        cyclesToggleGlyph.setMouseTransparent(true);
+        if (cyclesToggleIcon != null) {
+            cyclesToggleGlyph.getChildren().setAll(cyclesToggleIcon);
+        }
+        cyclesHeader.setOnMouseClicked(e -> toggleCyclesCollapsed());
 
         currentRow.getStyleClass().add("cy-testcase-current-row");
         currentRow.setAlignment(Pos.CENTER);
@@ -213,8 +239,10 @@ public final class TestCaseCyclesAccessory {
         currentRow.getChildren().addAll(currentCycleMeta, currentStatusCombo, currentRightBox);
         currentBlock.getChildren().addAll(currentTitle, currentRow);
 
-        cyclesBlock.getChildren().addAll(cyclesTitle, cyclesRows);
+        cyclesHeader.getChildren().addAll(cyclesTitle, cyclesHeaderSpacer, cyclesToggleGlyph);
+        cyclesBlock.getChildren().addAll(cyclesHeader, cyclesRows);
         root.getChildren().addAll(currentBlock, cyclesBlock);
+        updateCyclesVisibility();
 
         clear();
     }
@@ -493,9 +521,13 @@ public final class TestCaseCyclesAccessory {
             return;
         }
 
-        for (CycleEntry entry : entries) {
+        for (int index = 0; index < entries.size(); index++) {
+            CycleEntry entry = entries.get(index);
             HBox row = new HBox(0.0);
             row.getStyleClass().add("cy-testcase-cycle-row");
+            if (index == entries.size() - 1) {
+                row.getStyleClass().add("cy-testcase-cycle-row-last");
+            }
             row.setAlignment(Pos.CENTER_LEFT);
 
             Label name = new Label(formatCycleCaption(entry.title(), entry.createdAtUi(), entry.id()));
@@ -526,6 +558,21 @@ public final class TestCaseCyclesAccessory {
 
             row.getChildren().addAll(name, status, commentPreview);
             cyclesRows.getChildren().add(row);
+        }
+    }
+
+    private void toggleCyclesCollapsed() {
+        cyclesCollapsed = !cyclesCollapsed;
+        AppSettings.setCaseHistoryCollapsed(cyclesCollapsed);
+        updateCyclesVisibility();
+    }
+
+    private void updateCyclesVisibility() {
+        cyclesRows.setVisible(!cyclesCollapsed);
+        cyclesRows.setManaged(!cyclesCollapsed);
+        cyclesHeader.pseudoClassStateChanged(javafx.css.PseudoClass.getPseudoClass("collapsed"), cyclesCollapsed);
+        if (cyclesToggleIcon != null) {
+            cyclesToggleIcon.setRotate(cyclesCollapsed ? HISTORY_COLLAPSED_ROTATE : HISTORY_EXPANDED_ROTATE);
         }
     }
 

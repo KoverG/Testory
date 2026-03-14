@@ -39,6 +39,18 @@ public final class AppSettings {
         writeJsonSafe(upd);
     }
 
+    public static boolean caseHistoryCollapsed() {
+        String json = readJsonSafe();
+        Boolean v = readBooleanField(json, "caseHistoryCollapsed");
+        return v != null ? v : false;
+    }
+
+    public static void setCaseHistoryCollapsed(boolean collapsed) {
+        String json = readJsonSafe();
+        String upd = upsertBooleanField(json, "caseHistoryCollapsed", collapsed);
+        writeJsonSafe(upd);
+    }
+
     // ===== File I/O =====
 
     private static String readJsonSafe() {
