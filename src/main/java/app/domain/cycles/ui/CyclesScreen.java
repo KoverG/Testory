@@ -43,4 +43,8 @@ public final class CyclesScreen {
         // ✅ после удаления — обновить cycles list
         right.setOnDeleted(() -> left.refreshCyclesFromDisk());
     }
+    public void openCycleFromHistory(String cycleId, String sourceCaseId) {
+        if (right == null) return;
+        right.openCycleFromHistory(cycleId, sourceCaseId);
+    }
 }

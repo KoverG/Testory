@@ -1,6 +1,7 @@
 // FILE: src/main/java/app/domain/testcases/TestCasesController.java
 package app.domain.testcases;
 
+import app.core.CardNavigationBridge;
 import app.core.I18n;
 import app.domain.testcases.repo.TestCaseCardStore;
 import app.domain.testcases.repo.TestCaseIndexStore;
@@ -466,6 +467,7 @@ public class TestCasesController {
         setupCasesList();
         applyI18nStaticTexts();
         reloadFromDisk();
+        restorePendingCaseNavigation();
 
         // realtime validate (оставляем как было)
         if (tfPrivTop != null) tfPrivTop.textProperty().addListener((o, a, b) -> updateSaveGateUi());
@@ -975,6 +977,50 @@ public class TestCasesController {
         updateSaveGateUi();
         refreshDeleteAvailability();
     }
+
+    private void restorePendingCaseNavigation() {
+        CardNavigationBridge.PendingCaseRestore restore = CardNavigationBridge.consumePendingCaseRestore();
+        if (restore == null) return;
+
+        openExistingCaseCard(restore.caseId());
+    }
+
+    private void openExistingCaseCard(String caseId) {
+        String id = safeTrim(caseId);
+        if (id.isBlank() || rightPaneCtl == null) return;
+
+        Path file = TestCaseCardStore.fileOf(id);
+        if (file == null || !Files.exists(file)) return;
+
+        rightNewOpen = false;
+        rightOpenCaseId = id;
+
+        if (lvCases != null) {
+            int targetIndex = -1;
+            for (int i = 0; i < lvCases.getItems().size(); i++) {
+                TestCase item = lvCases.getItems().get(i);
+                if (item != null && id.equals(safeTrim(item.getId()))) {
+                    targetIndex = i;
+                    break;
+                }
+            }
+
+            if (targetIndex >= 0) {
+                lvCases.getSelectionModel().select(targetIndex);
+                lvCases.scrollTo(targetIndex);
+            } else {
+                lvCases.getSelectionModel().clearSelection();
+            }
+        }
+
+        resetSaveGateValidation();
+        rightPaneCtl.openExisting(file);
+        if (cyclesAccessory != null) cyclesAccessory.showForCase(id, null);
+
+        updateSaveGateUi();
+        refreshDeleteAvailability();
+    }
+
 
     private void applyI18nStaticTexts() {
         if (tfSearch != null) tfSearch.setPromptText(I18n.t("tc.search.placeholder"));

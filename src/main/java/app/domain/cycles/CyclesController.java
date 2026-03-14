@@ -1,5 +1,6 @@
 package app.domain.cycles;
 
+import app.core.CardNavigationBridge;
 import app.domain.cycles.ui.CyclesScreen;
 import app.domain.cycles.ui.CyclesViewRefs;
 import app.domain.cycles.ui.right.CycleCardMenuButton;
@@ -136,6 +137,12 @@ public class CyclesController {
 
         screen = new CyclesScreen(refs);
         screen.init();
+
+        CardNavigationBridge.PendingCycleHistoryNavigation navigation =
+                CardNavigationBridge.consumePendingCycleHistoryNavigation();
+        if (navigation != null) {
+            screen.openCycleFromHistory(navigation.cycleId(), navigation.sourceCaseId());
+        }
     }
 
     private void installCasesSheetClip() {

@@ -35,6 +35,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
 public final class TestCaseOverlayHost {
@@ -290,6 +291,10 @@ public final class TestCaseOverlayHost {
 
     public void setOnSaved(Runnable onSaved) {
         this.onSaved = onSaved;
+    }
+
+    public void setOnHistoryCycleOpenRequested(Consumer<String> onHistoryCycleOpenRequested) {
+        cyclesAccessory.setOnHistoryCycleOpenRequested(onHistoryCycleOpenRequested);
     }
 
     public void setBottomAccessory(javafx.scene.Node node) {
