@@ -234,7 +234,7 @@ public final class TestCaseOverlayHost {
                 btnDeleteCancel,
                 btnDeleteConfirm
         );
-        deleteConfirm.setCanOpenSupplier(() -> rightPaneCtl.isOpen() && openedCaseId != null);
+        deleteConfirm.setCanOpenSupplier(this::canDeleteOpenedCase);
         deleteConfirm.setCurrentFileSupplier(() -> openedCaseId == null ? null : TestCaseCardStore.fileOf(openedCaseId));
         deleteConfirm.setAfterDeleted(this::handleDeleted);
 
@@ -401,11 +401,19 @@ public final class TestCaseOverlayHost {
     }
 
     private void refreshDeleteAvailability() {
-        boolean enable = rightPaneCtl.isOpen() && openedCaseId != null;
+        boolean visible = rightPaneCtl.isOpen() && openedCaseId != null;
+        boolean enable = canDeleteOpenedCase();
         deleteConfirm.refreshAvailability(enable);
         if (btnDeleteRight == null) return;
-        btnDeleteRight.setVisible(enable);
-        btnDeleteRight.setManaged(enable);
+        btnDeleteRight.setVisible(visible);
+        btnDeleteRight.setManaged(visible);
+        btnDeleteRight.setDisable(!enable);
+    }
+
+    private boolean canDeleteOpenedCase() {
+        return rightPaneCtl.isOpen()
+                && openedCaseId != null
+                && rightPaneCtl.isEditEnabled();
     }
 
     private void notifyVisibilityChanged() {
@@ -567,7 +575,10 @@ public final class TestCaseOverlayHost {
 
     private void onEdit(javafx.event.ActionEvent e) {
         rightPaneCtl.onToggleEdit();
-        Platform.runLater(this::updateSaveGateUi);
+        Platform.runLater(() -> {
+            updateSaveGateUi();
+            refreshDeleteAvailability();
+        });
     }
 
     private void onEditPriv(javafx.event.ActionEvent e) {
