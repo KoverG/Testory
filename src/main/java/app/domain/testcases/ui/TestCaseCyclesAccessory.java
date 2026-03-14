@@ -134,6 +134,7 @@ public final class TestCaseCyclesAccessory {
     private ChangeListener<Paint> currentSavePaintListener;
     private Animation currentCycleCopyHintAnimation;
     private boolean cyclesCollapsed = AppSettings.caseHistoryCollapsed();
+    private Consumer<String> onHistoryCycleOpenRequested;
 
     public TestCaseCyclesAccessory(StackPane modalHost) {
         this.modalHost = modalHost;
@@ -241,6 +242,10 @@ public final class TestCaseCyclesAccessory {
 
     public Node node() {
         return root;
+    }
+
+    public void setOnHistoryCycleOpenRequested(Consumer<String> onHistoryCycleOpenRequested) {
+        this.onHistoryCycleOpenRequested = onHistoryCycleOpenRequested;
     }
 
     public void showForCase(String caseId, CurrentCycleContext context) {
@@ -529,6 +534,14 @@ public final class TestCaseCyclesAccessory {
             name.maxWidthProperty().bind(row.widthProperty().subtract(24.0).divide(2.0));
             name.setTextOverrun(OverrunStyle.ELLIPSIS);
             name.setAlignment(Pos.CENTER_LEFT);
+            if (onHistoryCycleOpenRequested != null && !safe(entry.id()).isBlank()) {
+                name.getStyleClass().add("cy-testcase-cycle-name-clickable");
+                name.setCursor(Cursor.HAND);
+                name.setOnMouseClicked(e -> onHistoryCycleOpenRequested.accept(entry.id()));
+            } else {
+                name.setCursor(Cursor.DEFAULT);
+                name.setOnMouseClicked(null);
+            }
 
             Label status = new Label(formatStatusText(entry.status()));
             status.getStyleClass().add("cy-testcase-cycle-status");

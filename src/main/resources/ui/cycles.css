@@ -1210,6 +1210,24 @@
 .cy-testcase-cycle-name-clickable {
     -fx-cursor: hand;
 }
+
+.cy-testcase-cycle-name-clickable:hover {
+    -fx-underline: true;
+    -fx-opacity: 0.86;
+}
+
+.cy-testcase-cycle-name-clickable:pressed {
+    -fx-underline: true;
+    -fx-opacity: 0.72;
+}
+
+.root.theme-light .cy-testcase-cycle-name-clickable:hover {
+    -fx-opacity: 0.88;
+}
+
+.root.theme-light .cy-testcase-cycle-name-clickable:pressed {
+    -fx-opacity: 0.76;
+}
 .cy-testcase-copy-hint {
     -fx-text-fill: -fx-muted-color;
     -fx-font-size: 10px;

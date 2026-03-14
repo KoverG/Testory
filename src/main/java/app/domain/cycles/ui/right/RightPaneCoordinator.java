@@ -73,6 +73,9 @@ public final class RightPaneCoordinator {
     private AddedCasesListUi addedCasesList;
     private TestCaseOverlayHost testcaseOverlay;
     private boolean testcaseOverlayHadCycleUnderlay = false;
+    private String returnCaseIdFromHistory = "";
+    private Path returnCycleFileFromHistory = null;
+    private TestCaseCyclesAccessory.CurrentCycleContext returnCaseContextFromHistory = null;
 
     // Delete mode for added cases rows
     private boolean casesDeleteMode = false;
@@ -279,6 +282,7 @@ public final class RightPaneCoordinator {
                 removeAddedCaseById(id);
                 if (onSaved != null) onSaved.run();
             });
+            testcaseOverlay.setOnHistoryCycleOpenRequested(this::openCycleFromOpenedCaseHistory);
             testcaseOverlay.setOnVisibilityChanged(this::syncOverlayVisibilityState);
         }
 
@@ -380,6 +384,29 @@ public final class RightPaneCoordinator {
 
     public void openTestCaseCard(String caseId) {
         openTestCaseCard(caseId, buildCurrentCycleContext(caseId));
+    }
+
+    public void openCycleFromHistory(String cycleId, String sourceCaseId) {
+        openCycleFromHistory(cycleId, sourceCaseId, null, null);
+    }
+
+    private void openCycleFromHistory(String cycleId, String sourceCaseId, Path sourceCycleFile, TestCaseCyclesAccessory.CurrentCycleContext sourceCaseContext) {
+        String targetCycleId = safe(cycleId);
+        if (targetCycleId.isEmpty()) return;
+
+        Path file = repo.rootDir().resolve(targetCycleId + ".json");
+        if (!Files.exists(file)) return;
+
+        openExistingCard(file, sourceCaseId, sourceCycleFile, sourceCaseContext);
+    }
+
+    private void openCycleFromOpenedCaseHistory(String cycleId) {
+        if (testcaseOverlay == null || !testcaseOverlay.isOpen()) return;
+
+        String sourceCaseId = safe(testcaseOverlay.openedCaseId());
+        if (sourceCaseId.isEmpty()) return;
+
+        openCycleFromHistory(cycleId, sourceCaseId, openedFile, testcaseOverlay.currentCycleContext());
     }
 
     public void openTestCaseCardFromList(String caseId) {
@@ -774,11 +801,18 @@ public final class RightPaneCoordinator {
         testcaseOverlay.openExisting(targetId, buildCycleContext(targetId, mode, navigationIds));
     }
     public void openExistingCard(Path file) {
+        openExistingCard(file, "", null, null);
+    }
+
+    private void openExistingCard(Path file, String sourceCaseId, Path sourceCycleFile, TestCaseCyclesAccessory.CurrentCycleContext sourceCaseContext) {
         if (file == null) return;
 
         //
         closePrimaryModals();
         resetCasesDeleteMode();
+        returnCaseIdFromHistory = safe(sourceCaseId);
+        returnCycleFileFromHistory = sourceCycleFile;
+        returnCaseContextFromHistory = sourceCaseContext;
 
         if (!Files.exists(file)) {
             openCreateCard();
@@ -864,6 +898,9 @@ public final class RightPaneCoordinator {
         resetCasesDeleteMode();
 
         open = true;
+        returnCaseIdFromHistory = "";
+        returnCycleFileFromHistory = null;
+        returnCaseContextFromHistory = null;
 
         openedFile = null;
         openedDraft = null;
@@ -929,8 +966,14 @@ public final class RightPaneCoordinator {
 
     public void close() {
         if (!open) return;
+        String returnCaseId = safe(returnCaseIdFromHistory);
+        Path returnCycleFile = returnCycleFileFromHistory;
+        TestCaseCyclesAccessory.CurrentCycleContext returnCaseContext = returnCaseContextFromHistory;
         open = false;
         testcaseOverlayHadCycleUnderlay = false;
+        returnCaseIdFromHistory = "";
+        returnCycleFileFromHistory = null;
+        returnCaseContextFromHistory = null;
 
         if (testcaseOverlay != null && testcaseOverlay.isOpen()) testcaseOverlay.close();
         if (v.btnMenuRight != null) v.btnMenuRight.closeMenu();
@@ -967,6 +1010,10 @@ public final class RightPaneCoordinator {
                     v.rightRoot.setVisible(false);
                     v.rightRoot.setManaged(false);
                     syncOverlayVisibilityState();
+                    if (!returnCaseId.isBlank()) {
+                        restoreCaseHistoryOrigin(returnCycleFile, returnCaseId, returnCaseContext);
+                        return;
+                    }
                     if (onClose != null) onClose.run();
                 }
         );
@@ -975,6 +1022,9 @@ public final class RightPaneCoordinator {
     public void snapClosed() {
         open = false;
         testcaseOverlayHadCycleUnderlay = false;
+        returnCaseIdFromHistory = "";
+        returnCycleFileFromHistory = null;
+        returnCaseContextFromHistory = null;
 
         if (testcaseOverlay != null && testcaseOverlay.isOpen()) testcaseOverlay.close();
         if (v.btnMenuRight != null) v.btnMenuRight.closeMenu();
@@ -1012,6 +1062,28 @@ public final class RightPaneCoordinator {
         v.rightRoot.setMouseTransparent(false);
         v.rightRoot.setVisible(false);
         v.rightRoot.setManaged(false);
+        syncOverlayVisibilityState();
+    }
+
+    private void restoreCaseHistoryOrigin(
+            Path cycleFile,
+            String caseId,
+            TestCaseCyclesAccessory.CurrentCycleContext caseContext
+    ) {
+        String returnCaseId = safe(caseId);
+        if (returnCaseId.isEmpty() || testcaseOverlay == null) return;
+
+        if (cycleFile != null && Files.exists(cycleFile)) {
+            openExistingCard(cycleFile, "", null, null);
+            TestCaseCyclesAccessory.CurrentCycleContext restoredContext = caseContext == null
+                    ? buildCurrentCycleContext(returnCaseId)
+                    : buildCycleContext(returnCaseId, caseContext.mode(), caseContext.navigationCaseIds());
+            testcaseOverlay.openExisting(returnCaseId, restoredContext);
+            return;
+        }
+
+        testcaseOverlayHadCycleUnderlay = false;
+        testcaseOverlay.openExisting(returnCaseId, caseContext);
         syncOverlayVisibilityState();
     }
 
