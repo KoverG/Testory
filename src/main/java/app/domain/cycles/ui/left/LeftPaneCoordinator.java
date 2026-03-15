@@ -2,15 +2,22 @@
 package app.domain.cycles.ui.left;
 
 import app.core.I18n;
+import app.core.PrivateRootConfig;
 import app.domain.cycles.repo.CaseHistoryIndexStore;
 import app.domain.cycles.repo.CycleCardJsonReader;
 import app.domain.cycles.ui.CyclesViewRefs;
 import app.domain.cycles.ui.list.CaseListItem;
 import app.domain.cycles.ui.list.CycleListItem;
 import app.domain.cycles.ui.list.ListPresenter;
+import app.domain.cycles.ui.overlay.FilterSheet;
 import app.domain.cycles.ui.right.RightPaneCoordinator;
 import app.domain.cycles.usecase.CycleCaseRef;
+import app.domain.cycles.usecase.CycleDraft;
+import app.domain.cycles.usecase.CycleRunState;
+import app.domain.testcases.LabelStore;
+import app.domain.testcases.TagStore;
 import app.domain.testcases.TestCase;
+import app.domain.testcases.query.TestCaseFilter;
 import app.domain.testcases.repo.TestCaseCardStore;
 import app.ui.UiSvg;
 import app.ui.confirm.LeftDeleteConfirm;
@@ -42,12 +49,17 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public final class LeftPaneCoordinator {
 
@@ -116,6 +128,7 @@ public final class LeftPaneCoordinator {
     private final CyclesViewRefs v;
     private final RightPaneCoordinator right;
     private final ListPresenter list;
+    private final FilterSheet leftFilterSheet;
     private final CaseHistoryIndexStore caseHistoryIndexStore = new CaseHistoryIndexStore();
 
     private LeftMode mode = LeftMode.CYCLES_LIST;
@@ -132,10 +145,12 @@ public final class LeftPaneCoordinator {
     // вњ… cycles: С‚РѕР»СЊРєРѕ РёР· С„Р°Р№Р»РѕРІРѕР№ СЃРёСЃС‚РµРјС‹
     private final ObservableList<CycleListItem> cycleAll = FXCollections.observableArrayList();
     private final ObservableList<CycleListItem> cycleView = FXCollections.observableArrayList();
+    private final Map<String, CycleFilterSnapshot> cycleFilterById = new HashMap<>();
 
     // cases: РєР°Рє Р±С‹Р»Рѕ
     private final ObservableList<CaseListItem> caseAll = FXCollections.observableArrayList();
     private final ObservableList<CaseListItem> caseView = FXCollections.observableArrayList();
+    private final Map<String, TestCase> caseById = new HashMap<>();
 
     // ====== CHECKS ======
     private final Map<String, BooleanProperty> trashChecks = new HashMap<>();
@@ -157,6 +172,7 @@ public final class LeftPaneCoordinator {
         this.v = v;
         this.right = right;
         this.list = new ListPresenter(v.lvLeft);
+        this.leftFilterSheet = new FilterSheet(v.leftStack, v.filterSheet, v.casesSheet);
     }
 
     public void init() {
@@ -172,7 +188,7 @@ public final class LeftPaneCoordinator {
         if (v.btnTrash != null)  UiSvg.setButtonSvg(v.btnTrash, ICON_TRASH,  getIconSizeFromFxml(v.btnTrash, 14));
 
         v.btnCreate.setOnAction(e -> { if (actions != null) actions.onCreate(); });
-        v.btnFilter.setOnAction(e -> { if (actions != null) actions.onFilter(); });
+        v.btnFilter.setOnAction(e -> toggleFilterSheet());
         v.btnSort.setOnAction(e -> { if (actions != null) actions.onSort(); });
 
         v.lvLeft.setOnMouseClicked(e -> {
@@ -248,6 +264,13 @@ public final class LeftPaneCoordinator {
         cyclesTrashOverlay.setOnDelete(() -> {
             if (cyclesDeleteConfirm != null) cyclesDeleteConfirm.open();
         });
+
+        leftFilterSheet.setOnBeforeOpen(this::closeLeftOverlaysForFilter);
+        leftFilterSheet.setOnApply(() -> {
+            applyFiltersToList();
+            updateFilterButtonText();
+        });
+        leftFilterSheet.init();
 
         installSearchBehavior();
         applyMode(LeftMode.CYCLES_LIST);
@@ -338,6 +361,9 @@ public final class LeftPaneCoordinator {
         if (newMode != LeftMode.CYCLES_LIST && cyclesDeleteConfirm != null && cyclesDeleteConfirm.isOpen()) {
             cyclesDeleteConfirm.close();
         }
+        if (leftFilterSheet != null && leftFilterSheet.isOpen()) {
+            leftFilterSheet.close();
+        }
 
         animateTrashShift(false);
         trashShiftPx.set(0.0);
@@ -405,6 +431,7 @@ public final class LeftPaneCoordinator {
 
         refreshLeftActionButtonVisibility();
         updateSearchButtonVisibility();
+        updateFilterButtonText();
 
         // вњ… update sticky header title per current mode (i18n)
         updateStickyHeaderTitle();
@@ -1132,6 +1159,7 @@ public final class LeftPaneCoordinator {
 
     private void reloadCasesFromDisk() {
         caseAll.clear();
+        caseById.clear();
         trashChecks.clear(); // вњ… РєР°Рє Р±С‹Р»Рѕ: РїСЂРё РІС…РѕРґРµ РІ СЂРµР¶РёРј РІС‹Р±РѕСЂРєРё вЂ” С‡РёСЃС‚С‹Р№ РІС‹Р±РѕСЂ
         casePickOrder.clear();
         casePickSeq = 0L;
@@ -1147,6 +1175,7 @@ public final class LeftPaneCoordinator {
                 // вњ… РєР°Рє Р±С‹Р»Рѕ РІ СЂР°Р±РѕС‡РµРј РІР°СЂРёР°РЅС‚Рµ: РїРѕРєР°Р·С‹РІР°РµРј "CODE-NUMBER Title" (РёР»Рё head РµСЃР»Рё title РїСѓСЃС‚РѕР№)
                 String title = buildLeftTitle(tc);
                 caseAll.add(new CaseListItem(id, title));
+                caseById.put(id, tc);
             }
 
             // keep stable sort
@@ -1177,6 +1206,7 @@ public final class LeftPaneCoordinator {
 
     private void reloadCyclesFromDisk() {
         cycleAll.clear();
+        cycleFilterById.clear();
         cycleTrashChecks.clear();
 
         try {
@@ -1191,21 +1221,21 @@ public final class LeftPaneCoordinator {
             }
 
             for (Path p : jsons) {
-                String name = p.getFileName().toString();
-                String id = name.replace(".json", "");
+                CycleDraft draft = CycleCardJsonReader.readDraft(p);
+                if (draft == null) continue;
 
-                // С‡РёС‚Р°РµРј title Рё meta.createdAtUi РёР· json
-                CycleCardJsonReader.CycleListMeta meta = CycleCardJsonReader.readListMeta(p);
+                String id = safeTrim(draft.id);
+                if (id.isEmpty()) {
+                    String name = p.getFileName().toString();
+                    id = safeTrim(name.replace(".json", ""));
+                }
+                if (id.isEmpty()) continue;
 
-                String title = meta != null ? safeTrim(meta.title) : "";
-                String createdAtUi = meta != null ? safeTrim(meta.createdAtUi) : "";
-
-                cycleAll.add(new CycleListItem(id, title, createdAtUi));
+                cycleAll.add(new CycleListItem(id, safeTrim(draft.title), safeTrim(draft.createdAtUi)));
+                cycleFilterById.put(id, CycleFilterSnapshot.from(draft));
             }
 
-            // СЃРѕСЂС‚РёСЂРѕРІРєР° РїРѕ title (РїСѓСЃС‚С‹Рµ СѓР№РґСѓС‚ РЅР°РІРµСЂС… вЂ” СЌС‚Рѕ РѕРє, РѕС‚РѕР±СЂР°Р¶РµРЅРёРµ СЂРµС€Р°РµРј i18n)
             cycleAll.sort(Comparator.comparing(CycleListItem::safeTitle, String.CASE_INSENSITIVE_ORDER));
-
         } catch (Exception ignore) {
             // ignore
         }
@@ -1235,7 +1265,6 @@ public final class LeftPaneCoordinator {
                 caseHistoryIndexStore.removeCycle(id);
             }
 
-            // cleanup state
             cycleTrashChecks.clear();
             if (cyclesTrashOverlay != null) cyclesTrashOverlay.close();
             if (cyclesDeleteConfirm != null) cyclesDeleteConfirm.close();
@@ -1246,7 +1275,6 @@ public final class LeftPaneCoordinator {
             installCyclesListCellFactory();
             updateCyclesTrashSpacerItem();
             refreshCyclesDeleteAvailability();
-
         } catch (Exception ignore) {
             // ignore
         }
@@ -1255,31 +1283,245 @@ public final class LeftPaneCoordinator {
     // ===================== FILTERS =====================
 
     private void applyFiltersToList() {
-        // cycles
+        FilterSheet.CycleFilters cycleFilters = leftFilterSheet.appliedCycleFilters();
+        FilterSheet.CaseFilters caseFilters = leftFilterSheet.appliedCaseFilters();
+
         cycleView.clear();
-        cycleView.addAll(cycleAll);
+        for (CycleListItem item : cycleAll) {
+            if (item == null) continue;
+            String id = safeTrim(item.id());
+            if (id.isEmpty()) continue;
+            if (!matchesCycleFilters(id, cycleFilters)) continue;
+            cycleView.add(item);
+        }
 
-        // cases
         caseView.clear();
-        caseView.addAll(caseAll);
+        for (CaseListItem item : caseAll) {
+            if (item == null) continue;
+            String id = safeTrim(item.id());
+            if (id.isEmpty()) continue;
+            if (!matchesCaseFilters(id, caseFilters)) continue;
+            caseView.add(item);
+        }
 
-        // search
         if (appliedSearch != null && !appliedSearch.isBlank()) {
             String q = appliedSearch.trim().toLowerCase();
-
-            // РїРѕРёСЃРє РїРѕ title (Р±РµР· РґР°С‚С‹)
             cycleView.removeIf(it -> it == null || it.id() == null || it.safeTitle() == null || !it.safeTitle().toLowerCase().contains(q));
             caseView.removeIf(it -> it == null || it.id() == null || it.title() == null || !it.title().toLowerCase().contains(q));
         }
 
-        // вњ… ensure top spacer exists and stays at index 0
         ensureTopSpacers();
-
-        // ensure trash spacer rows are at bottom (if present)
         moveSpacerToEnd(cycleView, CycleListItem::id);
         moveSpacerToEnd(caseView, CaseListItem::id);
     }
 
+    private boolean matchesCycleFilters(String cycleId, FilterSheet.CycleFilters filters) {
+        if (filters == null) return true;
+        CycleFilterSnapshot snapshot = cycleFilterById.get(cycleId);
+        if (snapshot == null) return true;
+
+        List<String> selectedStatuses = filters.statuses();
+        if (!selectedStatuses.isEmpty() && !containsIgnoreCase(selectedStatuses, snapshot.runState)) return false;
+
+        List<String> selectedResponsibles = filters.responsibles();
+        if (!selectedResponsibles.isEmpty()) {
+            String responsible = safeTrim(snapshot.qaResponsible);
+            if (responsible.isEmpty()) return false;
+
+            boolean found = false;
+            for (String selected : selectedResponsibles) {
+                if (responsible.equalsIgnoreCase(safeTrim(selected))) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) return false;
+        }
+
+        List<String> createdRanges = filters.createdDateRanges();
+        if (!createdRanges.isEmpty()) {
+            boolean createdMatches = false;
+            for (String createdRange : createdRanges) {
+                if (matchesCreatedDate(snapshot.createdDate, createdRange)) {
+                    createdMatches = true;
+                    break;
+                }
+            }
+            if (!createdMatches) return false;
+        }
+
+        List<String> progresses = filters.progresses();
+        if (!progresses.isEmpty()) {
+            boolean progressMatches = false;
+            for (String progress : progresses) {
+                if (matchesProgressBucket(snapshot.progressPercent, progress)) {
+                    progressMatches = true;
+                    break;
+                }
+            }
+            if (!progressMatches) return false;
+        }
+
+        for (String selectedStatusValue : filters.caseStatuses()) {
+            String normalized = safeTrim(selectedStatusValue).toUpperCase();
+            if (normalized.isEmpty()) continue;
+            if (!snapshot.caseStatuses.contains(normalized)) return false;
+        }
+
+        return true;
+    }
+
+    private boolean matchesCaseFilters(String caseId, FilterSheet.CaseFilters filters) {
+        if (filters == null) return true;
+        TestCase testCase = caseById.get(caseId);
+        if (testCase == null) return false;
+        return TestCaseFilter.matches(testCase, filters.labels(), filters.tags());
+    }
+
+    private boolean matchesCreatedDate(LocalDate createdDate, String range) {
+        if (createdDate == null) return false;
+
+        LocalDate today = LocalDate.now();
+        return switch (safeTrim(range)) {
+            case "today" -> createdDate.equals(today);
+            case "last7" -> !createdDate.isBefore(today.minusDays(6)) && !createdDate.isAfter(today);
+            case "last30" -> !createdDate.isBefore(today.minusDays(29)) && !createdDate.isAfter(today);
+            default -> true;
+        };
+    }
+
+    private boolean matchesProgressBucket(double progressPercent, String bucket) {
+        return switch (safeTrim(bucket)) {
+            case "0" -> progressPercent == 0.0;
+            case "1_50" -> progressPercent > 0.0 && progressPercent <= 50.0;
+            case "51_90" -> progressPercent > 50.0 && progressPercent <= 90.0;
+            case "91_99" -> progressPercent > 90.0 && progressPercent < 100.0;
+            case "100" -> progressPercent == 100.0;
+            default -> true;
+        };
+    }
+
+    private void toggleFilterSheet() {
+        if (mode == LeftMode.CASES_PICKER) {
+            leftFilterSheet.toggleForCases(LabelStore.loadAll(), TagStore.loadAll());
+        } else {
+            List<String> responsibles = new ArrayList<>();
+            addAllUniqueIgnoreCase(responsibles, PrivateRootConfig.qaUsers());
+            addAllUniqueIgnoreCase(responsibles, collectAvailableResponsibles());
+            addAllUniqueIgnoreCase(responsibles, leftFilterSheet.appliedCycleFilters().responsibles());
+            leftFilterSheet.toggleForCycles(responsibles);
+        }
+    }
+
+    private void closeLeftOverlaysForFilter() {
+        if (casesAddOverlay != null && casesAddOverlay.isOpen()) {
+            casesAddOverlay.close();
+        }
+        if (cyclesTrashOverlay != null && cyclesTrashOverlay.isOpen()) {
+            cyclesTrashOverlay.close();
+        }
+        if (cyclesDeleteConfirm != null && cyclesDeleteConfirm.isOpen()) {
+            cyclesDeleteConfirm.close();
+        }
+    }
+
+    private void updateFilterButtonText() {
+        if (v == null || v.btnFilter == null) return;
+
+        String base = I18n.t("tc.btn.filter");
+        int count = mode == LeftMode.CASES_PICKER
+                ? leftFilterSheet.activeCountForCases()
+                : leftFilterSheet.activeCountForCycles();
+
+        v.btnFilter.setText(count > 0 ? base + " (" + count + ")" : base);
+    }
+
+    private List<String> collectAvailableResponsibles() {
+        List<String> out = new ArrayList<>();
+        Set<String> seen = new java.util.TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+
+        for (CycleFilterSnapshot snapshot : cycleFilterById.values()) {
+            if (snapshot == null) continue;
+            String responsible = safeTrim(snapshot.qaResponsible);
+            if (responsible.isEmpty()) continue;
+            if (seen.add(responsible)) out.add(responsible);
+        }
+
+        return out;
+    }
+
+    private static void addAllUniqueIgnoreCase(List<String> target, List<String> source) {
+        if (target == null || source == null) return;
+        for (String value : source) {
+            String normalized = safeTrim(value);
+            if (normalized.isEmpty()) continue;
+            if (!containsIgnoreCase(target, normalized)) target.add(normalized);
+        }
+    }
+    private static final class CycleFilterSnapshot {
+        private static final DateTimeFormatter UI_DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+
+        private final String runState;
+        private final String qaResponsible;
+        private final LocalDate createdDate;
+        private final double progressPercent;
+        private final Set<String> caseStatuses;
+
+        private CycleFilterSnapshot(String runState, String qaResponsible, LocalDate createdDate, double progressPercent, Set<String> caseStatuses) {
+            this.runState = runState;
+            this.qaResponsible = qaResponsible;
+            this.createdDate = createdDate;
+            this.progressPercent = progressPercent;
+            this.caseStatuses = caseStatuses;
+        }
+
+        private static CycleFilterSnapshot from(CycleDraft draft) {
+            String runState = CycleRunState.normalize(draft.runState);
+            String qaResponsible = safeTrim(draft.qaResponsible);
+            LocalDate createdDate = parseCreatedDate(draft);
+
+            int total = draft.cases == null ? 0 : draft.cases.size();
+            int completed = 0;
+            Set<String> statuses = new java.util.HashSet<>();
+
+            if (draft.cases != null) {
+                for (CycleCaseRef ref : draft.cases) {
+                    if (ref == null) continue;
+                    String status = safeTrim(ref.safeStatus()).toUpperCase();
+                    if (status.isEmpty()) continue;
+                    statuses.add(status);
+                    if (!"IN_PROGRESS".equals(status)) completed++;
+                }
+            }
+
+            double progressPercent = total <= 0 ? 0.0 : (completed * 100.0) / total;
+            if (completed == total && total > 0) progressPercent = 100.0;
+
+            return new CycleFilterSnapshot(runState, qaResponsible, createdDate, progressPercent, statuses);
+        }
+
+        private static LocalDate parseCreatedDate(CycleDraft draft) {
+            String iso = safeTrim(draft.createdAtIso);
+            if (!iso.isEmpty()) {
+                try {
+                    return LocalDateTime.parse(iso).toLocalDate();
+                } catch (DateTimeParseException ignore) {
+                    // ignore
+                }
+            }
+
+            String ui = safeTrim(draft.createdAtUi);
+            if (!ui.isEmpty()) {
+                try {
+                    return LocalDate.parse(ui, UI_DATE_FORMATTER);
+                } catch (DateTimeParseException ignore) {
+                    // ignore
+                }
+            }
+
+            return null;
+        }
+    }
     // ===================== MISC =====================
 
     private void openCyclesFolder() {
@@ -1333,6 +1575,15 @@ public final class LeftPaneCoordinator {
 
     public static String safeTrim(String v) {
         return v == null ? "" : v.trim();
+    }
+
+    private static boolean containsIgnoreCase(List<String> values, String candidate) {
+        if (values == null || candidate == null) return false;
+        String normalizedCandidate = safeTrim(candidate);
+        for (String value : values) {
+            if (normalizedCandidate.equalsIgnoreCase(safeTrim(value))) return true;
+        }
+        return false;
     }
 }
 

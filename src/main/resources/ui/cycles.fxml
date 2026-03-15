@@ -106,7 +106,9 @@
                                    managed="false"
                                    pickOnBounds="true"
                                    maxWidth="Infinity"
-                                   maxHeight="Infinity"/>
+                                   maxHeight="Infinity"
+                                   styleClass="tc-sheet-filter-sort"
+                                   StackPane.alignment="BOTTOM_CENTER"/>
 
                         <StackPane fx:id="sortSheet"
                                    visible="false"
