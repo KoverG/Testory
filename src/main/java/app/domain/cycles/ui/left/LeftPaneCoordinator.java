@@ -164,7 +164,11 @@ public final class LeftPaneCoordinator {
         installStickyListHeader();
 
         if (v.btnFolder != null) UiSvg.setButtonSvg(v.btnFolder, ICON_FOLDER, getIconSizeFromFxml(v.btnFolder, 14));
-        if (v.btnSearch != null) UiSvg.setButtonSvg(v.btnSearch, ICON_SEARCH, getIconSizeFromFxml(v.btnSearch, 14));
+        if (v.btnSearch != null) {
+            int base = getIconSizeFromFxml(v.btnSearch, 14);
+            int scaled = Math.max(1, Math.round(base / 1.5f));
+            UiSvg.setButtonSvg(v.btnSearch, ICON_SEARCH, scaled);
+        }
         if (v.btnTrash != null)  UiSvg.setButtonSvg(v.btnTrash, ICON_TRASH,  getIconSizeFromFxml(v.btnTrash, 14));
 
         v.btnCreate.setOnAction(e -> { if (actions != null) actions.onCreate(); });
@@ -1042,18 +1046,27 @@ public final class LeftPaneCoordinator {
         searchIdleTimer.setDuration(Duration.millis(searchIdleDelayMs));
         searchIdleTimer.setOnFinished(e -> applySearchNow());
 
+        v.tfSearch.setOnAction(e -> {
+            searchIdleTimer.stop();
+            applySearchNow();
+        });
+
         v.tfSearch.textProperty().addListener((obs, oldV, newV) -> {
-            if (searchProgrammaticChange) return;
-            searchIdleTimer.playFromStart();
+            if (searchProgrammaticChange) {
+                updateSearchButtonVisibility();
+                return;
+            }
+
             updateSearchButtonVisibility();
+            searchIdleTimer.stop();
+            searchIdleTimer.playFromStart();
         });
 
         if (v.btnSearch != null) {
-            v.btnSearch.setOnAction(e -> {
-                clearSearch();
-                if (actions != null) actions.onSearch("");
-            });
+            v.btnSearch.setOnAction(e -> clearSearchAndReset());
         }
+
+        updateSearchButtonVisibility();
     }
 
     private void updateSearchButtonVisibility() {
@@ -1064,10 +1077,13 @@ public final class LeftPaneCoordinator {
 
         v.btnSearch.setVisible(has);
         v.btnSearch.setManaged(has);
+        v.btnSearch.setDisable(!has);
     }
 
-    private void clearSearch() {
+    private void clearSearchAndReset() {
         if (v.tfSearch == null) return;
+
+        searchIdleTimer.stop();
 
         searchProgrammaticChange = true;
         try {
@@ -1078,6 +1094,10 @@ public final class LeftPaneCoordinator {
 
         appliedSearch = "";
         applyFiltersToList();
+
+        updateSearchButtonVisibility();
+
+        javafx.application.Platform.runLater(v.tfSearch::requestFocus);
     }
 
     private void applySearchNow() {
