@@ -1742,6 +1742,14 @@ public final class RightPaneCoordinator {
             return false;
         }
 
+        String title = safe(v.tfCycleTitle == null ? "" : v.tfCycleTitle.getText());
+        if (title.isBlank()) {
+            setLastSaveBlockMessage("fill.title");
+            setSaveEnabled(false);
+            updateSaveDisabledHint();
+            return false;
+        }
+
         setLastSaveBlockMessage("");
         setSaveEnabled(true);
         updateSaveDisabledHint();

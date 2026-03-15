@@ -44,6 +44,7 @@
                                 <StackPane HBox.hgrow="ALWAYS">
                                     <TextField fx:id="tfSearch"
                                                maxWidth="Infinity"
+                                               promptText="%tc.search.placeholder"
                                                styleClass="tc-search"/>
 
                                     <Button fx:id="btnSearch"
