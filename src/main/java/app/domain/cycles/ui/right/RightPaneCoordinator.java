@@ -707,6 +707,7 @@ public final class RightPaneCoordinator {
         Path saved = createUseCase.update(openedFile, draft);
         openedFile = saved;
         openedDraft = draft;
+        if (onSaved != null) onSaved.run();
         return true;
     }
 
