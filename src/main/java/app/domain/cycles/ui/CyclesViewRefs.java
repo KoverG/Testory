@@ -28,6 +28,7 @@ public class CyclesViewRefs {
     public final Button btnTrash;
     public final Button btnFilter;
     public final Button btnSort;
+    public final Label lblSortSummary;
 
     public final VBox casesSheet;
     public final ListView<Object> lvLeft;
@@ -88,6 +89,7 @@ public class CyclesViewRefs {
             Button btnTrash,
             Button btnFilter,
             Button btnSort,
+            Label lblSortSummary,
             VBox casesSheet,
             ListView<Object> lvLeft,
             StackPane filterSheet,
@@ -129,6 +131,7 @@ public class CyclesViewRefs {
         this.btnTrash = btnTrash;
         this.btnFilter = btnFilter;
         this.btnSort = btnSort;
+        this.lblSortSummary = lblSortSummary;
 
         this.casesSheet = casesSheet;
         this.lvLeft = lvLeft;

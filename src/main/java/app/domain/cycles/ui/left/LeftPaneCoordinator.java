@@ -3,6 +3,7 @@ package app.domain.cycles.ui.left;
 
 import app.core.I18n;
 import app.core.PrivateRootConfig;
+import app.domain.cycles.query.CycleListSorter;
 import app.domain.cycles.repo.CaseHistoryIndexStore;
 import app.domain.cycles.repo.CycleCardJsonReader;
 import app.domain.cycles.ui.CyclesViewRefs;
@@ -10,6 +11,7 @@ import app.domain.cycles.ui.list.CaseListItem;
 import app.domain.cycles.ui.list.CycleListItem;
 import app.domain.cycles.ui.list.ListPresenter;
 import app.domain.cycles.ui.overlay.FilterSheet;
+import app.domain.cycles.ui.overlay.SortSheet;
 import app.domain.cycles.ui.right.RightPaneCoordinator;
 import app.domain.cycles.usecase.CycleCaseRef;
 import app.domain.cycles.usecase.CycleDraft;
@@ -18,6 +20,7 @@ import app.domain.testcases.LabelStore;
 import app.domain.testcases.TagStore;
 import app.domain.testcases.TestCase;
 import app.domain.testcases.query.TestCaseFilter;
+import app.domain.testcases.query.TestCaseSorter;
 import app.domain.testcases.repo.TestCaseCardStore;
 import app.ui.UiSvg;
 import app.ui.confirm.LeftDeleteConfirm;
@@ -37,6 +40,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.OverrunStyle;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -96,6 +100,29 @@ public final class LeftPaneCoordinator {
     // вњ… NEW: sticky header titles
     private static final String I18N_CY_LEFT_LIST_CYCLES = "cy.left.list.cycles";
     private static final String I18N_CY_LEFT_LIST_CASES  = "cy.left.list.cases";
+    private static final List<String> CASE_SORT_KEYS = List.of(
+            "tc.sort.createdNewest",
+            "tc.sort.createdOldest",
+            "tc.sort.savedRecent",
+            "tc.sort.code",
+            "tc.sort.numberAsc",
+            "tc.sort.numberDesc",
+            "tc.sort.titleAsc",
+            "tc.sort.titleDesc"
+    );
+
+    private static final List<String> CYCLE_SORT_KEYS = List.of(
+            "cy.sort.createdNewest",
+            "cy.sort.createdOldest",
+            "cy.sort.titleAsc",
+            "cy.sort.titleDesc",
+            "cy.sort.progressDesc",
+            "cy.sort.progressAsc",
+            "cy.sort.caseCountDesc",
+            "cy.sort.caseCountAsc",
+            "cy.sort.criticalCountDesc",
+            "cy.sort.criticalCountAsc"
+    );
     // ===============================================
 
     // ===================== SEARCH UX =====================
@@ -129,6 +156,7 @@ public final class LeftPaneCoordinator {
     private final RightPaneCoordinator right;
     private final ListPresenter list;
     private final FilterSheet leftFilterSheet;
+    private final SortSheet leftSortSheet;
     private final CaseHistoryIndexStore caseHistoryIndexStore = new CaseHistoryIndexStore();
 
     private LeftMode mode = LeftMode.CYCLES_LIST;
@@ -146,6 +174,7 @@ public final class LeftPaneCoordinator {
     private final ObservableList<CycleListItem> cycleAll = FXCollections.observableArrayList();
     private final ObservableList<CycleListItem> cycleView = FXCollections.observableArrayList();
     private final Map<String, CycleFilterSnapshot> cycleFilterById = new HashMap<>();
+    private final Map<String, CycleListSorter.Snapshot> cycleSortById = new HashMap<>();
 
     // cases: РєР°Рє Р±С‹Р»Рѕ
     private final ObservableList<CaseListItem> caseAll = FXCollections.observableArrayList();
@@ -173,6 +202,7 @@ public final class LeftPaneCoordinator {
         this.right = right;
         this.list = new ListPresenter(v.lvLeft);
         this.leftFilterSheet = new FilterSheet(v.leftStack, v.filterSheet, v.casesSheet);
+        this.leftSortSheet = new SortSheet(v.leftStack, v.sortSheet, v.casesSheet);
     }
 
     public void init() {
@@ -186,10 +216,16 @@ public final class LeftPaneCoordinator {
             UiSvg.setButtonSvg(v.btnSearch, ICON_SEARCH, scaled);
         }
         if (v.btnTrash != null)  UiSvg.setButtonSvg(v.btnTrash, ICON_TRASH,  getIconSizeFromFxml(v.btnTrash, 14));
+        if (v.btnSort != null) UiSvg.setButtonSvg(v.btnSort, "sort.svg", getIconSizeFromFxml(v.btnSort, 14));
+        if (v.lblSortSummary != null) {
+            v.lblSortSummary.setWrapText(false);
+            v.lblSortSummary.setTextOverrun(OverrunStyle.ELLIPSIS);
+            v.lblSortSummary.setMaxWidth(Double.MAX_VALUE);
+        }
 
         v.btnCreate.setOnAction(e -> { if (actions != null) actions.onCreate(); });
         v.btnFilter.setOnAction(e -> toggleFilterSheet());
-        v.btnSort.setOnAction(e -> { if (actions != null) actions.onSort(); });
+        v.btnSort.setOnAction(e -> toggleSortSheet());
 
         v.lvLeft.setOnMouseClicked(e -> {
             if (e.getClickCount() == 2 && actions != null) actions.onOpenSelected();
@@ -265,13 +301,21 @@ public final class LeftPaneCoordinator {
             if (cyclesDeleteConfirm != null) cyclesDeleteConfirm.open();
         });
 
-        leftFilterSheet.setOnBeforeOpen(this::closeLeftOverlaysForFilter);
+        leftFilterSheet.setOnBeforeOpen(this::closeLeftOverlaysForSheet);
         leftFilterSheet.setOutsideCloseConsumeTarget(v.btnFilter);
         leftFilterSheet.setOnApply(() -> {
             applyFiltersToList();
             updateFilterButtonText();
         });
         leftFilterSheet.init();
+
+        leftSortSheet.setOnBeforeOpen(this::closeLeftOverlaysForSheet);
+        leftSortSheet.setOutsideCloseConsumeTarget(v.btnSort);
+        leftSortSheet.setOnSortChanged(() -> {
+            applyFiltersToList();
+            updateSortButtonText();
+        });
+        leftSortSheet.init();
 
         installSearchBehavior();
         applyMode(LeftMode.CYCLES_LIST);
@@ -363,7 +407,10 @@ public final class LeftPaneCoordinator {
             cyclesDeleteConfirm.close();
         }
         if (leftFilterSheet != null && leftFilterSheet.isOpen()) {
-            leftFilterSheet.close();
+            leftFilterSheet.dismissImmediately();
+        }
+        if (leftSortSheet != null && leftSortSheet.isOpen()) {
+            leftSortSheet.dismissImmediately();
         }
 
         animateTrashShift(false);
@@ -433,6 +480,7 @@ public final class LeftPaneCoordinator {
         refreshLeftActionButtonVisibility();
         updateSearchButtonVisibility();
         updateFilterButtonText();
+        updateSortButtonText();
 
         // вњ… update sticky header title per current mode (i18n)
         updateStickyHeaderTitle();
@@ -492,6 +540,7 @@ public final class LeftPaneCoordinator {
 
         // вњ… IMPORTANT: do NOT use ListView padding (it causes "scroll to header and stop").
         // We use a TOP spacer item that scrolls away.
+
         ensureTopSpacers();
 
         // initial title
@@ -509,6 +558,7 @@ public final class LeftPaneCoordinator {
 
         // title may affect header height в†’ update spacer height lazily by using supplier
         // but also ensure spacer exists after mode switches/filters
+
         ensureTopSpacers();
     }
 
@@ -1208,6 +1258,7 @@ public final class LeftPaneCoordinator {
     private void reloadCyclesFromDisk() {
         cycleAll.clear();
         cycleFilterById.clear();
+        cycleSortById.clear();
         cycleTrashChecks.clear();
 
         try {
@@ -1234,9 +1285,10 @@ public final class LeftPaneCoordinator {
 
                 cycleAll.add(new CycleListItem(id, safeTrim(draft.title), safeTrim(draft.createdAtUi)));
                 cycleFilterById.put(id, CycleFilterSnapshot.from(draft));
+                cycleSortById.put(id, toCycleSortSnapshot(draft));
             }
 
-            cycleAll.sort(Comparator.comparing(CycleListItem::safeTitle, String.CASE_INSENSITIVE_ORDER));
+            CycleListSorter.sort(cycleAll, leftSortSheet.appliedCycleSortIndex(), cycleSortById::get);
         } catch (Exception ignore) {
             // ignore
         }
@@ -1310,6 +1362,9 @@ public final class LeftPaneCoordinator {
             cycleView.removeIf(it -> it == null || it.id() == null || it.safeTitle() == null || !it.safeTitle().toLowerCase().contains(q));
             caseView.removeIf(it -> it == null || it.id() == null || it.title() == null || !it.title().toLowerCase().contains(q));
         }
+
+        sortCyclesView();
+        sortCasesView();
 
         ensureTopSpacers();
         moveSpacerToEnd(cycleView, CycleListItem::id);
@@ -1414,7 +1469,15 @@ public final class LeftPaneCoordinator {
         }
     }
 
-    private void closeLeftOverlaysForFilter() {
+    private void toggleSortSheet() {
+        if (mode == LeftMode.CASES_PICKER) {
+            leftSortSheet.toggleForCases(CASE_SORT_KEYS);
+        } else {
+            leftSortSheet.toggleForCycles(CYCLE_SORT_KEYS);
+        }
+    }
+
+    private void closeLeftOverlaysForSheet() {
         if (casesAddOverlay != null && casesAddOverlay.isOpen()) {
             casesAddOverlay.close();
         }
@@ -1424,8 +1487,41 @@ public final class LeftPaneCoordinator {
         if (cyclesDeleteConfirm != null && cyclesDeleteConfirm.isOpen()) {
             cyclesDeleteConfirm.close();
         }
+        if (leftFilterSheet != null && leftFilterSheet.isOpen()) {
+            leftFilterSheet.dismissImmediately();
+        }
+        if (leftSortSheet != null && leftSortSheet.isOpen()) {
+            leftSortSheet.dismissImmediately();
+        }
     }
 
+    private void updateSortButtonText() {
+        if (v == null || v.btnSort == null) return;
+
+        String base = I18n.t("tc.btn.sort");
+        v.btnSort.setText(base);
+
+        if (v.lblSortSummary == null) return;
+
+        String text = currentSortText();
+        boolean hasText = text != null && !text.isBlank();
+        v.lblSortSummary.setText(hasText ? base + ": " + text : "");
+        v.lblSortSummary.setManaged(hasText);
+        v.lblSortSummary.setVisible(hasText);
+    }
+
+    private String currentSortText() {
+        boolean casesMode = mode == LeftMode.CASES_PICKER;
+        String text = casesMode
+                ? leftSortSheet.currentSortTextForCases()
+                : leftSortSheet.currentSortTextForCycles();
+
+        if (text != null && !text.isBlank()) return text;
+
+        List<String> keys = casesMode ? CASE_SORT_KEYS : CYCLE_SORT_KEYS;
+        int idx = casesMode ? leftSortSheet.appliedCaseSortIndex() : leftSortSheet.appliedCycleSortIndex();
+        return keys.isEmpty() ? "" : I18n.t(keys.get(idx));
+    }
     private void updateFilterButtonText() {
         if (v == null || v.btnFilter == null) return;
 
@@ -1437,6 +1533,35 @@ public final class LeftPaneCoordinator {
         v.btnFilter.setText(count > 0 ? base + " (" + count + ")" : base);
     }
 
+    private void sortCyclesView() {
+        CycleListSorter.sort(cycleView, leftSortSheet.appliedCycleSortIndex(), cycleSortById::get);
+    }
+
+    private void sortCasesView() {
+        if (caseView.size() <= 1) return;
+
+        List<TestCase> orderedCases = new ArrayList<>();
+        for (CaseListItem item : caseView) {
+            if (item == null) continue;
+            TestCase testCase = caseById.get(item.id());
+            if (testCase != null) orderedCases.add(testCase);
+        }
+
+        TestCaseSorter.sort(orderedCases, leftSortSheet.appliedCaseSortIndex());
+
+        Map<String, CaseListItem> byId = new HashMap<>();
+        for (CaseListItem item : caseView) {
+            if (item == null || item.id() == null) continue;
+            byId.put(item.id(), item);
+        }
+
+        caseView.clear();
+        for (TestCase testCase : orderedCases) {
+            if (testCase == null || testCase.getId() == null) continue;
+            CaseListItem item = byId.get(testCase.getId().trim());
+            if (item != null) caseView.add(item);
+        }
+    }
     private List<String> collectAvailableResponsibles() {
         List<String> out = new ArrayList<>();
         Set<String> seen = new java.util.TreeSet<>(String.CASE_INSENSITIVE_ORDER);
@@ -1458,6 +1583,53 @@ public final class LeftPaneCoordinator {
             if (normalized.isEmpty()) continue;
             if (!containsIgnoreCase(target, normalized)) target.add(normalized);
         }
+    }
+    private static CycleListSorter.Snapshot toCycleSortSnapshot(CycleDraft draft) {
+        if (draft == null) return CycleListSorter.Snapshot.EMPTY;
+
+        int caseCount = draft.cases == null ? 0 : draft.cases.size();
+        int completed = 0;
+        if (draft.cases != null) {
+            for (CycleCaseRef ref : draft.cases) {
+                if (ref == null) continue;
+                String status = safeTrim(ref.safeStatus()).toUpperCase();
+                if (status.isEmpty()) continue;
+                if (!"IN_PROGRESS".equals(status)) completed++;
+            }
+        }
+
+        double progressPercent = caseCount <= 0 ? 0.0 : (completed * 100.0) / caseCount;
+        if (completed == caseCount && caseCount > 0) progressPercent = 100.0;
+
+        return new CycleListSorter.Snapshot(
+                buildCreatedSortKey(draft),
+                progressPercent,
+                caseCount,
+                countCriticalCases(draft)
+        );
+    }
+
+    private static String buildCreatedSortKey(CycleDraft draft) {
+        if (draft == null) return "";
+
+        String iso = safeTrim(draft.createdAtIso);
+        if (!iso.isEmpty()) return iso;
+
+        LocalDate createdDate = CycleFilterSnapshot.parseCreatedDate(draft);
+        if (createdDate == null) return "";
+        return createdDate.atStartOfDay().toString();
+    }
+
+    private static int countCriticalCases(CycleDraft draft) {
+        if (draft == null || draft.cases == null || draft.cases.isEmpty()) return 0;
+
+        int count = 0;
+        for (CycleCaseRef ref : draft.cases) {
+            if (ref == null) continue;
+            String status = safeTrim(ref.safeStatus()).toUpperCase();
+            if ("FAILED".equals(status) || "CRITICAL_FAILED".equals(status)) count++;
+        }
+        return count;
     }
     private static final class CycleFilterSnapshot {
         private static final DateTimeFormatter UI_DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
