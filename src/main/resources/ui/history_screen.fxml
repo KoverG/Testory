@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane xmlns="http://javafx.com/javafx/23"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="app.domain.history.HistoryController"
+           fx:id="root"
+           styleClass="hy-root">
+
+    <HBox fx:id="contentBox" spacing="14">
+        <padding>
+            <Insets top="14" right="14" bottom="14" left="14"/>
+        </padding>
+
+        <VBox fx:id="leftColumn"
+              spacing="10"
+              styleClass="hy-left-column">
+
+            <StackPane fx:id="leftSurface"
+                       styleClass="hy-surface,hy-left-surface">
+                <padding>
+                    <Insets top="16" right="16" bottom="16" left="16"/>
+                </padding>
+
+                <VBox spacing="14" maxWidth="Infinity" maxHeight="Infinity">
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="История" styleClass="hy-screen-title"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="btnToday"
+                                text="Сегодня"
+                                focusTraversable="false"
+                                styleClass="tc-btn,hy-neutral-btn"/>
+                    </HBox>
+
+                    <VBox spacing="8">
+                        <Label text="Масштаб" styleClass="hy-section-label"/>
+
+                        <HBox fx:id="scaleSwitcher" spacing="8" styleClass="hy-scale-switcher">
+                            <ToggleButton fx:id="btnScaleDay"
+                                          text="День"
+                                          focusTraversable="false"
+                                          styleClass="hy-scale-btn"/>
+                            <ToggleButton fx:id="btnScaleWeek"
+                                          text="Неделя"
+                                          focusTraversable="false"
+                                          styleClass="hy-scale-btn"/>
+                            <ToggleButton fx:id="btnScaleMonth"
+                                          text="Месяц"
+                                          focusTraversable="false"
+                                          styleClass="hy-scale-btn"/>
+                            <ToggleButton fx:id="btnScaleYear"
+                                          text="Год"
+                                          focusTraversable="false"
+                                          styleClass="hy-scale-btn"/>
+                        </HBox>
+                    </VBox>
+
+                    <HBox spacing="8" alignment="CENTER_LEFT">
+                        <Button fx:id="btnPrev"
+                                focusTraversable="false"
+                                styleClass="icon-btn,sm,hy-nav-btn"/>
+                        <Label fx:id="lblCalendarTitle"
+                               maxWidth="Infinity"
+                               HBox.hgrow="ALWAYS"
+                               styleClass="hy-calendar-title"/>
+                        <Button fx:id="btnNext"
+                                focusTraversable="false"
+                                styleClass="icon-btn,sm,hy-nav-btn"/>
+                    </HBox>
+
+                    <StackPane fx:id="calendarViewport"
+                               maxWidth="Infinity"
+                               maxHeight="Infinity"
+                               styleClass="hy-calendar-viewport"/>
+
+                    <Label fx:id="lblCalendarFootnote"
+                           wrapText="true"
+                           styleClass="hy-footnote"/>
+                </VBox>
+            </StackPane>
+        </VBox>
+
+        <VBox fx:id="rightColumn"
+              spacing="10"
+              HBox.hgrow="ALWAYS"
+              styleClass="hy-right-column">
+
+            <StackPane fx:id="rightSurface"
+                       VBox.vgrow="ALWAYS"
+                       styleClass="hy-surface,hy-right-surface">
+                <padding>
+                    <Insets top="16" right="16" bottom="16" left="16"/>
+                </padding>
+
+                <VBox spacing="16" maxWidth="Infinity" maxHeight="Infinity">
+                    <VBox spacing="4">
+                        <Label fx:id="lblSelectionTitle" styleClass="hy-selection-title"/>
+                        <Label fx:id="lblSelectionHint" wrapText="true" styleClass="hy-selection-hint"/>
+                    </VBox>
+
+                    <HBox spacing="12">
+                        <VBox spacing="4" styleClass="hy-summary-card">
+                            <Label text="Состояние" styleClass="hy-summary-label"/>
+                            <Label fx:id="lblSummaryState" styleClass="hy-summary-value"/>
+                        </VBox>
+                    </HBox>
+
+                    <VBox spacing="10" VBox.vgrow="ALWAYS">
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="Хронология" styleClass="hy-block-title"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label text="Этап 1" styleClass="hy-chip-label"/>
+                        </HBox>
+
+                        <ScrollPane fitToWidth="true"
+                                    hbarPolicy="NEVER"
+                                    vbarPolicy="AS_NEEDED"
+                                    styleClass="tc-filter-scroll,hy-scroll"
+                                    VBox.vgrow="ALWAYS">
+                            <content>
+                                <VBox fx:id="timelineContent"
+                                      spacing="10"
+                                      fillWidth="true"
+                                      maxWidth="Infinity">
+                                    <StackPane styleClass="hy-empty-state">
+                                        <VBox spacing="8" maxWidth="420">
+                                            <Label text="Сводка и список запусков появятся на следующем этапе."
+                                                   wrapText="true"
+                                                   styleClass="hy-empty-title"/>
+                                            <Label text="Сейчас экран нужен для согласования композиции, пропорций, переключателей масштаба и общего визуального языка истории."
+                                                   wrapText="true"
+                                                   styleClass="hy-empty-text"/>
+                                        </VBox>
+                                    </StackPane>
+                                </VBox>
+                            </content>
+                        </ScrollPane>
+                    </VBox>
+                </VBox>
+            </StackPane>
+        </VBox>
+    </HBox>
+</StackPane>
