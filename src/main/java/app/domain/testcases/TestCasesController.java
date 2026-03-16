@@ -300,6 +300,7 @@ public class TestCasesController {
         }
         // ==========================================================================
 
+        attachCyclesStylesheet();
         installCasesSheetClip();
         installRightStackClip();
         installDigitsOnly(tfTop2);
@@ -1103,6 +1104,18 @@ public class TestCasesController {
         clip.heightProperty().bind(casesSheet.heightProperty());
 
         casesSheet.setClip(clip);
+    }
+
+    private void attachCyclesStylesheet() {
+        if (rightPane == null) return;
+
+        var url = getClass().getResource("/ui/cycles.css");
+        if (url == null) return;
+
+        String css = url.toExternalForm();
+        if (!rightPane.getStylesheets().contains(css)) {
+            rightPane.getStylesheets().add(css);
+        }
     }
 
     private void installRightStackClip() {
