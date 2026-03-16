@@ -7,17 +7,20 @@ import app.ui.UiScroll;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.ParallelTransition;
+import javafx.animation.PauseTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBase;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -129,6 +132,7 @@ public final class FilterSheet {
     private static final double FILTER_SHEET_RADIUS = 18.0;
     private static final double FILTER_OVERLAY_MARGIN_BOTTOM = 12.0;
     private static final double FILTER_OVERLAY_EXTRA_SCROLL = 18.0;
+    private static final Duration SIM_PRESS_MS = Duration.millis(120.0);
 
     private static final String DATE_TODAY = "today";
     private static final String DATE_7_DAYS = "last7";
@@ -179,6 +183,8 @@ public final class FilterSheet {
     private VBox applyOverlay;
     private ScrollPane scrollPane;
     private Region bottomSpacer;
+    private Node cardRoot;
+    private Node filterToggleNode;
 
     public FilterSheet(StackPane leftStack, StackPane filterSheet, Node blurTarget) {
         this.leftStack = leftStack;
@@ -196,7 +202,7 @@ public final class FilterSheet {
         filterSheet.setManaged(false);
         filterSheet.setOpacity(0.0);
         filterSheet.setTranslateY(0.0);
-        filterSheet.setPickOnBounds(true);
+        filterSheet.setPickOnBounds(false);
 
         if (leftStack != null) {
             leftStack.heightProperty().addListener((obs, oldV, newV) -> {
@@ -206,6 +212,7 @@ public final class FilterSheet {
             Platform.runLater(() -> {
                 if (leftStack.getScene() == null) return;
                 leftStack.getScene().addEventFilter(KeyEvent.KEY_PRESSED, this::onKeyPressed);
+                leftStack.getScene().addEventFilter(MouseEvent.MOUSE_PRESSED, this::onMousePressed);
             });
         }
     }
@@ -216,6 +223,10 @@ public final class FilterSheet {
 
     public void setOnBeforeOpen(Runnable onBeforeOpen) {
         this.onBeforeOpen = onBeforeOpen == null ? () -> {} : onBeforeOpen;
+    }
+
+    public void setOutsideCloseConsumeTarget(Node filterToggleNode) {
+        this.filterToggleNode = filterToggleNode;
     }
 
     public void toggleForCycles(List<String> responsibles) {
@@ -350,16 +361,10 @@ public final class FilterSheet {
     private void buildUi() {
         filterSheet.getChildren().clear();
 
-        Region background = new Region();
-        background.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        background.setOnMousePressed(e -> {
-            e.consume();
-            close();
-        });
-
         Node card = buildCard();
-        filterSheet.getChildren().addAll(background, card);
+        filterSheet.getChildren().add(card);
         StackPane.setAlignment(card, Pos.BOTTOM_CENTER);
+        cardRoot = card;
     }
 
     private Node buildCard() {
@@ -741,6 +746,43 @@ public final class FilterSheet {
         if (event.getCode() != KeyCode.ESCAPE) return;
         event.consume();
         close();
+    }
+
+    private void onMousePressed(MouseEvent event) {
+        if (!open) return;
+        if (!(event.getTarget() instanceof Node target)) return;
+        if (isInside(target, cardRoot)) return;
+
+        close();
+
+        if (isInside(target, filterToggleNode)) {
+            event.consume();
+            pressFxOnlyLater(filterToggleNode);
+        }
+    }
+
+    private static void pressFxOnlyLater(Node node) {
+        if (!(node instanceof ButtonBase button)) return;
+
+        Platform.runLater(() -> {
+            button.arm();
+            button.requestFocus();
+
+            PauseTransition pause = new PauseTransition(SIM_PRESS_MS);
+            pause.setOnFinished(ev -> button.disarm());
+            pause.play();
+        });
+    }
+
+    private static boolean isInside(Node target, Node container) {
+        if (target == null || container == null) return false;
+
+        Node current = target;
+        while (current != null) {
+            if (current == container) return true;
+            current = current.getParent();
+        }
+        return false;
     }
 
     private static void copyCycle(CycleFilters from, CycleFilters to) {

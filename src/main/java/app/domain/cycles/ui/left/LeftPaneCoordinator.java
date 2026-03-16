@@ -266,6 +266,7 @@ public final class LeftPaneCoordinator {
         });
 
         leftFilterSheet.setOnBeforeOpen(this::closeLeftOverlaysForFilter);
+        leftFilterSheet.setOutsideCloseConsumeTarget(v.btnFilter);
         leftFilterSheet.setOnApply(() -> {
             applyFiltersToList();
             updateFilterButtonText();
