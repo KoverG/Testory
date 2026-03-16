@@ -83,8 +83,15 @@
                                 <Button fx:id="btnSort"
                                         text="%tc.btn.sort"
                                         focusTraversable="false"
-                                        styleClass="tc-btn"/>
+                                        userData="14"
+                                        styleClass="tc-btn,tc-sort-btn"/>
                             </HBox>
+
+                            <Label fx:id="lblSortSummary"
+                                   maxWidth="Infinity"
+                                   managed="false"
+                                   visible="false"
+                                   styleClass="cy-muted"/>
 
                             <VBox fx:id="casesSheet"
                                   VBox.vgrow="ALWAYS"
@@ -115,7 +122,9 @@
                                    managed="false"
                                    pickOnBounds="true"
                                    maxWidth="Infinity"
-                                   maxHeight="Infinity"/>
+                                   maxHeight="Infinity"
+                                   styleClass="tc-sheet-filter-sort"
+                                   StackPane.alignment="BOTTOM_CENTER"/>
 
                         <StackPane fx:id="trashOverlay"
                                    visible="false"

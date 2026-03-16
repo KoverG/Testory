@@ -250,6 +250,17 @@ public final class FilterSheet {
         hideAnimated();
     }
 
+    public void dismissImmediately() {
+        stopAnimation();
+        discardDraft();
+        open = false;
+        filterSheet.setVisible(false);
+        filterSheet.setManaged(false);
+        filterSheet.setTranslateY(0.0);
+        filterSheet.setOpacity(0.0);
+        blur.setActive(false);
+    }
+
     public boolean isOpen() {
         return open;
     }

@@ -38,6 +38,7 @@ public class CyclesController {
     @FXML private Button btnTrash;
     @FXML private Button btnFilter;
     @FXML private Button btnSort;
+    @FXML private Label lblSortSummary;
 
     @FXML private VBox casesSheet;
     @FXML private ListView<Object> lvLeft;
@@ -107,6 +108,7 @@ public class CyclesController {
                 btnTrash,
                 btnFilter,
                 btnSort,
+                lblSortSummary,
                 casesSheet,
                 lvLeft,
                 filterSheet,
