@@ -1,0 +1,342 @@
+.hy-root {
+    -fx-padding: 0;
+}
+
+.hy-left-column,
+.hy-right-column {
+    -fx-min-height: 0;
+}
+
+.hy-surface {
+    -fx-background-color: linear-gradient(to bottom, rgba(255,255,255,0.08), rgba(255,255,255,0.05));
+    -fx-background-radius: 24;
+    -fx-border-radius: 24;
+    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-border-width: 1;
+}
+
+.root.theme-light .hy-surface {
+    -fx-background-color: linear-gradient(to bottom, rgba(255,255,255,0.92), rgba(255,255,255,0.76));
+    -fx-border-color: rgba(0,0,0,0.08);
+}
+
+.hy-screen-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -fx-text-color;
+}
+
+.hy-section-label,
+.hy-block-title,
+.hy-summary-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -fx-muted-color;
+}
+
+.hy-calendar-title,
+.hy-selection-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -fx-text-color;
+}
+
+.hy-selection-hint,
+.hy-footnote,
+.hy-empty-text,
+.hy-chip-label,
+.hy-week-card-footer,
+.hy-year-card-footer {
+    -fx-font-size: 12px;
+    -fx-text-fill: -fx-muted-color;
+}
+
+.hy-scale-btn {
+    -fx-background-color: rgba(255,255,255,0.05);
+    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+    -fx-padding: 8 12;
+    -fx-text-fill: -fx-text-color;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+.hy-scale-btn:hover {
+    -fx-background-color: rgba(255,255,255,0.09);
+    -fx-border-color: rgba(255,255,255,0.18);
+}
+
+.hy-scale-btn:selected,
+.hy-scale-btn:selected-scale {
+    -fx-background-color: rgba(245, 0, 73, 0.18);
+    -fx-border-color: rgba(245, 0, 73, 0.55);
+}
+
+.root.theme-light .hy-scale-btn {
+    -fx-background-color: rgba(0,0,0,0.04);
+    -fx-border-color: rgba(0,0,0,0.09);
+}
+
+.root.theme-light .hy-scale-btn:hover {
+    -fx-background-color: rgba(0,0,0,0.07);
+    -fx-border-color: rgba(0,0,0,0.14);
+}
+
+.root.theme-light .hy-scale-btn:selected,
+.root.theme-light .hy-scale-btn:selected-scale {
+    -fx-background-color: rgba(245, 0, 73, 0.10);
+    -fx-border-color: rgba(245, 0, 73, 0.40);
+}
+
+.hy-neutral-btn {
+    -fx-min-height: 34;
+}
+
+.hy-nav-btn {
+    -fx-min-width: 34;
+    -fx-pref-width: 34;
+    -fx-max-width: 34;
+    -fx-min-height: 34;
+    -fx-pref-height: 34;
+    -fx-max-height: 34;
+    -fx-padding: 0;
+}
+
+.hy-calendar-viewport {
+    -fx-background-color: linear-gradient(to bottom, rgba(255,255,255,0.05), rgba(255,255,255,0.03));
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-border-color: rgba(255,255,255,0.08);
+    -fx-padding: 14;
+}
+
+.root.theme-light .hy-calendar-viewport {
+    -fx-background-color: linear-gradient(to bottom, rgba(0,0,0,0.03), rgba(0,0,0,0.015));
+    -fx-border-color: rgba(0,0,0,0.08);
+}
+
+.hy-weekday-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -fx-muted-color;
+}
+
+.hy-weekday-label.is-weekend {
+    -fx-text-fill: rgba(255,255,255,0.88);
+}
+
+.root.theme-light .hy-weekday-label.is-weekend {
+    -fx-text-fill: rgba(20,24,32,0.78);
+}
+
+.hy-month-cell,
+.hy-week-card,
+.hy-year-card,
+.hy-day-slot,
+.hy-summary-card,
+.hy-empty-state {
+    -fx-background-color: rgba(255,255,255,0.05);
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
+    -fx-border-color: rgba(255,255,255,0.08);
+}
+
+.root.theme-light .hy-month-cell,
+.root.theme-light .hy-week-card,
+.root.theme-light .hy-year-card,
+.root.theme-light .hy-day-slot,
+.root.theme-light .hy-summary-card,
+.root.theme-light .hy-empty-state {
+    -fx-background-color: rgba(0,0,0,0.035);
+    -fx-border-color: rgba(0,0,0,0.08);
+}
+
+.hy-month-cell {
+    -fx-cursor: hand;
+}
+
+.hy-month-cell:hover {
+    -fx-border-color: rgba(255,255,255,0.18);
+}
+
+.root.theme-light .hy-month-cell:hover {
+    -fx-border-color: rgba(0,0,0,0.16);
+}
+
+.hy-month-cell.has-activity {
+    -fx-background-color: rgba(245, 0, 73, 0.10);
+}
+
+.root.theme-light .hy-month-cell.has-activity {
+    -fx-background-color: rgba(245, 0, 73, 0.06);
+}
+
+.hy-month-cell.is-today,
+.hy-week-card.is-today,
+.hy-year-card.is-current-month {
+    -fx-border-color: rgba(245, 0, 73, 0.55);
+}
+
+.root.theme-light .hy-month-cell.is-today,
+.root.theme-light .hy-week-card.is-today,
+.root.theme-light .hy-year-card.is-current-month {
+    -fx-border-color: rgba(245, 0, 73, 0.35);
+}
+
+.hy-month-cell.is-selected,
+.hy-month-cell.is-selected.has-activity,
+.hy-month-cell.is-selected.is-problem,
+.hy-month-cell.is-selected.is-active,
+.hy-month-cell.is-selected.is-problem.has-activity {
+    -fx-border-color: rgba(245, 0, 73, 0.80);
+    -fx-border-width: 1.5;
+    -fx-background-color: rgba(255,255,255,0.05);
+}
+
+.root.theme-light .hy-month-cell.is-selected,
+.root.theme-light .hy-month-cell.is-selected.has-activity,
+.root.theme-light .hy-month-cell.is-selected.is-problem,
+.root.theme-light .hy-month-cell.is-selected.is-active,
+.root.theme-light .hy-month-cell.is-selected.is-problem.has-activity {
+    -fx-border-color: rgba(245, 0, 73, 0.52);
+    -fx-background-color: rgba(0,0,0,0.035);
+}
+
+.hy-month-cell.is-problem {
+    -fx-background-color: rgba(255, 122, 112, 0.11);
+}
+
+.root.theme-light .hy-month-cell.is-problem {
+    -fx-background-color: rgba(255, 122, 112, 0.08);
+}
+
+.hy-month-cell.is-active {
+    -fx-border-style: segments(6, 4);
+}
+
+.hy-month-cell.is-outside {
+    -fx-opacity: 0.48;
+}
+
+.hy-month-day-number,
+.hy-summary-value,
+.hy-day-title,
+.hy-week-card-title,
+.hy-year-card-title,
+.hy-empty-title {
+    -fx-font-weight: 800;
+    -fx-text-fill: -fx-text-color;
+}
+
+.hy-month-day-number {
+    -fx-font-size: 14px;
+    -fx-alignment: TOP_CENTER;
+    -fx-max-width: Infinity;
+}
+
+.hy-summary-card {
+    -fx-padding: 12;
+    -fx-min-height: 82;
+}
+
+.hy-summary-value {
+    -fx-font-size: 14px;
+}
+
+.hy-chip-label {
+    -fx-background-color: rgba(255,255,255,0.08);
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-padding: 4 8;
+}
+
+.root.theme-light .hy-chip-label {
+    -fx-background-color: rgba(0,0,0,0.05);
+    -fx-border-color: rgba(0,0,0,0.09);
+}
+
+.hy-scroll,
+.hy-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.hy-empty-state {
+    -fx-padding: 18;
+}
+
+.hy-empty-title {
+    -fx-font-size: 16px;
+}
+
+.hy-week-card,
+.hy-year-card,
+.hy-day-slot {
+    -fx-padding: 12;
+}
+
+.hy-week-card-date,
+.hy-day-slot-hour {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -fx-text-color;
+}
+
+.hy-skeleton-bar {
+    -fx-background-color: linear-gradient(to right, rgba(255,255,255,0.12), rgba(255,255,255,0.22));
+    -fx-background-radius: 999;
+}
+
+.root.theme-light .hy-skeleton-bar {
+    -fx-background-color: linear-gradient(to right, rgba(0,0,0,0.08), rgba(0,0,0,0.14));
+}
+
+.hy-day-slot-hour {
+    -fx-min-width: 52;
+}
+
+.hy-year-grid {
+    -fx-padding: 0;
+}
+
+.hy-year-card {
+    -fx-alignment: TOP_LEFT;
+}
+
+.hy-weekend-column {
+    -fx-background-color: rgba(255,255,255,0.05);
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
+}
+
+.hy-weekend-column.is-sunday {
+    -fx-background-color: rgba(255,255,255,0.08);
+}
+
+.root.theme-light .hy-weekend-column {
+    -fx-background-color: rgba(0,0,0,0.03);
+}
+
+.root.theme-light .hy-weekend-column.is-sunday {
+    -fx-background-color: rgba(0,0,0,0.05);
+}
+
+.hy-year-dot {
+    -fx-pref-width: 10;
+    -fx-pref-height: 10;
+    -fx-background-radius: 999;
+    -fx-background-color: rgba(255,255,255,0.14);
+}
+
+.hy-year-dot.is-strong {
+    -fx-background-color: rgba(245, 0, 73, 0.46);
+}
+
+.root.theme-light .hy-year-dot {
+    -fx-background-color: rgba(0,0,0,0.12);
+}
+
+.root.theme-light .hy-year-dot.is-strong {
+    -fx-background-color: rgba(245, 0, 73, 0.36);
+}

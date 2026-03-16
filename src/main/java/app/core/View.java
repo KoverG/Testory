@@ -5,7 +5,7 @@ public enum View {
 
     TEST_CASES("/ui/testcases.fxml", "view.testCases"),
     CYCLES("/ui/cycles.fxml", "view.cycles"),
-    HISTORY("/ui/history.fxml", "view.history"),
+    HISTORY("/ui/history_screen.fxml", "view.history"),
     ANALYTICS("/ui/analytics.fxml", "view.analytics"),
     REPORTS("/ui/reports.fxml", "view.reports");
 
