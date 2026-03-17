@@ -164,59 +164,97 @@
     -fx-border-color: rgba(0,0,0,0.16);
 }
 
-.hy-month-cell.has-activity {
+/* Weekend cells — slightly different background + muted number */
+.hy-month-cell.is-weekend {
+    -fx-background-color: rgba(255,255,255,0.14);
+}
+
+.hy-month-cell.is-sunday {
+    -fx-background-color: rgba(255,255,255,0.20);
+}
+
+.hy-month-cell.is-weekend .hy-month-day-number {
+    -fx-text-fill: -fx-muted-color;
+}
+
+.root.theme-light .hy-month-cell.is-weekend {
+    -fx-background-color: rgba(0,0,0,0.07);
+}
+
+.root.theme-light .hy-month-cell.is-sunday {
+    -fx-background-color: rgba(0,0,0,0.10);
+}
+
+/* has-activity — dot only, no fill */
+
+/* is-problem — subtle warm tint, dot remains the primary signal */
+.hy-month-cell.is-problem {
     -fx-background-color: rgba(245, 0, 73, 0.10);
 }
 
-.root.theme-light .hy-month-cell.has-activity {
-    -fx-background-color: rgba(245, 0, 73, 0.06);
+.root.theme-light .hy-month-cell.is-problem {
+    -fx-background-color: rgba(245, 0, 73, 0.07);
 }
 
-.hy-month-cell.is-today,
+/* is-active (in-progress) — soft white border */
+.hy-month-cell.is-active {
+    -fx-border-color: rgba(255, 255, 255, 0.48);
+    -fx-border-width: 1.5;
+}
+
+.root.theme-light .hy-month-cell.is-active {
+    -fx-border-color: rgba(0, 0, 0, 0.28);
+    -fx-border-width: 1.5;
+}
+
+/* is-today (unselected) — neutral, non-intrusive */
+.hy-month-cell.is-today {
+    -fx-border-color: rgba(255, 255, 255, 0.42);
+    -fx-border-width: 1.5;
+}
+
 .hy-week-card.is-today,
 .hy-year-card.is-current-month {
     -fx-border-color: rgba(245, 0, 73, 0.55);
 }
 
-.root.theme-light .hy-month-cell.is-today,
+.root.theme-light .hy-month-cell.is-today {
+    -fx-border-color: rgba(0, 0, 0, 0.30);
+    -fx-border-width: 1.5;
+}
+
 .root.theme-light .hy-week-card.is-today,
 .root.theme-light .hy-year-card.is-current-month {
     -fx-border-color: rgba(245, 0, 73, 0.35);
 }
 
-.hy-month-cell.is-selected,
-.hy-month-cell.is-selected.has-activity,
-.hy-month-cell.is-selected.is-problem,
-.hy-month-cell.is-selected.is-active,
-.hy-month-cell.is-selected.is-problem.has-activity {
-    -fx-border-color: rgba(245, 0, 73, 0.80);
-    -fx-border-width: 1.5;
-    -fx-background-color: rgba(255,255,255,0.05);
+/* is-selected — thicker accent border, no fill — always last to win */
+.hy-month-cell.is-selected {
+    -fx-border-color: rgba(245, 0, 73, 0.92);
+    -fx-border-width: 2.5;
 }
 
-.root.theme-light .hy-month-cell.is-selected,
-.root.theme-light .hy-month-cell.is-selected.has-activity,
-.root.theme-light .hy-month-cell.is-selected.is-problem,
-.root.theme-light .hy-month-cell.is-selected.is-active,
-.root.theme-light .hy-month-cell.is-selected.is-problem.has-activity {
-    -fx-border-color: rgba(245, 0, 73, 0.52);
-    -fx-background-color: rgba(0,0,0,0.035);
-}
-
-.hy-month-cell.is-problem {
-    -fx-background-color: rgba(255, 122, 112, 0.11);
-}
-
-.root.theme-light .hy-month-cell.is-problem {
-    -fx-background-color: rgba(255, 122, 112, 0.08);
-}
-
-.hy-month-cell.is-active {
-    -fx-border-style: segments(6, 4);
+.root.theme-light .hy-month-cell.is-selected {
+    -fx-border-color: rgba(245, 0, 73, 0.70);
+    -fx-border-width: 2.5;
 }
 
 .hy-month-cell.is-outside {
     -fx-opacity: 0.48;
+}
+
+/* Activity dot — always accent color, visible on any background */
+.hy-month-dot {
+    -fx-pref-width: 5;
+    -fx-pref-height: 5;
+    -fx-max-width: 5;
+    -fx-max-height: 5;
+    -fx-background-radius: 999;
+    -fx-background-color: rgba(245, 0, 73, 0.88);
+}
+
+.root.theme-light .hy-month-dot {
+    -fx-background-color: rgba(245, 0, 73, 0.75);
 }
 
 .hy-month-day-number,
@@ -304,24 +342,6 @@
     -fx-alignment: TOP_LEFT;
 }
 
-.hy-weekend-column {
-    -fx-background-color: rgba(255,255,255,0.05);
-    -fx-background-radius: 18;
-    -fx-border-radius: 18;
-}
-
-.hy-weekend-column.is-sunday {
-    -fx-background-color: rgba(255,255,255,0.08);
-}
-
-.root.theme-light .hy-weekend-column {
-    -fx-background-color: rgba(0,0,0,0.03);
-}
-
-.root.theme-light .hy-weekend-column.is-sunday {
-    -fx-background-color: rgba(0,0,0,0.05);
-}
-
 .hy-year-dot {
     -fx-pref-width: 10;
     -fx-pref-height: 10;
@@ -339,4 +359,60 @@
 
 .root.theme-light .hy-year-dot.is-strong {
     -fx-background-color: rgba(245, 0, 73, 0.36);
+}
+
+.hy-timeline-card {
+    -fx-background-color: rgba(255,255,255,0.05);
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
+    -fx-border-color: rgba(255,255,255,0.08);
+    -fx-padding: 14;
+    -fx-spacing: 12;
+}
+
+.root.theme-light .hy-timeline-card {
+    -fx-background-color: rgba(0,0,0,0.035);
+    -fx-border-color: rgba(0,0,0,0.08);
+}
+
+.hy-timeline-time,
+.hy-timeline-title {
+    -fx-text-fill: -fx-text-color;
+}
+
+.hy-timeline-time {
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+    -fx-min-width: 56;
+}
+
+.hy-timeline-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: 800;
+}
+
+.hy-timeline-meta {
+    -fx-font-size: 12px;
+    -fx-text-fill: -fx-muted-color;
+}
+
+.hy-timeline-chip {
+    -fx-background-color: rgba(255,255,255,0.08);
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-padding: 4 8;
+    -fx-text-fill: -fx-text-color;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+.root.theme-light .hy-timeline-chip {
+    -fx-background-color: rgba(0,0,0,0.05);
+    -fx-border-color: rgba(0,0,0,0.09);
+}
+
+.hy-timeline-open-btn {
+    -fx-min-height: 34;
+    -fx-padding: 8 14;
 }

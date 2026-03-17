@@ -34,8 +34,9 @@ public final class HistoryController {
     @FXML private VBox rightColumn;
     @FXML private StackPane rightSurface;
     @FXML private Label lblSelectionTitle;
-    @FXML private Label lblSelectionHint;
-    @FXML private Label lblSummaryState;
+    @FXML private Label lblSummaryCycles;
+    @FXML private Label lblSummaryProblems;
+    @FXML private Label lblSummaryActive;
     @FXML private VBox timelineContent;
 
     @FXML
@@ -62,10 +63,9 @@ public final class HistoryController {
                 rightColumn,
                 rightSurface,
                 lblSelectionTitle,
-                lblSelectionHint,
-                null,
-                null,
-                lblSummaryState,
+                lblSummaryCycles,
+                lblSummaryProblems,
+                lblSummaryActive,
                 timelineContent
         );
 

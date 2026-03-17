@@ -102,24 +102,25 @@
                 </padding>
 
                 <VBox spacing="16" maxWidth="Infinity" maxHeight="Infinity">
-                    <VBox spacing="4">
-                        <Label fx:id="lblSelectionTitle" styleClass="hy-selection-title"/>
-                        <Label fx:id="lblSelectionHint" wrapText="true" styleClass="hy-selection-hint"/>
-                    </VBox>
+                    <Label fx:id="lblSelectionTitle" styleClass="hy-selection-title"/>
 
-                    <HBox spacing="12">
-                        <VBox spacing="4" styleClass="hy-summary-card">
-                            <Label text="Состояние" styleClass="hy-summary-label"/>
-                            <Label fx:id="lblSummaryState" styleClass="hy-summary-value"/>
+                    <HBox spacing="10">
+                        <VBox spacing="4" styleClass="hy-summary-card" HBox.hgrow="ALWAYS">
+                            <Label text="Циклов" styleClass="hy-summary-label"/>
+                            <Label fx:id="lblSummaryCycles" text="—" styleClass="hy-summary-value"/>
+                        </VBox>
+                        <VBox spacing="4" styleClass="hy-summary-card" HBox.hgrow="ALWAYS">
+                            <Label text="Проблемных" styleClass="hy-summary-label"/>
+                            <Label fx:id="lblSummaryProblems" text="—" styleClass="hy-summary-value"/>
+                        </VBox>
+                        <VBox spacing="4" styleClass="hy-summary-card" HBox.hgrow="ALWAYS">
+                            <Label text="Незавершённых" styleClass="hy-summary-label"/>
+                            <Label fx:id="lblSummaryActive" text="—" styleClass="hy-summary-value"/>
                         </VBox>
                     </HBox>
 
                     <VBox spacing="10" VBox.vgrow="ALWAYS">
-                        <HBox alignment="CENTER_LEFT">
-                            <Label text="Хронология" styleClass="hy-block-title"/>
-                            <Region HBox.hgrow="ALWAYS"/>
-                            <Label text="Этап 1" styleClass="hy-chip-label"/>
-                        </HBox>
+                        <Label text="Хронология" styleClass="hy-block-title"/>
 
                         <ScrollPane fitToWidth="true"
                                     hbarPolicy="NEVER"
@@ -130,18 +131,7 @@
                                 <VBox fx:id="timelineContent"
                                       spacing="10"
                                       fillWidth="true"
-                                      maxWidth="Infinity">
-                                    <StackPane styleClass="hy-empty-state">
-                                        <VBox spacing="8" maxWidth="420">
-                                            <Label text="Сводка и список запусков появятся на следующем этапе."
-                                                   wrapText="true"
-                                                   styleClass="hy-empty-title"/>
-                                            <Label text="Сейчас экран нужен для согласования композиции, пропорций, переключателей масштаба и общего визуального языка истории."
-                                                   wrapText="true"
-                                                   styleClass="hy-empty-text"/>
-                                        </VBox>
-                                    </StackPane>
-                                </VBox>
+                                      maxWidth="Infinity"/>
                             </content>
                         </ScrollPane>
                     </VBox>
