@@ -26,10 +26,9 @@ public record HistoryViewRefs(
         VBox rightColumn,
         StackPane rightSurface,
         Label lblSelectionTitle,
-        Label lblSelectionHint,
-        Label lblSummaryScale,
-        Label lblSummaryPeriod,
-        Label lblSummaryState,
+        Label lblSummaryCycles,
+        Label lblSummaryProblems,
+        Label lblSummaryActive,
         VBox timelineContent
 ) {
 }

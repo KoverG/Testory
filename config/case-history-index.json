@@ -52,6 +52,27 @@
         "createdAtUi": "15.03.2026",
         "status": "",
         "comment": ""
+      },
+      {
+        "cycleId": "cy_20260315183848154_031",
+        "cycleTitle": "Тест 1 из 3 выполненых",
+        "createdAtUi": "15.03.2026",
+        "status": "",
+        "comment": ""
+      },
+      {
+        "cycleId": "cy_20260315213732983_727",
+        "cycleTitle": "Тест в процессе 1",
+        "createdAtUi": "15.03.2026",
+        "status": "",
+        "comment": ""
+      },
+      {
+        "cycleId": "cy_20260315213747363_853",
+        "cycleTitle": "Тест пауза 1",
+        "createdAtUi": "15.03.2026",
+        "status": "",
+        "comment": ""
       }
     ],
     "tc_20251231111329926_846": [
@@ -60,6 +81,27 @@
         "cycleTitle": "Тест цикл 1",
         "createdAtUi": "15.03.2026",
         "status": "FAILED",
+        "comment": ""
+      },
+      {
+        "cycleId": "cy_20260315183848154_031",
+        "cycleTitle": "Тест 1 из 3 выполненых",
+        "createdAtUi": "15.03.2026",
+        "status": "PASSED",
+        "comment": ""
+      },
+      {
+        "cycleId": "cy_20260315213747363_853",
+        "cycleTitle": "Тест пауза 1",
+        "createdAtUi": "15.03.2026",
+        "status": "",
+        "comment": ""
+      },
+      {
+        "cycleId": "cy_20260315221506182_630",
+        "cycleTitle": "Тест в процессе 2",
+        "createdAtUi": "15.03.2026",
+        "status": "CRITICAL_FAILED",
         "comment": ""
       }
     ],
@@ -74,6 +116,27 @@
       {
         "cycleId": "cy_20260315000139083_115",
         "cycleTitle": "Тест цикл 3",
+        "createdAtUi": "15.03.2026",
+        "status": "",
+        "comment": ""
+      },
+      {
+        "cycleId": "cy_20260315134325792_933",
+        "cycleTitle": "Тест цикл 6",
+        "createdAtUi": "15.03.2026",
+        "status": "PASSED_WITH_BUGS",
+        "comment": ""
+      },
+      {
+        "cycleId": "cy_20260315221231001_834",
+        "cycleTitle": "Тест ответственного Алексей",
+        "createdAtUi": "15.03.2026",
+        "status": "",
+        "comment": ""
+      },
+      {
+        "cycleId": "cy_20260315221506182_630",
+        "cycleTitle": "Тест в процессе 2",
         "createdAtUi": "15.03.2026",
         "status": "",
         "comment": ""
@@ -99,6 +162,65 @@
       {
         "cycleId": "cy_20260315000333989_376",
         "cycleTitle": "Тест цикл 4",
+        "createdAtUi": "15.03.2026",
+        "status": "",
+        "comment": ""
+      }
+    ],
+    "tc_20251231111543156_736": [
+      {
+        "cycleId": "cy_20260315134325792_933",
+        "cycleTitle": "Тест цикл 6",
+        "createdAtUi": "15.03.2026",
+        "status": "FAILED",
+        "comment": ""
+      }
+    ],
+    "tc_20260101142126944_668": [
+      {
+        "cycleId": "cy_20260315134325792_933",
+        "cycleTitle": "Тест цикл 6",
+        "createdAtUi": "15.03.2026",
+        "status": "PASSED",
+        "comment": ""
+      },
+      {
+        "cycleId": "cy_20260315183848154_031",
+        "cycleTitle": "Тест 1 из 3 выполненых",
+        "createdAtUi": "15.03.2026",
+        "status": "",
+        "comment": ""
+      },
+      {
+        "cycleId": "cy_20260315213732983_727",
+        "cycleTitle": "Тест в процессе 1",
+        "createdAtUi": "15.03.2026",
+        "status": "",
+        "comment": ""
+      }
+    ],
+    "tc_20260103234340484_950": [
+      {
+        "cycleId": "cy_20260315134325792_933",
+        "cycleTitle": "Тест цикл 6",
+        "createdAtUi": "15.03.2026",
+        "status": "PASSED",
+        "comment": ""
+      }
+    ],
+    "tc_20251231111451547_731": [
+      {
+        "cycleId": "cy_20260315221231001_834",
+        "cycleTitle": "Тест ответственного Алексей",
+        "createdAtUi": "15.03.2026",
+        "status": "",
+        "comment": ""
+      }
+    ],
+    "tc_20260206003742949_380": [
+      {
+        "cycleId": "cy_20260315221506182_630",
+        "cycleTitle": "Тест в процессе 2",
         "createdAtUi": "15.03.2026",
         "status": "",
         "comment": ""
