@@ -314,6 +314,82 @@
     -fx-padding: 12;
 }
 
+.hy-week-card {
+    -fx-cursor: hand;
+}
+
+.hy-week-card:hover {
+    -fx-border-color: rgba(255,255,255,0.18);
+}
+
+.root.theme-light .hy-week-card:hover {
+    -fx-border-color: rgba(0,0,0,0.16);
+}
+
+.hy-week-card.is-selected {
+    -fx-border-color: rgba(245, 0, 73, 0.92);
+    -fx-border-width: 2.5;
+}
+
+.root.theme-light .hy-week-card.is-selected {
+    -fx-border-color: rgba(245, 0, 73, 0.70);
+    -fx-border-width: 2.5;
+}
+
+.hy-week-card.is-problem {
+    -fx-background-color: rgba(245, 0, 73, 0.10);
+}
+
+.root.theme-light .hy-week-card.is-problem {
+    -fx-background-color: rgba(245, 0, 73, 0.07);
+}
+
+.hy-year-card {
+    -fx-cursor: hand;
+}
+
+.hy-year-card:hover {
+    -fx-border-color: rgba(255,255,255,0.18);
+}
+
+.root.theme-light .hy-year-card:hover {
+    -fx-border-color: rgba(0,0,0,0.16);
+}
+
+.hy-year-card.is-problem {
+    -fx-background-color: rgba(245, 0, 73, 0.10);
+}
+
+.root.theme-light .hy-year-card.is-problem {
+    -fx-background-color: rgba(245, 0, 73, 0.07);
+}
+
+.hy-week-card-count,
+.hy-year-card-count {
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -fx-text-color;
+}
+
+.hy-week-card-problem,
+.hy-year-card-problem {
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-text-fill: rgba(245, 0, 73, 0.88);
+}
+
+.root.theme-light .hy-week-card-problem,
+.root.theme-light .hy-year-card-problem {
+    -fx-text-fill: rgba(200, 0, 60, 0.88);
+}
+
+.hy-week-card-empty,
+.hy-year-card-empty {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -fx-muted-color;
+}
+
 .hy-week-card-date,
 .hy-day-slot-hour {
     -fx-font-size: 12px;

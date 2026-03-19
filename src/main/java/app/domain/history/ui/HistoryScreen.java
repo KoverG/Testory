@@ -4,9 +4,12 @@ import app.core.CardNavigationBridge;
 import app.core.Router;
 import app.domain.history.model.HistoryCalendarDayModel;
 import app.domain.history.model.HistoryDayDataModel;
+import app.domain.history.model.HistoryMonthSummaryModel;
 import app.domain.history.model.HistoryTimelineItemModel;
 import app.domain.history.service.HistoryDayDataService;
 import app.domain.history.service.HistoryMonthDataService;
+import app.domain.history.service.HistoryWeekDataService;
+import app.domain.history.service.HistoryYearDataService;
 import javafx.animation.FadeTransition;
 import javafx.css.PseudoClass;
 import javafx.geometry.HPos;
@@ -58,12 +61,16 @@ public final class HistoryScreen {
     private final HistoryViewRefs v;
     private final ToggleGroup scaleGroup = new ToggleGroup();
     private final HistoryMonthDataService monthDataService = new HistoryMonthDataService();
+    private final HistoryWeekDataService weekDataService = new HistoryWeekDataService();
+    private final HistoryYearDataService yearDataService = new HistoryYearDataService();
     private final HistoryDayDataService dayDataService = new HistoryDayDataService();
 
     private HistoryScale scale = HistoryScale.MONTH;
     private LocalDate anchorDate = LocalDate.now();
     private LocalDate selectedDate = LocalDate.now();
     private Map<LocalDate, HistoryCalendarDayModel> monthData = Map.of();
+    private Map<LocalDate, HistoryCalendarDayModel> weekData = Map.of();
+    private Map<YearMonth, HistoryMonthSummaryModel> yearData = Map.of();
     private HistoryDayDataModel dayData = new HistoryDayDataModel(null, java.util.List.of());
 
     private YearMonth builtMonthViewYM = null;
@@ -155,11 +162,9 @@ public final class HistoryScreen {
 
     private void refresh() {
         normalizeSelection();
-        if (scale == HistoryScale.MONTH) {
-            monthData = monthDataService.readMonth(anchorDate);
-        } else {
-            monthData = Map.of();
-        }
+        monthData = scale == HistoryScale.MONTH ? monthDataService.readMonth(anchorDate) : Map.of();
+        weekData  = scale == HistoryScale.WEEK  ? weekDataService.readWeek(anchorDate)   : Map.of();
+        yearData  = scale == HistoryScale.YEAR  ? yearDataService.readYear(anchorDate)   : Map.of();
         dayData = hasActiveSelection()
                 ? dayDataService.readDay(focusDate())
                 : new HistoryDayDataModel(null, java.util.List.of());
@@ -188,11 +193,18 @@ public final class HistoryScreen {
         }
     }
 
-    /** Returns true when selectedDate should be treated as active (visible in current month/scale). */
+    /** Returns true when selectedDate should be treated as active (visible in current month/week). */
     private boolean hasActiveSelection() {
         if (selectedDate == null) return false;
-        if (scale != HistoryScale.MONTH) return true;
-        return YearMonth.from(selectedDate).equals(YearMonth.from(anchorDate));
+        return switch (scale) {
+            case MONTH -> YearMonth.from(selectedDate).equals(YearMonth.from(anchorDate));
+            case WEEK -> {
+                LocalDate weekStart = anchorDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+                yield !selectedDate.isBefore(weekStart) && !selectedDate.isAfter(weekStart.plusDays(6));
+            }
+            case DAY -> true;
+            case YEAR -> false;
+        };
     }
 
     private void replaceCalendarView(Node next) {
@@ -312,31 +324,56 @@ public final class HistoryScreen {
 
         for (int i = 0; i < 7; i++) {
             LocalDate current = weekStart.plusDays(i);
+            HistoryCalendarDayModel model = weekData.getOrDefault(current,
+                    new HistoryCalendarDayModel(current, 0, 0, 0));
+
             VBox card = new VBox(8);
             card.getStyleClass().add("hy-week-card");
             HBox.setHgrow(card, Priority.ALWAYS);
 
+            if (current.equals(LocalDate.now())) card.getStyleClass().add("is-today");
+            if (current.equals(selectedDate))    card.getStyleClass().add("is-selected");
+            if (model.hasProblems())             card.getStyleClass().add("is-problem");
+
             Label dayName = new Label(current.getDayOfWeek().getDisplayName(TextStyle.SHORT, RU));
             dayName.getStyleClass().add("hy-week-card-title");
+
             Label dayNumber = new Label(current.format(DateTimeFormatter.ofPattern("d MMM", RU)));
             dayNumber.getStyleClass().add("hy-week-card-date");
-
-            VBox bars = new VBox(6,
-                    skeletonBar(0.92),
-                    skeletonBar(0.76),
-                    skeletonBar(0.58)
-            );
 
             Region spacer = new Region();
             VBox.setVgrow(spacer, Priority.ALWAYS);
 
-            Label footer = new Label(current.equals(LocalDate.now()) ? "Сегодня" : "Каркас недели");
-            footer.getStyleClass().add("hy-week-card-footer");
-
-            card.getChildren().addAll(dayName, dayNumber, bars, spacer, footer);
-            if (current.equals(LocalDate.now())) {
-                card.getStyleClass().add("is-today");
+            VBox content = new VBox(4);
+            if (model.hasActivity()) {
+                Label count = new Label(model.cycleCount() + pluralCycles(model.cycleCount()));
+                count.getStyleClass().add("hy-week-card-count");
+                content.getChildren().add(count);
+                if (model.hasProblems()) {
+                    Label prob = new Label("Проблем: " + model.problematicCount());
+                    prob.getStyleClass().add("hy-week-card-problem");
+                    content.getChildren().add(prob);
+                }
+            } else {
+                Label empty = new Label("—");
+                empty.getStyleClass().add("hy-week-card-empty");
+                content.getChildren().add(empty);
             }
+
+            card.getChildren().addAll(dayName, dayNumber, spacer, content);
+
+            if (current.equals(LocalDate.now())) {
+                Label footer = new Label("Сегодня");
+                footer.getStyleClass().add("hy-week-card-footer");
+                card.getChildren().add(footer);
+            }
+
+            card.setOnMouseClicked(event -> {
+                if (event.getButton() != MouseButton.PRIMARY) return;
+                selectedDate = current;
+                refresh();
+            });
+
             row.getChildren().add(card);
         }
 
@@ -392,36 +429,56 @@ public final class HistoryScreen {
             grid.getColumnConstraints().add(cc);
         }
 
-        Month currentMonth = date.getMonth();
+        int year = date.getYear();
         for (int month = 1; month <= 12; month++) {
+            YearMonth ym = YearMonth.of(year, month);
+            HistoryMonthSummaryModel summary = yearData.getOrDefault(ym,
+                    new HistoryMonthSummaryModel(ym, 0, 0, 0));
+
             VBox card = new VBox(8);
             card.getStyleClass().add("hy-year-card");
             card.setPrefHeight(116);
             card.setMinHeight(116);
             card.setMaxHeight(116);
-            if (month == currentMonth.getValue()) {
-                card.getStyleClass().add("is-current-month");
-            }
+
+            if (ym.equals(YearMonth.from(LocalDate.now()))) card.getStyleClass().add("is-current-month");
+            if (summary.hasProblems())                       card.getStyleClass().add("is-problem");
 
             Label label = new Label(capitalize(Month.of(month).getDisplayName(TextStyle.FULL, RU)));
             label.getStyleClass().add("hy-year-card-title");
 
-            FlowPane dots = new FlowPane();
-            dots.setHgap(6);
-            dots.setVgap(6);
-            for (int dot = 0; dot < 10; dot++) {
-                Region marker = new Region();
-                marker.getStyleClass().add("hy-year-dot");
-                if (dot == 2 || dot == 6) {
-                    marker.getStyleClass().add("is-strong");
+            Region spacer = new Region();
+            VBox.setVgrow(spacer, Priority.ALWAYS);
+
+            VBox content = new VBox(4);
+            if (summary.hasActivity()) {
+                Label count = new Label(summary.cycleCount() + pluralCycles(summary.cycleCount()));
+                count.getStyleClass().add("hy-year-card-count");
+                content.getChildren().add(count);
+                if (summary.hasProblems()) {
+                    Label prob = new Label("Проблем: " + summary.problematicCount());
+                    prob.getStyleClass().add("hy-year-card-problem");
+                    content.getChildren().add(prob);
                 }
-                dots.getChildren().add(marker);
+            } else {
+                Label empty = new Label("—");
+                empty.getStyleClass().add("hy-year-card-empty");
+                content.getChildren().add(empty);
             }
 
-            Label footer = new Label("Месячный срез");
-            footer.getStyleClass().add("hy-year-card-footer");
+            card.getChildren().addAll(label, spacer, content);
 
-            card.getChildren().addAll(label, dots, footer);
+            final int finalMonth = month;
+            card.setOnMouseClicked(event -> {
+                if (event.getButton() != MouseButton.PRIMARY) return;
+                anchorDate = LocalDate.of(year, finalMonth, 1);
+                selectedDate = anchorDate;
+                scale = HistoryScale.MONTH;
+                v.btnScaleMonth().setSelected(true);
+                markSelectedScale();
+                refresh();
+            });
+
             grid.add(card, (month - 1) % 4, (month - 1) / 4);
         }
 
@@ -441,11 +498,28 @@ public final class HistoryScreen {
     }
 
     private void refreshSummary() {
-        var s = dayData != null ? dayData.summary() : null;
-        boolean hasData = s != null && s.hasActivity();
-        String cycles   = hasData ? String.valueOf(s.cycleCount())       : "—";
-        String problems = hasData ? String.valueOf(s.problematicCount())  : "—";
-        String active   = hasData ? String.valueOf(s.activeCount())       : "—";
+        String cycles, problems, active;
+        if (scale == HistoryScale.WEEK) {
+            int c = weekData.values().stream().mapToInt(HistoryCalendarDayModel::cycleCount).sum();
+            int p = weekData.values().stream().mapToInt(HistoryCalendarDayModel::problematicCount).sum();
+            int a = weekData.values().stream().mapToInt(HistoryCalendarDayModel::activeCount).sum();
+            cycles = c > 0 ? String.valueOf(c) : "—";
+            problems = p > 0 ? String.valueOf(p) : "—";
+            active = a > 0 ? String.valueOf(a) : "—";
+        } else if (scale == HistoryScale.YEAR) {
+            int c = yearData.values().stream().mapToInt(HistoryMonthSummaryModel::cycleCount).sum();
+            int p = yearData.values().stream().mapToInt(HistoryMonthSummaryModel::problematicCount).sum();
+            int a = yearData.values().stream().mapToInt(HistoryMonthSummaryModel::activeCount).sum();
+            cycles = c > 0 ? String.valueOf(c) : "—";
+            problems = p > 0 ? String.valueOf(p) : "—";
+            active = a > 0 ? String.valueOf(a) : "—";
+        } else {
+            var s = dayData != null ? dayData.summary() : null;
+            boolean hasData = s != null && s.hasActivity();
+            cycles   = hasData ? String.valueOf(s.cycleCount())       : "—";
+            problems = hasData ? String.valueOf(s.problematicCount())  : "—";
+            active   = hasData ? String.valueOf(s.activeCount())       : "—";
+        }
         if (v.lblSummaryCycles()   != null) v.lblSummaryCycles().setText(cycles);
         if (v.lblSummaryProblems() != null) v.lblSummaryProblems().setText(problems);
         if (v.lblSummaryActive()   != null) v.lblSummaryActive().setText(active);
@@ -454,15 +528,29 @@ public final class HistoryScreen {
     private void refreshTimeline() {
         v.timelineContent().getChildren().clear();
 
-        if (scale != HistoryScale.MONTH && scale != HistoryScale.DAY) {
+        if (scale == HistoryScale.YEAR) {
             showTimelinePlaceholder(
-                    "Хронология этого масштаба будет добавлена позже",
-                    "Сейчас основной пользовательский сценарий строится вокруг выбранного дня: календарь месяца, сводка дня и список запусков циклов."
+                    "Выберите месяц",
+                    "Нажмите на карточку месяца в календаре, чтобы перейти к его детальному просмотру."
             );
             return;
         }
 
-        if (scale == HistoryScale.MONTH && !hasActiveSelection()) {
+        if ((scale == HistoryScale.MONTH || scale == HistoryScale.WEEK) && !hasActiveSelection()) {
+            if (scale == HistoryScale.WEEK) {
+                showTimelinePlaceholder(
+                        "Выберите день недели",
+                        "Нажмите на карточку дня слева, чтобы увидеть хронологию запусков."
+                );
+            }
+            return;
+        }
+
+        if (scale == HistoryScale.DAY) {
+            showTimelinePlaceholder(
+                    "Детальный вид дня будет добавлен позже",
+                    ""
+            );
             return;
         }
 
@@ -589,6 +677,14 @@ public final class HistoryScreen {
         return " кейсов";
     }
 
+    private static String pluralCycles(int count) {
+        int mod10 = count % 10;
+        int mod100 = count % 100;
+        if (mod10 == 1 && mod100 != 11) return " цикл";
+        if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return " цикла";
+        return " циклов";
+    }
+
     private String normalizeRunState(String runState) {
         String value = runState == null ? "" : runState.trim().toLowerCase(RU);
         return switch (value) {
@@ -609,7 +705,9 @@ public final class HistoryScreen {
     }
 
     private LocalDate focusDate() {
-        if (scale == HistoryScale.MONTH) return selectedDate != null ? selectedDate : anchorDate;
+        if (scale == HistoryScale.MONTH || scale == HistoryScale.WEEK) {
+            return selectedDate != null ? selectedDate : anchorDate;
+        }
         return anchorDate;
     }
     private GridPane createSevenColumnGrid(boolean withRows) {
@@ -665,10 +763,18 @@ public final class HistoryScreen {
     private String selectionTitle(HistoryScale currentScale) {
         return switch (currentScale) {
             case MONTH -> hasActiveSelection() ? formatDay(selectedDate) : "Выберите день";
+            case WEEK -> hasActiveSelection() ? formatDay(selectedDate) : weekRangeTitle(anchorDate);
             case DAY -> "Детальный день";
-            case WEEK -> "Обзор недели";
-            case YEAR -> "Годовой обзор";
+            case YEAR -> anchorDate.getYear() + " год";
         };
+    }
+
+    private String weekRangeTitle(LocalDate date) {
+        LocalDate start = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate end = start.plusDays(6);
+        return start.format(DateTimeFormatter.ofPattern("d", RU))
+                + " — "
+                + end.format(DateTimeFormatter.ofPattern("d MMMM yyyy", RU));
     }
 
     private String footnote(HistoryScale currentScale) {
