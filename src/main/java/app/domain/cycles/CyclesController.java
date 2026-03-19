@@ -7,6 +7,7 @@ import app.domain.cycles.ui.right.CycleCardMenuButton;
 import app.domain.cycles.ui.right.EnvironmentChip;
 import app.domain.cycles.ui.right.TaskLinkChip;
 import app.ui.UiScroll;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -18,12 +19,11 @@ import javafx.scene.layout.VBox;
 
 public class CyclesController {
 
-    private static final double CASES_SHEET_RADIUS = 18.0; // РєР°Рє РЅР° СЌРєСЂР°РЅРµ TestCases
+    private static final double CASES_SHEET_RADIUS = 18.0;
 
     @FXML private StackPane root;
     @FXML private BorderPane contentRoot;
 
-    // left
     @FXML private StackPane leftStack;
     @FXML private VBox leftMain;
 
@@ -32,7 +32,6 @@ public class CyclesController {
     @FXML private Button btnFolder;
     @FXML private Button btnCreate;
 
-    // вњ… toggle (С‚РµРїРµСЂСЊ: РїРµСЂРµРєР»СЋС‡РµРЅРёРµ СЃРїРёСЃРєР° Cycle/Cases)
     @FXML private Object tgThemeLeft;
 
     @FXML private Button btnTrash;
@@ -47,52 +46,33 @@ public class CyclesController {
     @FXML private StackPane sortSheet;
     @FXML private StackPane trashOverlay;
 
-    // right
     @FXML private StackPane rightRoot;
     @FXML private VBox rightPlaceholder;
     @FXML private StackPane floatingOverlayRoot;
 
     @FXML private Label lblCycleCreatedAt;
     @FXML private TaskLinkChip chipTaskLink;
-
-    // вњ… NEW: environment chip near task link chip
     @FXML private EnvironmentChip chipEnvironment;
-
     @FXML private TextField tfCycleTitle;
-
     @FXML private Label lblRightHint;
-
-    // menu button in first row
     @FXML private CycleCardMenuButton btnMenuRight;
-
-    // вњ… NEW
     @FXML private Button btnProfileRight;
-
     @FXML private Button btnCloseRight;
-
     @FXML private Button btnRightAddCases;
-
-    // вњ… NEW: top delete-mode toggle button
     @FXML private Button btnRightTrashCases;
-
     @FXML private Label lblAddedCasesCount;
     @FXML private VBox vbAddedCases;
-
-    // вњ… DELETE (right)
     @FXML private Button btnDeleteRight;
     @FXML private StackPane deleteLayer;
     @FXML private VBox deleteModal;
     @FXML private Button btnDeleteCancel;
     @FXML private Button btnDeleteConfirm;
-
-    // SAVE
     @FXML private Button btnSaveRight;
 
     private CyclesScreen screen;
 
     @FXML
     private void initialize() {
-
         attachCyclesStylesheet();
         installCasesSheetClip();
 
@@ -143,7 +123,7 @@ public class CyclesController {
         CardNavigationBridge.PendingCycleHistoryNavigation navigation =
                 CardNavigationBridge.consumePendingCycleHistoryNavigation();
         if (navigation != null) {
-            screen.openCycleFromHistory(navigation.cycleId(), navigation.sourceCaseId());
+            Platform.runLater(() -> screen.openCycleFromHistory(navigation.cycleId(), navigation.sourceCaseId()));
         }
     }
 

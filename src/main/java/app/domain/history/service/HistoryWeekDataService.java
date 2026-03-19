@@ -26,7 +26,7 @@ public final class HistoryWeekDataService {
         Map<LocalDate, HistoryCalendarDayModel> result = new LinkedHashMap<>();
         for (int i = 0; i < 7; i++) {
             LocalDate d = weekStart.plusDays(i);
-            result.put(d, pool.getOrDefault(d, new HistoryCalendarDayModel(d, 0, 0, 0)));
+            result.put(d, pool.getOrDefault(d, new HistoryCalendarDayModel(d, 0, 0, 0, 0, 0)));
         }
         return result;
     }

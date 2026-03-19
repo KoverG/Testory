@@ -18,8 +18,10 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public final class HistoryDayDataService {
 
@@ -28,73 +30,182 @@ public final class HistoryDayDataService {
     public HistoryDayDataModel readDay(LocalDate day) {
         LocalDate targetDay = day == null ? LocalDate.now() : day;
         List<HistoryTimelineItemModel> timeline = new ArrayList<>();
-        int problematicCount = 0;
-        int activeCount = 0;
+        Set<String> cycleIds = new HashSet<>();
+        Set<String> problematicCycleIds = new HashSet<>();
+        Set<String> notStartedCycleIds = new HashSet<>();
+        Set<String> pausedCycleIds = new HashSet<>();
 
         Path cyclesRoot = new FileCycleRepository().rootDir();
         if (!Files.isDirectory(cyclesRoot)) {
             return new HistoryDayDataModel(
-                    new HistoryDaySummaryModel(targetDay, 0, 0, 0),
+                    new HistoryDaySummaryModel(targetDay, 0, 0, 0, 0),
                     List.of()
             );
         }
 
         try (DirectoryStream<Path> ds = Files.newDirectoryStream(cyclesRoot, "*.json")) {
             for (Path file : ds) {
-                if (file == null) continue;
+                if (file == null) {
+                    continue;
+                }
 
                 CycleDraft draft = CycleCardJsonReader.readDraft(file);
-                if (draft == null) continue;
+                if (draft == null) {
+                    continue;
+                }
 
-                LocalDateTime startedAt = parseStartedAt(draft);
-                if (startedAt == null || !targetDay.equals(startedAt.toLocalDate())) continue;
-
+                LocalDateTime createdAt = parseCreatedAt(draft);
+                LocalDateTime startedAt = parseIso(safe(draft.runStartedAtIso));
+                LocalDateTime savedAt = parseIso(safe(draft.savedAtIso));
+                String runState = CycleRunState.normalize(draft.runState);
                 CaseCounters counters = countCases(draft);
-                if (counters.problematic()) {
-                    problematicCount++;
-                }
-                if (counters.active() || CycleRunState.isActive(draft.runState)) {
-                    activeCount++;
+
+                boolean problematicCycle = counters.hasHardProblems();
+                boolean notStartedCycle = CycleRunState.isIdle(runState) && startedAt == null;
+                boolean pausedCycle = CycleRunState.isPaused(runState);
+
+                if (notStartedCycle && sameDay(createdAt, targetDay)) {
+                    timeline.add(buildTimelineItem(
+                            draft,
+                            createdAt,
+                            "not_started",
+                            "Не начат",
+                            runState,
+                            counters,
+                            problematicCycle,
+                            true,
+                            false
+                    ));
+                    registerCycle(cycleIds, problematicCycleIds, notStartedCycleIds, pausedCycleIds,
+                            safe(draft.id), problematicCycle, true, false);
                 }
 
-                timeline.add(new HistoryTimelineItemModel(
-                        safe(draft.id),
-                        startedAt,
-                        safe(draft.title),
-                        CycleRunState.normalize(draft.runState),
-                        counters.totalCases,
-                        counters.passedCount,
-                        counters.passedWithBugsCount,
-                        counters.failedCount,
-                        counters.criticalFailedCount,
-                        counters.skippedCount,
-                        counters.inProgressCount,
-                        safe(draft.qaResponsible),
-                        environmentLabel(draft)
-                ));
+                if (sameDay(startedAt, targetDay)) {
+                    timeline.add(buildTimelineItem(
+                            draft,
+                            startedAt,
+                            "started",
+                            CycleRunState.isPaused(runState) ? "На паузе" : "В процессе",
+                            runState,
+                            counters,
+                            problematicCycle,
+                            false,
+                            pausedCycle
+                    ));
+                    registerCycle(cycleIds, problematicCycleIds, notStartedCycleIds, pausedCycleIds,
+                            safe(draft.id), problematicCycle, false, pausedCycle);
+                }
+
+                if (pausedCycle && sameDay(savedAt, targetDay)) {
+                    timeline.add(buildTimelineItem(
+                            draft,
+                            savedAt,
+                            "paused",
+                            "На паузе",
+                            runState,
+                            counters,
+                            problematicCycle,
+                            false,
+                            true
+                    ));
+                    registerCycle(cycleIds, problematicCycleIds, notStartedCycleIds, pausedCycleIds,
+                            safe(draft.id), problematicCycle, false, true);
+                }
+
+                if (CycleRunState.isFinished(runState) && sameDay(savedAt, targetDay)) {
+                    timeline.add(buildTimelineItem(
+                            draft,
+                            savedAt,
+                            "finished",
+                            finishStatusLabel(counters),
+                            runState,
+                            counters,
+                            problematicCycle,
+                            false,
+                            false
+                    ));
+                    registerCycle(cycleIds, problematicCycleIds, notStartedCycleIds, pausedCycleIds,
+                            safe(draft.id), problematicCycle, false, false);
+                }
             }
         } catch (Exception ignore) {
             // Keep history screen usable even if some cycle files are broken.
         }
 
-        timeline.sort(Comparator.comparing(HistoryTimelineItemModel::startedAt));
+        timeline.sort(Comparator.comparing(HistoryTimelineItemModel::occurredAt).reversed());
         HistoryDaySummaryModel summary = new HistoryDaySummaryModel(
                 targetDay,
-                timeline.size(),
-                problematicCount,
-                activeCount
+                cycleIds.size(),
+                problematicCycleIds.size(),
+                notStartedCycleIds.size(),
+                pausedCycleIds.size()
         );
         return new HistoryDayDataModel(summary, timeline);
     }
 
-    private static LocalDateTime parseStartedAt(CycleDraft draft) {
-        String iso = safe(draft.createdAtIso);
-        if (!iso.isEmpty()) {
-            try {
-                return LocalDateTime.parse(iso);
-            } catch (DateTimeParseException ignore) {
-                // fall back to createdAtUi below
-            }
+    private static HistoryTimelineItemModel buildTimelineItem(
+            CycleDraft draft,
+            LocalDateTime occurredAt,
+            String eventType,
+            String statusLabel,
+            String runState,
+            CaseCounters counters,
+            boolean problematicCycle,
+            boolean notStartedCycle,
+            boolean pausedCycle
+    ) {
+        LocalDateTime safeOccurredAt = occurredAt == null ? LocalDateTime.MIN : occurredAt;
+        return new HistoryTimelineItemModel(
+                safe(draft.id),
+                safeOccurredAt,
+                safe(draft.title),
+                eventType,
+                statusLabel,
+                runState,
+                counters.totalCases,
+                counters.passedCount,
+                counters.passedWithBugsCount,
+                counters.failedCount,
+                counters.criticalFailedCount,
+                counters.skippedCount,
+                counters.inProgressCount,
+                safe(draft.qaResponsible),
+                environmentLabel(draft),
+                problematicCycle,
+                notStartedCycle,
+                pausedCycle
+        );
+    }
+
+    private static void registerCycle(
+            Set<String> cycleIds,
+            Set<String> problematicCycleIds,
+            Set<String> notStartedCycleIds,
+            Set<String> pausedCycleIds,
+            String cycleId,
+            boolean problematicCycle,
+            boolean notStartedCycle,
+            boolean pausedCycle
+    ) {
+        if (cycleId.isBlank()) {
+            return;
+        }
+        cycleIds.add(cycleId);
+        if (problematicCycle) {
+            problematicCycleIds.add(cycleId);
+        }
+        if (notStartedCycle) {
+            notStartedCycleIds.add(cycleId);
+        }
+        if (pausedCycle) {
+            pausedCycleIds.add(cycleId);
+        }
+    }
+
+    private static LocalDateTime parseCreatedAt(CycleDraft draft) {
+        LocalDateTime createdAt = parseIso(safe(draft.createdAtIso));
+        if (createdAt != null) {
+            return createdAt;
         }
 
         String ui = safe(draft.createdAtUi);
@@ -109,6 +220,34 @@ public final class HistoryDayDataService {
         return null;
     }
 
+    private static LocalDateTime parseIso(String iso) {
+        if (iso.isEmpty()) {
+            return null;
+        }
+        try {
+            return LocalDateTime.parse(iso);
+        } catch (DateTimeParseException ignore) {
+            return null;
+        }
+    }
+
+    private static boolean sameDay(LocalDateTime dateTime, LocalDate targetDay) {
+        return dateTime != null && targetDay != null && targetDay.equals(dateTime.toLocalDate());
+    }
+
+    private static String finishStatusLabel(CaseCounters counters) {
+        if (counters.hasHardProblems()) {
+            return "Есть проблемы";
+        }
+        if (counters.passedWithBugsCount > 0) {
+            return "Pass with bugs";
+        }
+        if (counters.totalCases > 0) {
+            return "Успешно";
+        }
+        return "Завершён";
+    }
+
     private static CaseCounters countCases(CycleDraft draft) {
         CaseCounters counters = new CaseCounters();
         if (draft == null || draft.cases == null) {
@@ -116,7 +255,9 @@ public final class HistoryDayDataService {
         }
 
         for (CycleCaseRef ref : draft.cases) {
-            if (ref == null) continue;
+            if (ref == null) {
+                continue;
+            }
 
             counters.totalCases++;
             String status = safe(ref.safeStatus()).toUpperCase(Locale.ROOT);
@@ -168,12 +309,8 @@ public final class HistoryDayDataService {
         private int skippedCount;
         private int inProgressCount;
 
-        private boolean problematic() {
-            return passedWithBugsCount > 0 || failedCount > 0 || criticalFailedCount > 0;
-        }
-
-        private boolean active() {
-            return inProgressCount > 0;
+        private boolean hasHardProblems() {
+            return failedCount > 0 || criticalFailedCount > 0;
         }
     }
 }

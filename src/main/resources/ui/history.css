@@ -8,22 +8,39 @@
 }
 
 .hy-surface {
-    -fx-background-color: linear-gradient(to bottom, rgba(255,255,255,0.08), rgba(255,255,255,0.05));
-    -fx-background-radius: 24;
-    -fx-border-radius: 24;
-    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
     -fx-border-width: 1;
 }
 
-.root.theme-light .hy-surface {
-    -fx-background-color: linear-gradient(to bottom, rgba(255,255,255,0.92), rgba(255,255,255,0.76));
-    -fx-border-color: rgba(0,0,0,0.08);
+.hy-left-surface {
+    -fx-background-color: rgba(0,0,0,0.28);
+    -fx-border-color: rgba(255,255,255,0.12);
 }
 
-.hy-screen-title {
-    -fx-font-size: 24px;
+.hy-right-surface {
+    -fx-background-color: rgba(0,0,0,0.20);
+    -fx-border-color: rgba(255,255,255,0.10);
+}
+
+.root.theme-light .hy-left-surface {
+    -fx-background-color: rgba(0,0,0,0.10);
+    -fx-border-color: rgba(0,0,0,0.14);
+}
+
+.root.theme-light .hy-right-surface {
+    -fx-background-color: rgba(0,0,0,0.08);
+    -fx-border-color: rgba(0,0,0,0.12);
+}
+
+.hy-period-metric {
+    -fx-font-size: 15px;
     -fx-font-weight: 800;
     -fx-text-fill: -fx-text-color;
+    -fx-line-spacing: 2px;
+    -fx-min-height: 42;
+    -fx-pref-height: 42;
+    -fx-alignment: CENTER_LEFT;
 }
 
 .hy-section-label,
@@ -41,7 +58,6 @@
     -fx-text-fill: -fx-text-color;
 }
 
-.hy-selection-hint,
 .hy-footnote,
 .hy-empty-text,
 .hy-chip-label,
@@ -89,7 +105,7 @@
     -fx-border-color: rgba(245, 0, 73, 0.40);
 }
 
-.hy-neutral-btn {
+.hy-today-btn {
     -fx-min-height: 34;
 }
 
@@ -133,7 +149,6 @@
 .hy-month-cell,
 .hy-week-card,
 .hy-year-card,
-.hy-day-slot,
 .hy-summary-card,
 .hy-empty-state {
     -fx-background-color: rgba(255,255,255,0.05);
@@ -145,7 +160,6 @@
 .root.theme-light .hy-month-cell,
 .root.theme-light .hy-week-card,
 .root.theme-light .hy-year-card,
-.root.theme-light .hy-day-slot,
 .root.theme-light .hy-summary-card,
 .root.theme-light .hy-empty-state {
     -fx-background-color: rgba(0,0,0,0.035);
@@ -156,21 +170,24 @@
     -fx-cursor: hand;
 }
 
-.hy-month-cell:hover {
+.hy-month-cell:hover,
+.hy-week-card:hover,
+.hy-year-card:hover {
     -fx-border-color: rgba(255,255,255,0.18);
 }
 
-.root.theme-light .hy-month-cell:hover {
+.root.theme-light .hy-month-cell:hover,
+.root.theme-light .hy-week-card:hover,
+.root.theme-light .hy-year-card:hover {
     -fx-border-color: rgba(0,0,0,0.16);
 }
 
-/* Weekend cells — slightly different background + muted number */
 .hy-month-cell.is-weekend {
-    -fx-background-color: rgba(255,255,255,0.14);
+    -fx-background-color: rgba(255,255,255,0.12);
 }
 
 .hy-month-cell.is-sunday {
-    -fx-background-color: rgba(255,255,255,0.20);
+    -fx-background-color: rgba(255,255,255,0.16);
 }
 
 .hy-month-cell.is-weekend .hy-month-day-number {
@@ -178,36 +195,69 @@
 }
 
 .root.theme-light .hy-month-cell.is-weekend {
-    -fx-background-color: rgba(0,0,0,0.07);
+    -fx-background-color: rgba(0,0,0,0.06);
 }
 
 .root.theme-light .hy-month-cell.is-sunday {
-    -fx-background-color: rgba(0,0,0,0.10);
+    -fx-background-color: rgba(0,0,0,0.08);
 }
 
-/* has-activity — dot only, no fill */
-
-/* is-problem — subtle warm tint, dot remains the primary signal */
-.hy-month-cell.is-problem {
-    -fx-background-color: rgba(245, 0, 73, 0.10);
+.hy-month-cell.tone-danger,
+.hy-week-card.tone-danger,
+.hy-year-card.tone-danger {
+    -fx-background-color: rgba(224, 74, 74, 0.24);
+    -fx-border-color: rgba(255, 114, 114, 0.34);
 }
 
-.root.theme-light .hy-month-cell.is-problem {
-    -fx-background-color: rgba(245, 0, 73, 0.07);
+.root.theme-light .hy-month-cell.tone-danger,
+.root.theme-light .hy-week-card.tone-danger,
+.root.theme-light .hy-year-card.tone-danger {
+    -fx-background-color: rgba(224, 74, 74, 0.14);
+    -fx-border-color: rgba(176, 44, 44, 0.24);
 }
 
-/* is-active (in-progress) — soft white border */
+.hy-month-cell.tone-warning,
+.hy-week-card.tone-warning,
+.hy-year-card.tone-warning {
+    -fx-background-color: rgba(224, 176, 54, 0.24);
+    -fx-border-color: rgba(240, 204, 112, 0.32);
+}
+
+.root.theme-light .hy-month-cell.tone-warning,
+.root.theme-light .hy-week-card.tone-warning,
+.root.theme-light .hy-year-card.tone-warning {
+    -fx-background-color: rgba(224, 176, 54, 0.14);
+    -fx-border-color: rgba(171, 125, 22, 0.26);
+}
+
+.hy-month-cell.tone-success,
+.hy-week-card.tone-success,
+.hy-year-card.tone-success {
+    -fx-background-color: rgba(72, 168, 101, 0.24);
+    -fx-border-color: rgba(118, 214, 147, 0.30);
+}
+
+.root.theme-light .hy-month-cell.tone-success,
+.root.theme-light .hy-week-card.tone-success,
+.root.theme-light .hy-year-card.tone-success {
+    -fx-background-color: rgba(72, 168, 101, 0.14);
+    -fx-border-color: rgba(48, 126, 72, 0.24);
+}
+
+.hy-month-cell.is-active,
+.hy-week-card.is-active,
+.hy-year-card.is-active {
+    -fx-border-width: 1.5;
+}
+
 .hy-month-cell.is-active {
     -fx-border-color: rgba(255, 255, 255, 0.48);
-    -fx-border-width: 1.5;
 }
 
 .root.theme-light .hy-month-cell.is-active {
     -fx-border-color: rgba(0, 0, 0, 0.28);
-    -fx-border-width: 1.5;
 }
 
-/* is-today (unselected) — neutral, non-intrusive */
 .hy-month-cell.is-today {
     -fx-border-color: rgba(255, 255, 255, 0.42);
     -fx-border-width: 1.5;
@@ -228,13 +278,16 @@
     -fx-border-color: rgba(245, 0, 73, 0.35);
 }
 
-/* is-selected — thicker accent border, no fill — always last to win */
-.hy-month-cell.is-selected {
+.hy-month-cell.is-selected,
+.hy-week-card.is-selected {
+    -fx-background-color: rgba(245, 0, 73, 0.26);
     -fx-border-color: rgba(245, 0, 73, 0.92);
     -fx-border-width: 2.5;
 }
 
-.root.theme-light .hy-month-cell.is-selected {
+.root.theme-light .hy-month-cell.is-selected,
+.root.theme-light .hy-week-card.is-selected {
+    -fx-background-color: rgba(245, 0, 73, 0.12);
     -fx-border-color: rgba(245, 0, 73, 0.70);
     -fx-border-width: 2.5;
 }
@@ -243,7 +296,6 @@
     -fx-opacity: 0.48;
 }
 
-/* Activity dot — always accent color, visible on any background */
 .hy-month-dot {
     -fx-pref-width: 5;
     -fx-pref-height: 5;
@@ -259,7 +311,6 @@
 
 .hy-month-day-number,
 .hy-summary-value,
-.hy-day-title,
 .hy-week-card-title,
 .hy-year-card-title,
 .hy-empty-title {
@@ -274,12 +325,50 @@
 }
 
 .hy-summary-card {
-    -fx-padding: 12;
-    -fx-min-height: 82;
+    -fx-padding: 10 12;
+    -fx-min-height: 68;
+    -fx-spacing: 4;
+    -fx-cursor: hand;
+}
+
+.hy-summary-card:hover {
+    -fx-border-color: rgba(255,255,255,0.18);
+}
+
+.root.theme-light .hy-summary-card:hover {
+    -fx-border-color: rgba(0,0,0,0.16);
+}
+
+.hy-summary-card.is-active-card {
+    -fx-background-color: rgba(245, 0, 73, 0.22);
+    -fx-border-color: rgba(245, 0, 73, 0.82);
+    -fx-border-width: 2;
+}
+
+.root.theme-light .hy-summary-card.is-active-card {
+    -fx-background-color: rgba(245, 0, 73, 0.10);
+    -fx-border-color: rgba(245, 0, 73, 0.60);
+}
+
+.hy-summary-card.is-active-card .hy-summary-label,
+.hy-summary-card.is-active-card .hy-summary-value {
+    -fx-text-fill: -fx-text-color;
 }
 
 .hy-summary-value {
+    -fx-font-size: 18px;
+}
+
+.hy-summary-empty-state {
+    -fx-padding: 14 16;
+}
+
+.hy-summary-empty-title {
     -fx-font-size: 14px;
+}
+
+.hy-summary-empty-text {
+    -fx-font-size: 12px;
 }
 
 .hy-chip-label {
@@ -309,59 +398,9 @@
 }
 
 .hy-week-card,
-.hy-year-card,
-.hy-day-slot {
-    -fx-padding: 12;
-}
-
-.hy-week-card {
-    -fx-cursor: hand;
-}
-
-.hy-week-card:hover {
-    -fx-border-color: rgba(255,255,255,0.18);
-}
-
-.root.theme-light .hy-week-card:hover {
-    -fx-border-color: rgba(0,0,0,0.16);
-}
-
-.hy-week-card.is-selected {
-    -fx-border-color: rgba(245, 0, 73, 0.92);
-    -fx-border-width: 2.5;
-}
-
-.root.theme-light .hy-week-card.is-selected {
-    -fx-border-color: rgba(245, 0, 73, 0.70);
-    -fx-border-width: 2.5;
-}
-
-.hy-week-card.is-problem {
-    -fx-background-color: rgba(245, 0, 73, 0.10);
-}
-
-.root.theme-light .hy-week-card.is-problem {
-    -fx-background-color: rgba(245, 0, 73, 0.07);
-}
-
 .hy-year-card {
+    -fx-padding: 12;
     -fx-cursor: hand;
-}
-
-.hy-year-card:hover {
-    -fx-border-color: rgba(255,255,255,0.18);
-}
-
-.root.theme-light .hy-year-card:hover {
-    -fx-border-color: rgba(0,0,0,0.16);
-}
-
-.hy-year-card.is-problem {
-    -fx-background-color: rgba(245, 0, 73, 0.10);
-}
-
-.root.theme-light .hy-year-card.is-problem {
-    -fx-background-color: rgba(245, 0, 73, 0.07);
 }
 
 .hy-week-card-count,
@@ -369,6 +408,11 @@
     -fx-font-size: 14px;
     -fx-font-weight: 800;
     -fx-text-fill: -fx-text-color;
+}
+
+.hy-week-card-activity {
+    -fx-alignment: CENTER_LEFT;
+    -fx-spacing: 6;
 }
 
 .hy-week-card-problem,
@@ -390,24 +434,10 @@
     -fx-text-fill: -fx-muted-color;
 }
 
-.hy-week-card-date,
-.hy-day-slot-hour {
-    -fx-font-size: 12px;
-    -fx-font-weight: 700;
+.hy-week-card-date {
+    -fx-font-size: 16px;
+    -fx-font-weight: 800;
     -fx-text-fill: -fx-text-color;
-}
-
-.hy-skeleton-bar {
-    -fx-background-color: linear-gradient(to right, rgba(255,255,255,0.12), rgba(255,255,255,0.22));
-    -fx-background-radius: 999;
-}
-
-.root.theme-light .hy-skeleton-bar {
-    -fx-background-color: linear-gradient(to right, rgba(0,0,0,0.08), rgba(0,0,0,0.14));
-}
-
-.hy-day-slot-hour {
-    -fx-min-width: 52;
 }
 
 .hy-year-grid {
@@ -418,37 +448,27 @@
     -fx-alignment: TOP_LEFT;
 }
 
-.hy-year-dot {
-    -fx-pref-width: 10;
-    -fx-pref-height: 10;
-    -fx-background-radius: 999;
-    -fx-background-color: rgba(255,255,255,0.14);
-}
-
-.hy-year-dot.is-strong {
-    -fx-background-color: rgba(245, 0, 73, 0.46);
-}
-
-.root.theme-light .hy-year-dot {
-    -fx-background-color: rgba(0,0,0,0.12);
-}
-
-.root.theme-light .hy-year-dot.is-strong {
-    -fx-background-color: rgba(245, 0, 73, 0.36);
-}
-
 .hy-timeline-card {
     -fx-background-color: rgba(255,255,255,0.05);
     -fx-background-radius: 18;
     -fx-border-radius: 18;
     -fx-border-color: rgba(255,255,255,0.08);
     -fx-padding: 14;
-    -fx-spacing: 12;
+    -fx-spacing: 10;
+    -fx-cursor: hand;
+}
+
+.hy-timeline-card:hover {
+    -fx-border-color: rgba(245, 0, 73, 0.52);
 }
 
 .root.theme-light .hy-timeline-card {
     -fx-background-color: rgba(0,0,0,0.035);
     -fx-border-color: rgba(0,0,0,0.08);
+}
+
+.root.theme-light .hy-timeline-card:hover {
+    -fx-border-color: rgba(245, 0, 73, 0.42);
 }
 
 .hy-timeline-time,
@@ -486,9 +506,4 @@
 .root.theme-light .hy-timeline-chip {
     -fx-background-color: rgba(0,0,0,0.05);
     -fx-border-color: rgba(0,0,0,0.09);
-}
-
-.hy-timeline-open-btn {
-    -fx-min-height: 34;
-    -fx-padding: 8 14;
 }
