@@ -51,6 +51,30 @@ public final class AppSettings {
         writeJsonSafe(upd);
     }
 
+    public static String historyScale() {
+        String json = readJsonSafe();
+        return normalizeHistoryScale(readStringField(json, "historyScale"));
+    }
+
+    public static void setHistoryScale(String scaleCode) {
+        String normalized = normalizeHistoryScale(scaleCode);
+        String json = readJsonSafe();
+        String upd = upsertStringField(json, "historyScale", normalized);
+        writeJsonSafe(upd);
+    }
+
+    private static String normalizeHistoryScale(String scaleCode) {
+        if (scaleCode == null || scaleCode.isBlank()) {
+            return "month";
+        }
+
+        String normalized = scaleCode.trim().toLowerCase();
+        return switch (normalized) {
+            case "week", "month", "year" -> normalized;
+            default -> "month";
+        };
+    }
+
     // ===== File I/O =====
 
     private static String readJsonSafe() {

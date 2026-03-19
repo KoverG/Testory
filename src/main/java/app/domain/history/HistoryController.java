@@ -19,8 +19,8 @@ public final class HistoryController {
 
     @FXML private VBox leftColumn;
     @FXML private StackPane leftSurface;
+    @FXML private Label lblPeriodMetric;
     @FXML private HBox scaleSwitcher;
-    @FXML private ToggleButton btnScaleDay;
     @FXML private ToggleButton btnScaleWeek;
     @FXML private ToggleButton btnScaleMonth;
     @FXML private ToggleButton btnScaleYear;
@@ -34,6 +34,9 @@ public final class HistoryController {
     @FXML private VBox rightColumn;
     @FXML private StackPane rightSurface;
     @FXML private Label lblSelectionTitle;
+    @FXML private Button btnSelectionPrev;
+    @FXML private Button btnSelectionNext;
+    @FXML private HBox summaryRow;
     @FXML private Label lblSummaryCycles;
     @FXML private Label lblSummaryProblems;
     @FXML private Label lblSummaryActive;
@@ -49,8 +52,8 @@ public final class HistoryController {
                 contentBox,
                 leftColumn,
                 leftSurface,
+                lblPeriodMetric,
                 scaleSwitcher,
-                btnScaleDay,
                 btnScaleWeek,
                 btnScaleMonth,
                 btnScaleYear,
@@ -63,6 +66,9 @@ public final class HistoryController {
                 rightColumn,
                 rightSurface,
                 lblSelectionTitle,
+                btnSelectionPrev,
+                btnSelectionNext,
+                summaryRow,
                 lblSummaryCycles,
                 lblSummaryProblems,
                 lblSummaryActive,
@@ -85,17 +91,27 @@ public final class HistoryController {
     }
 
     private void installNavIcons() {
-        if (btnPrev != null) {
-            UiSvg.setButtonSvg(btnPrev, "back.svg", 12);
-            btnPrev.setText("");
+        installBackIcon(btnPrev, false);
+        installBackIcon(btnNext, true);
+        installBackIcon(btnSelectionPrev, false);
+        installBackIcon(btnSelectionNext, true);
+    }
+
+    private void installBackIcon(Button button, boolean rotate) {
+        if (button == null) {
+            return;
         }
-        if (btnNext != null) {
-            Node nextIcon = UiSvg.createSvg("back.svg", 12);
-            if (nextIcon != null) {
-                nextIcon.setRotate(180.0);
-                btnNext.setGraphic(nextIcon);
-            }
-            btnNext.setText("");
+        if (!rotate) {
+            UiSvg.setButtonSvg(button, "back.svg", 12);
+            button.setText("");
+            return;
         }
+
+        Node icon = UiSvg.createSvg("back.svg", 12);
+        if (icon != null) {
+            icon.setRotate(180.0);
+            button.setGraphic(icon);
+        }
+        button.setText("");
     }
 }

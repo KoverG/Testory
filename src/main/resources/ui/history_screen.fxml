@@ -32,35 +32,34 @@
                 </padding>
 
                 <VBox spacing="14" maxWidth="Infinity" maxHeight="Infinity">
-                    <HBox spacing="10" alignment="CENTER_LEFT">
-                        <Label text="История" styleClass="hy-screen-title"/>
-                        <Region HBox.hgrow="ALWAYS"/>
-                        <Button fx:id="btnToday"
-                                text="Сегодня"
-                                focusTraversable="false"
-                                styleClass="tc-btn,hy-neutral-btn"/>
-                    </HBox>
+                    <Label fx:id="lblPeriodMetric"
+                           wrapText="true"
+                           maxWidth="Infinity"
+                           styleClass="hy-period-metric"/>
 
                     <VBox spacing="8">
                         <Label text="Масштаб" styleClass="hy-section-label"/>
 
-                        <HBox fx:id="scaleSwitcher" spacing="8" styleClass="hy-scale-switcher">
-                            <ToggleButton fx:id="btnScaleDay"
-                                          text="День"
-                                          focusTraversable="false"
-                                          styleClass="hy-scale-btn"/>
-                            <ToggleButton fx:id="btnScaleWeek"
-                                          text="Неделя"
-                                          focusTraversable="false"
-                                          styleClass="hy-scale-btn"/>
-                            <ToggleButton fx:id="btnScaleMonth"
-                                          text="Месяц"
-                                          focusTraversable="false"
-                                          styleClass="hy-scale-btn"/>
-                            <ToggleButton fx:id="btnScaleYear"
-                                          text="Год"
-                                          focusTraversable="false"
-                                          styleClass="hy-scale-btn"/>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <HBox fx:id="scaleSwitcher" spacing="8" styleClass="hy-scale-switcher">
+                                <ToggleButton fx:id="btnScaleWeek"
+                                              text="Неделя"
+                                              focusTraversable="false"
+                                              styleClass="hy-scale-btn"/>
+                                <ToggleButton fx:id="btnScaleMonth"
+                                              text="Месяц"
+                                              focusTraversable="false"
+                                              styleClass="hy-scale-btn"/>
+                                <ToggleButton fx:id="btnScaleYear"
+                                              text="Год"
+                                              focusTraversable="false"
+                                              styleClass="hy-scale-btn"/>
+                            </HBox>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button fx:id="btnToday"
+                                    text="Сегодня"
+                                    focusTraversable="false"
+                                    styleClass="hy-scale-btn,hy-today-btn"/>
                         </HBox>
                     </VBox>
 
@@ -102,9 +101,22 @@
                 </padding>
 
                 <VBox spacing="16" maxWidth="Infinity" maxHeight="Infinity">
-                    <Label fx:id="lblSelectionTitle" styleClass="hy-selection-title"/>
+                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="hy-selection-header">
+                        <Label fx:id="lblSelectionTitle"
+                               maxWidth="Infinity"
+                               HBox.hgrow="ALWAYS"
+                               styleClass="hy-selection-title"/>
+                        <HBox spacing="8" alignment="CENTER_RIGHT">
+                            <Button fx:id="btnSelectionPrev"
+                                    focusTraversable="false"
+                                    styleClass="icon-btn,sm,hy-nav-btn"/>
+                            <Button fx:id="btnSelectionNext"
+                                    focusTraversable="false"
+                                    styleClass="icon-btn,sm,hy-nav-btn"/>
+                        </HBox>
+                    </HBox>
 
-                    <HBox spacing="10">
+                    <HBox fx:id="summaryRow" spacing="10">
                         <VBox spacing="4" styleClass="hy-summary-card" HBox.hgrow="ALWAYS">
                             <Label text="Циклов" styleClass="hy-summary-label"/>
                             <Label fx:id="lblSummaryCycles" text="—" styleClass="hy-summary-value"/>

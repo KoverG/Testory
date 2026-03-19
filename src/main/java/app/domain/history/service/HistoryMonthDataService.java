@@ -47,9 +47,20 @@ public final class HistoryMonthDataService {
                 if (createdDate == null || !YearMonth.from(createdDate).equals(yearMonth)) continue;
 
                 MutableDayStats day = stats.computeIfAbsent(createdDate, MutableDayStats::new);
+                CycleFlags flags = evaluateCycle(draft);
+
                 day.cycleCount++;
-                if (isProblematic(draft)) day.problematicCount++;
-                if (isActive(draft)) day.activeCount++;
+                if (flags.failedLike) {
+                    day.failedCycleCount++;
+                } else if (flags.warning) {
+                    day.warningCycleCount++;
+                }
+                if (flags.active) {
+                    day.activeCount++;
+                }
+                if (flags.finished) {
+                    day.finishedCount++;
+                }
             }
         } catch (Exception ignore) {
             // Keep the screen usable even if the history source is partially broken.
@@ -65,8 +76,10 @@ public final class HistoryMonthDataService {
             out.put(entry.getKey(), new HistoryCalendarDayModel(
                     value.date,
                     value.cycleCount,
-                    value.problematicCount,
-                    value.activeCount
+                    value.failedCycleCount,
+                    value.warningCycleCount,
+                    value.activeCount,
+                    value.finishedCount
             ));
         }
         return out;
@@ -94,19 +107,30 @@ public final class HistoryMonthDataService {
         return null;
     }
 
-    private static boolean isProblematic(CycleDraft draft) {
-        if (draft == null || draft.cases == null) return false;
+    private static CycleFlags evaluateCycle(CycleDraft draft) {
+        boolean failedLike = false;
+        boolean warning = false;
 
-        for (CycleCaseRef ref : draft.cases) {
-            if (ref == null) continue;
-            String status = safe(ref.safeStatus()).toUpperCase(Locale.ROOT);
-            if ("FAILED".equals(status)
-                    || "CRITICAL_FAILED".equals(status)
-                    || "PASSED_WITH_BUGS".equals(status)) {
-                return true;
+        if (draft != null && draft.cases != null) {
+            for (CycleCaseRef ref : draft.cases) {
+                if (ref == null) continue;
+                String status = safe(ref.safeStatus()).toUpperCase(Locale.ROOT);
+                switch (status) {
+                    case "FAILED", "CRITICAL_FAILED" -> failedLike = true;
+                    case "PASSED_WITH_BUGS" -> warning = true;
+                    default -> {
+                    }
+                }
             }
         }
-        return false;
+
+        boolean active = isActive(draft);
+        boolean finished = draft != null && CycleRunState.isFinished(draft.runState);
+        if (failedLike) {
+            warning = false;
+        }
+
+        return new CycleFlags(failedLike, warning, active, finished);
     }
 
     private static boolean isActive(CycleDraft draft) {
@@ -127,11 +151,16 @@ public final class HistoryMonthDataService {
         return value == null ? "" : value.trim();
     }
 
+    private record CycleFlags(boolean failedLike, boolean warning, boolean active, boolean finished) {
+    }
+
     private static final class MutableDayStats {
         private final LocalDate date;
         private int cycleCount;
-        private int problematicCount;
+        private int failedCycleCount;
+        private int warningCycleCount;
         private int activeCount;
+        private int finishedCount;
 
         private MutableDayStats(LocalDate date) {
             this.date = date;
