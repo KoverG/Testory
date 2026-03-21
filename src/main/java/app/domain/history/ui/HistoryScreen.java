@@ -357,7 +357,7 @@ public final class HistoryScreen {
             StackPane.setMargin(number, new Insets(8, 0, 0, 0));
             cell.getChildren().add(number);
 
-            if (model.hasActivity()) {
+            if (model.hasProblems()) {
                 Region dot = new Region();
                 dot.getStyleClass().add("hy-month-dot");
                 StackPane.setAlignment(dot, Pos.BOTTOM_CENTER);
@@ -426,6 +426,12 @@ public final class HistoryScreen {
 
             VBox card = new VBox(8);
             card.getStyleClass().add("hy-week-card");
+            if (current.getDayOfWeek() == DayOfWeek.SATURDAY || current.getDayOfWeek() == DayOfWeek.SUNDAY) {
+                card.getStyleClass().add("is-weekend");
+                if (current.getDayOfWeek() == DayOfWeek.SUNDAY) {
+                    card.getStyleClass().add("is-sunday");
+                }
+            }
             card.setMinWidth(0);
             card.setMinHeight(0);
             card.setMaxWidth(Double.MAX_VALUE);
@@ -453,6 +459,9 @@ public final class HistoryScreen {
             if (model.hasActivity()) {
                 HBox activity = new HBox(6);
                 activity.getStyleClass().add("hy-week-card-activity");
+                activity.setAlignment(Pos.CENTER);
+                activity.setMaxWidth(Double.MAX_VALUE);
+                HBox.setHgrow(activity, Priority.ALWAYS);
 
                 Label count = new Label(String.valueOf(model.cycleCount()));
                 count.getStyleClass().add("hy-week-card-count");
@@ -519,6 +528,7 @@ public final class HistoryScreen {
         }
 
         int year = date.getYear();
+        int selectedMonth = anchorDate.getMonthValue();
         for (int month = 1; month <= 12; month++) {
             YearMonth ym = YearMonth.of(year, month);
             HistoryMonthSummaryModel summary = yearData.getOrDefault(ym,
@@ -531,6 +541,7 @@ public final class HistoryScreen {
             card.setMaxHeight(116);
 
             updateStyleClass(card, "is-current-month", ym.equals(YearMonth.from(LocalDate.now())));
+            updateStyleClass(card, "is-selected", month == selectedMonth);
             updateStyleClass(card, "is-active", summary.activeCount() > 0);
             applyTrafficTone(card, summary.hasFailures(), summary.hasWarnings(), summary.isAllPassed());
 

@@ -87,6 +87,7 @@
 .hy-scale-btn:selected-scale {
     -fx-background-color: rgba(245, 0, 73, 0.18);
     -fx-border-color: rgba(245, 0, 73, 0.55);
+    -fx-border-width: 1.2;
 }
 
 .root.theme-light .hy-scale-btn {
@@ -103,6 +104,7 @@
 .root.theme-light .hy-scale-btn:selected-scale {
     -fx-background-color: rgba(245, 0, 73, 0.10);
     -fx-border-color: rgba(245, 0, 73, 0.40);
+    -fx-border-width: 1.2;
 }
 
 .hy-today-btn {
@@ -139,16 +141,22 @@
 }
 
 .hy-weekday-label.is-weekend {
-    -fx-text-fill: rgba(255,255,255,0.88);
+    -fx-text-fill: rgba(255,255,255,0.94);
 }
 
 .root.theme-light .hy-weekday-label.is-weekend {
-    -fx-text-fill: rgba(20,24,32,0.78);
+    -fx-text-fill: rgba(20,24,32,0.88);
 }
 
 .hy-month-cell,
 .hy-week-card,
-.hy-year-card,
+.hy-year-card {
+    -fx-background-color: rgba(255,255,255,0.08);
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
+    -fx-border-color: rgba(255,255,255,0.12);
+}
+
 .hy-summary-card,
 .hy-empty-state {
     -fx-background-color: rgba(255,255,255,0.05);
@@ -159,7 +167,11 @@
 
 .root.theme-light .hy-month-cell,
 .root.theme-light .hy-week-card,
-.root.theme-light .hy-year-card,
+.root.theme-light .hy-year-card {
+    -fx-background-color: rgba(0,0,0,0.065);
+    -fx-border-color: rgba(0,0,0,0.14);
+}
+
 .root.theme-light .hy-summary-card,
 .root.theme-light .hy-empty-state {
     -fx-background-color: rgba(0,0,0,0.035);
@@ -173,81 +185,101 @@
 .hy-month-cell:hover,
 .hy-week-card:hover,
 .hy-year-card:hover {
-    -fx-border-color: rgba(255,255,255,0.18);
+    -fx-border-color: rgba(255,255,255,0.22);
 }
 
 .root.theme-light .hy-month-cell:hover,
 .root.theme-light .hy-week-card:hover,
 .root.theme-light .hy-year-card:hover {
-    -fx-border-color: rgba(0,0,0,0.16);
+    -fx-border-color: rgba(0,0,0,0.20);
 }
 
 .hy-month-cell.is-weekend {
-    -fx-background-color: rgba(255,255,255,0.12);
+    -fx-background-color: rgba(255,255,255,0.15);
 }
 
 .hy-month-cell.is-sunday {
-    -fx-background-color: rgba(255,255,255,0.16);
+    -fx-background-color: rgba(255,255,255,0.19);
+}
+
+.hy-week-card.is-weekend {
+    -fx-background-color: rgba(255,255,255,0.12);
+}
+
+.hy-week-card.is-sunday {
+    -fx-background-color: rgba(255,255,255,0.15);
 }
 
 .hy-month-cell.is-weekend .hy-month-day-number {
-    -fx-text-fill: -fx-muted-color;
+    -fx-text-fill: rgba(255,255,255,0.92);
 }
 
 .root.theme-light .hy-month-cell.is-weekend {
-    -fx-background-color: rgba(0,0,0,0.06);
+    -fx-background-color: rgba(0,0,0,0.11);
 }
 
 .root.theme-light .hy-month-cell.is-sunday {
-    -fx-background-color: rgba(0,0,0,0.08);
+    -fx-background-color: rgba(0,0,0,0.15);
+}
+
+.root.theme-light .hy-week-card.is-weekend {
+    -fx-background-color: rgba(0,0,0,0.10);
+}
+
+.root.theme-light .hy-week-card.is-sunday {
+    -fx-background-color: rgba(0,0,0,0.13);
+}
+
+.root.theme-light .hy-month-cell.is-weekend .hy-month-day-number {
+    -fx-text-fill: rgba(20,24,32,0.88);
 }
 
 .hy-month-cell.tone-danger,
 .hy-week-card.tone-danger,
 .hy-year-card.tone-danger {
-    -fx-background-color: rgba(224, 74, 74, 0.24);
-    -fx-border-color: rgba(255, 114, 114, 0.34);
+    -fx-background-color: rgba(232, 63, 76, 0.30);
+    -fx-border-color: rgba(255, 120, 132, 0.42);
 }
 
 .root.theme-light .hy-month-cell.tone-danger,
 .root.theme-light .hy-week-card.tone-danger,
 .root.theme-light .hy-year-card.tone-danger {
-    -fx-background-color: rgba(224, 74, 74, 0.14);
-    -fx-border-color: rgba(176, 44, 44, 0.24);
+    -fx-background-color: rgba(232, 63, 76, 0.20);
+    -fx-border-color: rgba(188, 36, 54, 0.34);
 }
 
 .hy-month-cell.tone-warning,
 .hy-week-card.tone-warning,
 .hy-year-card.tone-warning {
-    -fx-background-color: rgba(224, 176, 54, 0.24);
-    -fx-border-color: rgba(240, 204, 112, 0.32);
+    -fx-background-color: rgba(235, 180, 43, 0.30);
+    -fx-border-color: rgba(255, 216, 110, 0.40);
 }
 
 .root.theme-light .hy-month-cell.tone-warning,
 .root.theme-light .hy-week-card.tone-warning,
 .root.theme-light .hy-year-card.tone-warning {
-    -fx-background-color: rgba(224, 176, 54, 0.14);
-    -fx-border-color: rgba(171, 125, 22, 0.26);
+    -fx-background-color: rgba(235, 180, 43, 0.22);
+    -fx-border-color: rgba(184, 128, 16, 0.34);
 }
 
 .hy-month-cell.tone-success,
 .hy-week-card.tone-success,
 .hy-year-card.tone-success {
-    -fx-background-color: rgba(72, 168, 101, 0.24);
-    -fx-border-color: rgba(118, 214, 147, 0.30);
+    -fx-background-color: rgba(44, 179, 108, 0.30);
+    -fx-border-color: rgba(105, 229, 162, 0.38);
 }
 
 .root.theme-light .hy-month-cell.tone-success,
 .root.theme-light .hy-week-card.tone-success,
 .root.theme-light .hy-year-card.tone-success {
-    -fx-background-color: rgba(72, 168, 101, 0.14);
-    -fx-border-color: rgba(48, 126, 72, 0.24);
+    -fx-background-color: rgba(44, 179, 108, 0.20);
+    -fx-border-color: rgba(23, 138, 77, 0.34);
 }
 
 .hy-month-cell.is-active,
 .hy-week-card.is-active,
 .hy-year-card.is-active {
-    -fx-border-width: 1.5;
+    -fx-border-width: 1.2;
 }
 
 .hy-month-cell.is-active {
@@ -260,36 +292,38 @@
 
 .hy-month-cell.is-today {
     -fx-border-color: rgba(255, 255, 255, 0.42);
-    -fx-border-width: 1.5;
+    -fx-border-width: 1.2;
 }
 
 .hy-week-card.is-today,
 .hy-year-card.is-current-month {
-    -fx-border-color: rgba(245, 0, 73, 0.55);
+    -fx-border-color: rgba(255, 255, 255, 0.34);
+    -fx-border-width: 1.2;
 }
 
 .root.theme-light .hy-month-cell.is-today {
     -fx-border-color: rgba(0, 0, 0, 0.30);
-    -fx-border-width: 1.5;
+    -fx-border-width: 1.2;
 }
 
 .root.theme-light .hy-week-card.is-today,
 .root.theme-light .hy-year-card.is-current-month {
-    -fx-border-color: rgba(245, 0, 73, 0.35);
+    -fx-border-color: rgba(0, 0, 0, 0.24);
+    -fx-border-width: 1.2;
 }
 
 .hy-month-cell.is-selected,
-.hy-week-card.is-selected {
-    -fx-background-color: rgba(245, 0, 73, 0.26);
-    -fx-border-color: rgba(245, 0, 73, 0.92);
-    -fx-border-width: 2.5;
+.hy-week-card.is-selected,
+.hy-year-card.is-selected {
+    -fx-border-color: rgba(245, 0, 73, 0.55);
+    -fx-border-width: 1.2;
 }
 
 .root.theme-light .hy-month-cell.is-selected,
-.root.theme-light .hy-week-card.is-selected {
-    -fx-background-color: rgba(245, 0, 73, 0.12);
-    -fx-border-color: rgba(245, 0, 73, 0.70);
-    -fx-border-width: 2.5;
+.root.theme-light .hy-week-card.is-selected,
+.root.theme-light .hy-year-card.is-selected {
+    -fx-border-color: rgba(245, 0, 73, 0.40);
+    -fx-border-width: 1.2;
 }
 
 .hy-month-cell.is-outside {
@@ -340,14 +374,12 @@
 }
 
 .hy-summary-card.is-active-card {
-    -fx-background-color: rgba(245, 0, 73, 0.22);
-    -fx-border-color: rgba(245, 0, 73, 0.82);
-    -fx-border-width: 2;
+    -fx-border-color: rgba(245, 0, 73, 0.55);
+    -fx-border-width: 1.2;
 }
 
 .root.theme-light .hy-summary-card.is-active-card {
-    -fx-background-color: rgba(245, 0, 73, 0.10);
-    -fx-border-color: rgba(245, 0, 73, 0.60);
+    -fx-border-color: rgba(245, 0, 73, 0.40);
 }
 
 .hy-summary-card.is-active-card .hy-summary-label,
@@ -411,7 +443,7 @@
 }
 
 .hy-week-card-activity {
-    -fx-alignment: CENTER_LEFT;
+    -fx-alignment: CENTER;
     -fx-spacing: 6;
 }
 
