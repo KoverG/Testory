@@ -76,13 +76,16 @@ public final class HistoryScreen {
     private Map<LocalDate, HistoryCalendarDayModel> monthData = Map.of();
     private Map<LocalDate, HistoryCalendarDayModel> weekData = Map.of();
     private Map<YearMonth, HistoryMonthSummaryModel> yearData = Map.of();
+    private HistoryMonthSummaryModel selectedMonthSummary = null;
     private HistoryDayDataModel dayData = new HistoryDayDataModel(null, List.of());
     private SummaryFilter activeSummaryFilter = SummaryFilter.ALL;
 
     private YearMonth builtMonthViewYM = null;
     private LocalDate builtWeekViewStart = null;
+    private int builtYearViewYear = -1;
     private final Map<LocalDate, StackPane> monthCells = new HashMap<>();
     private final Map<LocalDate, VBox> weekCards = new HashMap<>();
+    private final Map<YearMonth, VBox> yearCards = new HashMap<>();
 
     public HistoryScreen(HistoryViewRefs refs) {
         this.v = refs;
@@ -199,6 +202,12 @@ public final class HistoryScreen {
         if (!canNavigateSelectionDay()) {
             return;
         }
+        if (scale == HistoryScale.YEAR) {
+            selectedDate = (selectedDate != null ? selectedDate : anchorDate).plusMonths(direction);
+            anchorDate = selectedDate;
+            refresh();
+            return;
+        }
         LocalDate base = selectedDate != null ? selectedDate : anchorDate;
         selectedDate = base.plusDays(direction);
         anchorDate = selectedDate;
@@ -206,7 +215,7 @@ public final class HistoryScreen {
     }
 
     private boolean canNavigateSelectionDay() {
-        return scale != HistoryScale.YEAR && selectedDate != null;
+        return scale == HistoryScale.YEAR || selectedDate != null;
     }
 
     private void refresh() {
@@ -214,6 +223,17 @@ public final class HistoryScreen {
         monthData = scale == HistoryScale.MONTH ? monthDataService.readMonth(anchorDate) : Map.of();
         weekData = scale == HistoryScale.WEEK ? weekDataService.readWeek(anchorDate) : Map.of();
         yearData = scale == HistoryScale.YEAR ? yearDataService.readYear(anchorDate) : Map.of();
+        if (scale == HistoryScale.YEAR && selectedDate != null) {
+            YearMonth selectedYM = YearMonth.from(selectedDate);
+            if (yearData.containsKey(selectedYM)) {
+                selectedMonthSummary = yearData.get(selectedYM);
+            } else {
+                selectedMonthSummary = yearDataService.readYear(selectedDate)
+                        .getOrDefault(selectedYM, new HistoryMonthSummaryModel(selectedYM, 0, 0, 0, 0, 0));
+            }
+        } else {
+            selectedMonthSummary = null;
+        }
         dayData = hasActiveSelection()
                 ? dayDataService.readDay(focusDate())
                 : new HistoryDayDataModel(null, List.of());
@@ -241,17 +261,24 @@ public final class HistoryScreen {
                 && builtWeekViewStart != null
                 && builtWeekViewStart.equals(anchorDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)))
                 && !weekCards.isEmpty();
+        boolean sameYearView = scale == HistoryScale.YEAR
+                && builtYearViewYear == anchorDate.getYear()
+                && !yearCards.isEmpty();
         if (sameMonthView) {
             refreshMonthCellStates();
         } else if (sameWeekView) {
             refreshWeekCardStates();
+        } else if (sameYearView) {
+            refreshYearCardStates();
         } else {
             monthCells.clear();
             weekCards.clear();
+            yearCards.clear();
             builtMonthViewYM = scale == HistoryScale.MONTH ? YearMonth.from(anchorDate) : null;
             builtWeekViewStart = scale == HistoryScale.WEEK
                     ? anchorDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
                     : null;
+            builtYearViewYear = scale == HistoryScale.YEAR ? anchorDate.getYear() : -1;
             replaceCalendarView(buildCalendarView(scale, anchorDate));
         }
         refreshTimeline();
@@ -276,11 +303,7 @@ public final class HistoryScreen {
     private boolean hasActiveSelection() {
         if (selectedDate == null) return false;
         return switch (scale) {
-            case MONTH -> YearMonth.from(selectedDate).equals(YearMonth.from(anchorDate));
-            case WEEK -> {
-                LocalDate weekStart = anchorDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-                yield !selectedDate.isBefore(weekStart) && !selectedDate.isAfter(weekStart.plusDays(6));
-            }
+            case MONTH, WEEK -> true;
             case YEAR -> false;
         };
     }
@@ -357,7 +380,7 @@ public final class HistoryScreen {
             StackPane.setMargin(number, new Insets(8, 0, 0, 0));
             cell.getChildren().add(number);
 
-            if (model.hasProblems()) {
+            if (model.hasActivity()) {
                 Region dot = new Region();
                 dot.getStyleClass().add("hy-month-dot");
                 StackPane.setAlignment(dot, Pos.BOTTOM_CENTER);
@@ -457,21 +480,19 @@ public final class HistoryScreen {
 
             Node content;
             if (model.hasActivity()) {
-                HBox activity = new HBox(6);
+                VBox activity = new VBox(4);
                 activity.getStyleClass().add("hy-week-card-activity");
                 activity.setAlignment(Pos.CENTER);
                 activity.setMaxWidth(Double.MAX_VALUE);
-                HBox.setHgrow(activity, Priority.ALWAYS);
 
                 Label count = new Label(String.valueOf(model.cycleCount()));
                 count.getStyleClass().add("hy-week-card-count");
                 activity.getChildren().add(count);
 
-                if (model.hasProblems()) {
-                    Region dot = new Region();
-                    dot.getStyleClass().add("hy-month-dot");
-                    activity.getChildren().add(dot);
-                }
+                Region dot = new Region();
+                dot.getStyleClass().add("hy-month-dot");
+                activity.getChildren().add(dot);
+
                 content = activity;
             } else {
                 Label empty = new Label("—");
@@ -514,6 +535,21 @@ public final class HistoryScreen {
         updateStyleClass(card, "is-active", model.hasActive());
         applyTrafficTone(card, model.hasFailures(), model.hasWarnings(), model.isAllPassed());
     }
+
+    private void refreshYearCardStates() {
+        YearMonth selectedYM = selectedDate != null ? YearMonth.from(selectedDate) : null;
+        for (Map.Entry<YearMonth, VBox> entry : yearCards.entrySet()) {
+            YearMonth ym = entry.getKey();
+            VBox card = entry.getValue();
+            HistoryMonthSummaryModel summary = yearData.getOrDefault(ym,
+                    new HistoryMonthSummaryModel(ym, 0, 0, 0, 0, 0));
+            updateStyleClass(card, "is-current-month", ym.equals(YearMonth.from(LocalDate.now())));
+            updateStyleClass(card, "is-selected", ym.equals(selectedYM));
+            updateStyleClass(card, "is-active", summary.activeCount() > 0);
+            applyTrafficTone(card, summary.hasFailures(), summary.hasWarnings(), summary.isAllPassed());
+        }
+    }
+
     private Node buildYearView(LocalDate date) {
         GridPane grid = new GridPane();
         grid.setHgap(10);
@@ -528,20 +564,20 @@ public final class HistoryScreen {
         }
 
         int year = date.getYear();
-        int selectedMonth = anchorDate.getMonthValue();
+        YearMonth selectedYM = selectedDate != null ? YearMonth.from(selectedDate) : null;
         for (int month = 1; month <= 12; month++) {
             YearMonth ym = YearMonth.of(year, month);
             HistoryMonthSummaryModel summary = yearData.getOrDefault(ym,
                     new HistoryMonthSummaryModel(ym, 0, 0, 0, 0, 0));
 
-            VBox card = new VBox(8);
+            VBox card = new VBox(4);
             card.getStyleClass().add("hy-year-card");
-            card.setPrefHeight(116);
-            card.setMinHeight(116);
-            card.setMaxHeight(116);
+            card.setPrefHeight(130);
+            card.setMinHeight(130);
+            card.setMaxHeight(130);
 
             updateStyleClass(card, "is-current-month", ym.equals(YearMonth.from(LocalDate.now())));
-            updateStyleClass(card, "is-selected", month == selectedMonth);
+            updateStyleClass(card, "is-selected", ym.equals(selectedYM));
             updateStyleClass(card, "is-active", summary.activeCount() > 0);
             applyTrafficTone(card, summary.hasFailures(), summary.hasWarnings(), summary.isAllPassed());
 
@@ -552,15 +588,28 @@ public final class HistoryScreen {
             VBox.setVgrow(spacer, Priority.ALWAYS);
 
             VBox content = new VBox(4);
+            content.setAlignment(Pos.CENTER);
+            content.setMaxWidth(Double.MAX_VALUE);
             if (summary.hasActivity()) {
-                Label count = new Label(summary.cycleCount() + pluralCycles(summary.cycleCount()));
-                count.getStyleClass().add("hy-year-card-count");
-                content.getChildren().add(count);
+                Label number = new Label(String.valueOf(summary.cycleCount()));
+                number.getStyleClass().add("hy-year-card-count");
+
+                Label plural = new Label(pluralCycles(summary.cycleCount()).trim());
+                plural.getStyleClass().add("hy-year-card-footer");
+
+                VBox countGroup = new VBox(0);
+                countGroup.setAlignment(Pos.CENTER);
+                countGroup.setMaxWidth(Double.MAX_VALUE);
+                countGroup.getChildren().addAll(number, plural);
+                content.getChildren().add(countGroup);
                 if (summary.hasProblems()) {
                     Label prob = new Label("Проблем: " + summary.problematicCount());
                     prob.getStyleClass().add("hy-year-card-problem");
                     content.getChildren().add(prob);
                 }
+                Region dot = new Region();
+                dot.getStyleClass().add("hy-month-dot");
+                content.getChildren().add(dot);
             } else {
                 Label empty = new Label("—");
                 empty.getStyleClass().add("hy-year-card-empty");
@@ -568,11 +617,14 @@ public final class HistoryScreen {
             }
 
             card.getChildren().addAll(label, spacer, content);
+            yearCards.put(ym, card);
 
             final int finalMonth = month;
             card.setOnMouseClicked(event -> {
                 if (event.getButton() != MouseButton.PRIMARY) return;
-                anchorDate = LocalDate.of(year, finalMonth, 1);
+                LocalDate today = LocalDate.now();
+                boolean isCurrentMonth = year == today.getYear() && finalMonth == today.getMonthValue();
+                anchorDate = isCurrentMonth ? today : LocalDate.of(year, finalMonth, 1);
                 selectedDate = anchorDate;
                 scale = HistoryScale.MONTH;
                 AppSettings.setHistoryScale(scale.settingsValue());
@@ -594,7 +646,12 @@ public final class HistoryScreen {
 
         row.getChildren().clear();
 
-        if (scale == HistoryScale.YEAR || !hasActiveSelection()) {
+        if (scale == HistoryScale.YEAR) {
+            buildYearSummaryCards(row);
+            return;
+        }
+
+        if (!hasActiveSelection()) {
             row.getChildren().add(buildSummaryEmptyCard(
                     "Выберите день в календаре",
                     "Чтобы увидеть сводку по циклам и фильтровать хронологию."
@@ -689,6 +746,50 @@ public final class HistoryScreen {
             card.getChildren().add(body);
         }
 
+        return card;
+    }
+
+    private void buildYearSummaryCards(HBox row) {
+        YearMonth selected = YearMonth.from(selectedDate != null ? selectedDate : anchorDate);
+        HistoryMonthSummaryModel m = selectedMonthSummary != null
+                ? selectedMonthSummary
+                : new HistoryMonthSummaryModel(selected, 0, 0, 0, 0, 0);
+
+        if (!m.hasActivity()) {
+            row.getChildren().add(buildSummaryEmptyCard(
+                    "За этот месяц данных нет", ""
+            ));
+            return;
+        }
+
+        row.getChildren().add(buildStaticSummaryCard("Количество циклов", m.cycleCount()));
+        if (m.problematicCount() > 0) {
+            row.getChildren().add(buildStaticSummaryCard("Циклов с проблемами", m.problematicCount()));
+        }
+        int notStarted = Math.max(0, m.unfinishedCount() - m.activeCount());
+        if (notStarted > 0) {
+            row.getChildren().add(buildStaticSummaryCard("Не начатых циклов", notStarted));
+        }
+        if (m.activeCount() > 0) {
+            row.getChildren().add(buildStaticSummaryCard("Циклов на паузе", m.activeCount()));
+        }
+    }
+
+    private Node buildStaticSummaryCard(String titleText, int count) {
+        VBox card = new VBox(4);
+        card.getStyleClass().add("hy-summary-card");
+        card.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(card, Priority.ALWAYS);
+        card.setAlignment(Pos.CENTER_LEFT);
+
+        Label title = new Label(titleText);
+        title.getStyleClass().add("hy-summary-label");
+        title.setWrapText(true);
+
+        Label value = new Label(String.valueOf(count));
+        value.getStyleClass().add("hy-summary-value");
+
+        card.getChildren().addAll(title, value);
         return card;
     }
 
@@ -953,7 +1054,7 @@ public final class HistoryScreen {
         return switch (currentScale) {
             case MONTH -> hasActiveSelection() ? labeledDay(selectedDate) : "Выберите день";
             case WEEK -> hasActiveSelection() ? labeledDay(selectedDate) : weekRangeTitle(anchorDate);
-            case YEAR -> anchorDate.getYear() + " год";
+            case YEAR -> capitalize((selectedDate != null ? selectedDate : anchorDate).format(MONTH_TITLE_FMT));
         };
     }
 

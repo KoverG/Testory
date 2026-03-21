@@ -122,16 +122,17 @@
 }
 
 .hy-calendar-viewport {
-    -fx-background-color: linear-gradient(to bottom, rgba(255,255,255,0.05), rgba(255,255,255,0.03));
+    -fx-background-color: rgba(255,255,255,0.10);
     -fx-background-radius: 20;
     -fx-border-radius: 20;
-    -fx-border-color: rgba(255,255,255,0.08);
+    -fx-border-width: 1;
+    -fx-border-color: rgba(255,255,255,0.18);
     -fx-padding: 14;
 }
 
 .root.theme-light .hy-calendar-viewport {
-    -fx-background-color: linear-gradient(to bottom, rgba(0,0,0,0.03), rgba(0,0,0,0.015));
-    -fx-border-color: rgba(0,0,0,0.08);
+    -fx-background-color: rgba(255,255,255,0.65);
+    -fx-border-color: rgba(0,0,0,0.14);
 }
 
 .hy-weekday-label {
@@ -159,10 +160,11 @@
 
 .hy-summary-card,
 .hy-empty-state {
-    -fx-background-color: rgba(255,255,255,0.05);
+    -fx-background-color: rgba(255,255,255,0.10);
     -fx-background-radius: 18;
     -fx-border-radius: 18;
-    -fx-border-color: rgba(255,255,255,0.08);
+    -fx-border-width: 1;
+    -fx-border-color: rgba(255,255,255,0.18);
 }
 
 .root.theme-light .hy-month-cell,
@@ -174,8 +176,8 @@
 
 .root.theme-light .hy-summary-card,
 .root.theme-light .hy-empty-state {
-    -fx-background-color: rgba(0,0,0,0.035);
-    -fx-border-color: rgba(0,0,0,0.08);
+    -fx-background-color: rgba(255,255,255,0.65);
+    -fx-border-color: rgba(0,0,0,0.14);
 }
 
 .hy-month-cell {
@@ -195,19 +197,19 @@
 }
 
 .hy-month-cell.is-weekend {
-    -fx-background-color: rgba(255,255,255,0.15);
+    -fx-background-color: rgba(255,255,255,0.20);
 }
 
 .hy-month-cell.is-sunday {
-    -fx-background-color: rgba(255,255,255,0.19);
+    -fx-background-color: rgba(255,255,255,0.25);
 }
 
 .hy-week-card.is-weekend {
-    -fx-background-color: rgba(255,255,255,0.12);
+    -fx-background-color: rgba(255,255,255,0.17);
 }
 
 .hy-week-card.is-sunday {
-    -fx-background-color: rgba(255,255,255,0.15);
+    -fx-background-color: rgba(255,255,255,0.21);
 }
 
 .hy-month-cell.is-weekend .hy-month-day-number {
@@ -215,65 +217,61 @@
 }
 
 .root.theme-light .hy-month-cell.is-weekend {
-    -fx-background-color: rgba(0,0,0,0.11);
+    -fx-background-color: rgba(0,0,0,0.14);
 }
 
 .root.theme-light .hy-month-cell.is-sunday {
-    -fx-background-color: rgba(0,0,0,0.15);
+    -fx-background-color: rgba(0,0,0,0.19);
 }
 
 .root.theme-light .hy-week-card.is-weekend {
-    -fx-background-color: rgba(0,0,0,0.10);
+    -fx-background-color: rgba(0,0,0,0.13);
 }
 
 .root.theme-light .hy-week-card.is-sunday {
-    -fx-background-color: rgba(0,0,0,0.13);
+    -fx-background-color: rgba(0,0,0,0.17);
 }
 
 .root.theme-light .hy-month-cell.is-weekend .hy-month-day-number {
     -fx-text-fill: rgba(20,24,32,0.88);
 }
 
-.hy-month-cell.tone-danger,
-.hy-week-card.tone-danger,
-.hy-year-card.tone-danger {
-    -fx-background-color: rgba(232, 63, 76, 0.30);
-    -fx-border-color: rgba(255, 120, 132, 0.42);
+/* Статусные tone-классы: цвет только у точки, ячейка остаётся нейтральной */
+
+.hy-month-cell.tone-danger .hy-month-dot,
+.hy-week-card.tone-danger .hy-month-dot,
+.hy-year-card.tone-danger .hy-month-dot {
+    -fx-background-color: rgba(234, 28, 44, 0.90);
 }
 
-.root.theme-light .hy-month-cell.tone-danger,
-.root.theme-light .hy-week-card.tone-danger,
-.root.theme-light .hy-year-card.tone-danger {
-    -fx-background-color: rgba(232, 63, 76, 0.20);
-    -fx-border-color: rgba(188, 36, 54, 0.34);
+.root.theme-light .hy-month-cell.tone-danger .hy-month-dot,
+.root.theme-light .hy-week-card.tone-danger .hy-month-dot,
+.root.theme-light .hy-year-card.tone-danger .hy-month-dot {
+    -fx-background-color: rgba(210, 20, 38, 0.90);
 }
 
-.hy-month-cell.tone-warning,
-.hy-week-card.tone-warning,
-.hy-year-card.tone-warning {
-    -fx-background-color: rgba(235, 180, 43, 0.30);
-    -fx-border-color: rgba(255, 216, 110, 0.40);
+.hy-month-cell.tone-warning .hy-month-dot,
+.hy-week-card.tone-warning .hy-month-dot,
+.hy-year-card.tone-warning .hy-month-dot {
+    -fx-background-color: rgba(235, 180, 43, 0.95);
 }
 
-.root.theme-light .hy-month-cell.tone-warning,
-.root.theme-light .hy-week-card.tone-warning,
-.root.theme-light .hy-year-card.tone-warning {
-    -fx-background-color: rgba(235, 180, 43, 0.22);
-    -fx-border-color: rgba(184, 128, 16, 0.34);
+.root.theme-light .hy-month-cell.tone-warning .hy-month-dot,
+.root.theme-light .hy-week-card.tone-warning .hy-month-dot,
+.root.theme-light .hy-year-card.tone-warning .hy-month-dot {
+    -fx-background-color: rgba(184, 128, 16, 0.92);
 }
 
-.hy-month-cell.tone-success,
-.hy-week-card.tone-success,
-.hy-year-card.tone-success {
-    -fx-background-color: rgba(44, 179, 108, 0.30);
-    -fx-border-color: rgba(105, 229, 162, 0.38);
+.hy-month-cell.tone-success .hy-month-dot,
+.hy-week-card.tone-success .hy-month-dot,
+.hy-year-card.tone-success .hy-month-dot {
+    -fx-background-color: rgba(44, 179, 108, 0.95);
 }
 
-.root.theme-light .hy-month-cell.tone-success,
-.root.theme-light .hy-week-card.tone-success,
-.root.theme-light .hy-year-card.tone-success {
-    -fx-background-color: rgba(44, 179, 108, 0.20);
-    -fx-border-color: rgba(23, 138, 77, 0.34);
+.root.theme-light .hy-month-cell.tone-success .hy-month-dot,
+.root.theme-light .hy-week-card.tone-success .hy-month-dot,
+.root.theme-light .hy-year-card.tone-success .hy-month-dot {
+    -fx-background-color: rgba(23, 138, 77, 0.92);
 }
 
 .hy-month-cell.is-active,
@@ -288,6 +286,23 @@
 
 .root.theme-light .hy-month-cell.is-active {
     -fx-border-color: rgba(0, 0, 0, 0.28);
+}
+
+/* Выходные с активными циклами: рамка остаётся как у обычного выходного */
+.hy-month-cell.is-weekend.is-active,
+.hy-month-cell.is-sunday.is-active,
+.hy-week-card.is-weekend.is-active,
+.hy-week-card.is-sunday.is-active {
+    -fx-border-width: 1;
+    -fx-border-color: rgba(255,255,255,0.12);
+}
+
+.root.theme-light .hy-month-cell.is-weekend.is-active,
+.root.theme-light .hy-month-cell.is-sunday.is-active,
+.root.theme-light .hy-week-card.is-weekend.is-active,
+.root.theme-light .hy-week-card.is-sunday.is-active {
+    -fx-border-width: 1;
+    -fx-border-color: rgba(0,0,0,0.14);
 }
 
 .hy-month-cell.is-today {
@@ -444,7 +459,7 @@
 
 .hy-week-card-activity {
     -fx-alignment: CENTER;
-    -fx-spacing: 6;
+    -fx-spacing: 4;
 }
 
 .hy-week-card-problem,
@@ -472,6 +487,13 @@
     -fx-text-fill: -fx-text-color;
 }
 
+.hy-week-card .hy-week-card-title,
+.hy-week-card .hy-week-card-date {
+    -fx-max-width: Infinity;
+    -fx-alignment: CENTER;
+    -fx-text-alignment: CENTER;
+}
+
 .hy-year-grid {
     -fx-padding: 0;
 }
@@ -480,11 +502,31 @@
     -fx-alignment: TOP_LEFT;
 }
 
+.hy-year-card .hy-year-card-count,
+.hy-year-card .hy-year-card-footer,
+.hy-year-card .hy-year-card-problem,
+.hy-year-card .hy-year-card-empty {
+    -fx-max-width: Infinity;
+    -fx-alignment: CENTER;
+    -fx-text-alignment: CENTER;
+}
+
+.hy-year-card .hy-year-card-footer {
+    -fx-text-fill: -fx-text-color;
+}
+
+.hy-week-card .hy-week-card-empty {
+    -fx-max-width: Infinity;
+    -fx-alignment: CENTER;
+    -fx-text-alignment: CENTER;
+}
+
 .hy-timeline-card {
-    -fx-background-color: rgba(255,255,255,0.05);
+    -fx-background-color: rgba(255,255,255,0.10);
     -fx-background-radius: 18;
     -fx-border-radius: 18;
-    -fx-border-color: rgba(255,255,255,0.08);
+    -fx-border-width: 1;
+    -fx-border-color: rgba(255,255,255,0.18);
     -fx-padding: 14;
     -fx-spacing: 10;
     -fx-cursor: hand;
@@ -495,8 +537,8 @@
 }
 
 .root.theme-light .hy-timeline-card {
-    -fx-background-color: rgba(0,0,0,0.035);
-    -fx-border-color: rgba(0,0,0,0.08);
+    -fx-background-color: rgba(255,255,255,0.65);
+    -fx-border-color: rgba(0,0,0,0.14);
 }
 
 .root.theme-light .hy-timeline-card:hover {

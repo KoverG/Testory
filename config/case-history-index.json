@@ -73,6 +73,34 @@
         "createdAtUi": "15.03.2026",
         "status": "",
         "comment": ""
+      },
+      {
+        "cycleId": "cy_20260319095733871_341",
+        "cycleTitle": "Цикл pass with bugs",
+        "createdAtUi": "19.03.2026",
+        "status": "PASSED_WITH_BUGS",
+        "comment": ""
+      },
+      {
+        "cycleId": "cy_20260319104638603_289",
+        "cycleTitle": "Тест старта цикла",
+        "createdAtUi": "19.03.2026",
+        "status": "",
+        "comment": ""
+      },
+      {
+        "cycleId": "cy_20260321191944317_910",
+        "cycleTitle": "Тест успешного дня с циклом",
+        "createdAtUi": "21.03.2026",
+        "status": "FAILED",
+        "comment": ""
+      },
+      {
+        "cycleId": "cy_20260322002554267_223",
+        "cycleTitle": "Цест цикла в ВС",
+        "createdAtUi": "22.03.2026",
+        "status": "FAILED",
+        "comment": ""
       }
     ],
     "tc_20251231111329926_846": [
@@ -139,6 +167,13 @@
         "cycleTitle": "Тест в процессе 2",
         "createdAtUi": "15.03.2026",
         "status": "",
+        "comment": ""
+      },
+      {
+        "cycleId": "cy_20260322002554267_223",
+        "cycleTitle": "Цест цикла в ВС",
+        "createdAtUi": "22.03.2026",
+        "status": "PASSED",
         "comment": ""
       }
     ],
@@ -223,6 +258,43 @@
         "cycleTitle": "Тест в процессе 2",
         "createdAtUi": "15.03.2026",
         "status": "",
+        "comment": ""
+      },
+      {
+        "cycleId": "cy_20260319095733871_341",
+        "cycleTitle": "Цикл pass with bugs",
+        "createdAtUi": "19.03.2026",
+        "status": "PASSED",
+        "comment": ""
+      },
+      {
+        "cycleId": "cy_20260319104638603_289",
+        "cycleTitle": "Тест старта цикла",
+        "createdAtUi": "19.03.2026",
+        "status": "",
+        "comment": ""
+      },
+      {
+        "cycleId": "cy_20260321191944317_910",
+        "cycleTitle": "Тест успешного дня с циклом",
+        "createdAtUi": "21.03.2026",
+        "status": "PASSED",
+        "comment": ""
+      },
+      {
+        "cycleId": "cy_20260322002554267_223",
+        "cycleTitle": "Цест цикла в ВС",
+        "createdAtUi": "22.03.2026",
+        "status": "CRITICAL_FAILED",
+        "comment": ""
+      }
+    ],
+    "tc_20260113104800609_759": [
+      {
+        "cycleId": "cy_20260319095733871_341",
+        "cycleTitle": "Цикл pass with bugs",
+        "createdAtUi": "19.03.2026",
+        "status": "PASSED",
         "comment": ""
       }
     ]
