@@ -91,13 +91,16 @@
         <VBox fx:id="rightColumn"
               spacing="10"
               HBox.hgrow="ALWAYS"
+              maxHeight="Infinity"
               styleClass="hy-right-column">
 
             <StackPane fx:id="rightSurface"
                        VBox.vgrow="ALWAYS"
+                       maxWidth="Infinity"
+                       maxHeight="Infinity"
                        styleClass="hy-surface,hy-right-surface">
                 <padding>
-                    <Insets top="16" right="16" bottom="16" left="16"/>
+                    <Insets top="16" right="16" bottom="0" left="16"/>
                 </padding>
 
                 <VBox spacing="16" maxWidth="Infinity" maxHeight="Infinity">

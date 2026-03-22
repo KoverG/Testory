@@ -35,7 +35,7 @@ public class ReportsController {
     @FXML private StackPane sortSheet;
 
     @FXML private StackPane rightRoot;
-    @FXML private Button btnCloseRight;
+    @FXML private VBox rightPlaceholder;
 
     private ReportsScreen screen;
 
@@ -60,7 +60,7 @@ public class ReportsController {
                 sortSheet
         );
 
-        screen = new ReportsScreen(leftRefs, rightRoot, btnCloseRight);
+        screen = new ReportsScreen(leftRefs, rightRoot, rightPlaceholder);
         screen.init();
     }
 

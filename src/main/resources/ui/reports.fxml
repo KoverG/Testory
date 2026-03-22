@@ -142,18 +142,8 @@
                           maxHeight="Infinity"
                           styleClass="cy-right-placeholder">
                         <padding>
-                            <Insets top="14" right="14" bottom="14" left="14"/>
+                            <Insets top="14" right="14" bottom="0" left="14"/>
                         </padding>
-
-                        <HBox spacing="8" alignment="CENTER_LEFT">
-                            <Region HBox.hgrow="ALWAYS"/>
-
-                            <Button fx:id="btnCloseRight"
-                                    focusTraversable="false"
-                                    userData="14"
-                                    styleClass="icon-btn,sm"/>
-                        </HBox>
-
                     </VBox>
 
                 </StackPane>

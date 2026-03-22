@@ -6,35 +6,38 @@ import app.domain.cycles.ui.left.CyclesLeftViewRefs;
 import app.domain.cycles.ui.left.LeftPaneCoordinator;
 import app.domain.cycles.ui.left.LeftZoneMode;
 import app.domain.cycles.usecase.CycleCaseRef;
+import app.domain.reports.model.ReportTarget;
+import app.domain.reports.ui.ReportCardView;
 import app.domain.testcases.ui.RightPaneAnimator;
-import app.ui.UiSvg;
 import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.scene.control.Button;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 
 import java.nio.file.Path;
 import java.util.List;
 
 /**
  * Координатор экрана Отчётов.
- * Реализует CyclesLeftHost в режиме REPORTS — переиспользует LeftPaneCoordinator.
- * Правая зона — подложка с кнопкой «Закрыть», анимация аналогична Cycles.
  */
 public final class ReportsScreen implements CyclesLeftHost {
 
     private final CyclesLeftViewRefs leftRefs;
     private final StackPane rightRoot;
-    private final Button btnCloseRight;
+    private final VBox rightPlaceholder;
 
     private LeftPaneCoordinator left;
     private RightPaneAnimator anim;
+    private ReportCardView cardView;
     private boolean open = false;
     private String openedId = "";
 
-    public ReportsScreen(CyclesLeftViewRefs leftRefs, StackPane rightRoot, Button btnCloseRight) {
-        this.leftRefs = leftRefs;
-        this.rightRoot = rightRoot;
-        this.btnCloseRight = btnCloseRight;
+    public ReportsScreen(CyclesLeftViewRefs leftRefs,
+                         StackPane rightRoot,
+                         VBox rightPlaceholder) {
+        this.leftRefs         = leftRefs;
+        this.rightRoot        = rightRoot;
+        this.rightPlaceholder = rightPlaceholder;
     }
 
     public void init() {
@@ -47,10 +50,11 @@ public final class ReportsScreen implements CyclesLeftHost {
             anim = new RightPaneAnimator(rightRoot);
         }
 
-        if (btnCloseRight != null) {
-            UiSvg.setButtonSvg(btnCloseRight, "close.svg", 14);
-            btnCloseRight.setFocusTraversable(false);
-            btnCloseRight.setOnAction(e -> closeRight());
+        if (rightPlaceholder != null) {
+            rightPlaceholder.setSpacing(0);
+            cardView = new ReportCardView(this::closeRight);
+            VBox.setVgrow(cardView.view(), Priority.ALWAYS);
+            rightPlaceholder.getChildren().add(cardView.view());
         }
     }
 
@@ -62,19 +66,13 @@ public final class ReportsScreen implements CyclesLeftHost {
     }
 
     @Override
-    public boolean isRightOpen() {
-        return open;
-    }
+    public boolean isRightOpen() { return open; }
 
     @Override
-    public String openedCycleId() {
-        return openedId;
-    }
+    public String openedCycleId() { return openedId; }
 
     @Override
-    public void openCreateCard() {
-        // карточка отчёта ещё не реализована
-    }
+    public void openCreateCard() {}
 
     @Override
     public void closeRight() {
@@ -91,20 +89,38 @@ public final class ReportsScreen implements CyclesLeftHost {
     public void openExistingCard(Path file) {
         if (rightRoot == null) return;
         String id = file == null ? "" : file.getFileName().toString().replace(".json", "");
+        if (open && id.equals(openedId)) {
+            closeRight();
+            return;
+        }
         openedId = id;
+        if (cardView != null && file != null) {
+            cardView.load(ReportTarget.forCycle(id, file));
+        }
+        showRightPane();
+    }
+
+    @Override
+    public void openTestCaseCardFromList(String caseId, List<String> allIds) {
+        if (rightRoot == null) return;
+        if (open && caseId != null && caseId.equals(openedId)) {
+            closeRight();
+            return;
+        }
+        openedId = caseId != null ? caseId : "";
+        if (cardView != null && !openedId.isEmpty()) {
+            cardView.load(ReportTarget.forCase(openedId));
+        }
         showRightPane();
     }
 
     private void showRightPane() {
         if (!open) {
             open = true;
-            anim.show(
-                    () -> {
-                        rightRoot.setVisible(true);
-                        rightRoot.setManaged(true);
-                    },
-                    null
-            );
+            anim.show(() -> {
+                rightRoot.setVisible(true);
+                rightRoot.setManaged(true);
+            }, null);
         } else {
             anim.pulseReplace();
         }
@@ -115,39 +131,10 @@ public final class ReportsScreen implements CyclesLeftHost {
         return rightRoot != null ? (ReadOnlyBooleanProperty) rightRoot.visibleProperty() : null;
     }
 
-    // cases picker — недоступен в режиме REPORTS
-
-    @Override
-    public List<String> getAddedCaseIds() {
-        return List.of();
-    }
-
-    @Override
-    public void removeAddedCasesByIds(List<String> ids) {}
-
-    @Override
-    public void addAddedCases(List<CycleCaseRef> refs) {}
-
-    @Override
-    public void closePickerPreviewCaseCard() {}
-
-    @Override
-    public boolean isEditModeEnabled() {
-        return false;
-    }
-
-    @Override
-    public void openTestCaseCardFromList(String caseId, List<String> allIds) {
-        if (rightRoot == null) return;
-        // toggle-close при повторном клике по тому же кейсу
-        if (open && caseId != null && caseId.equals(openedId)) {
-            closeRight();
-            return;
-        }
-        openedId = caseId != null ? caseId : "";
-        showRightPane();
-    }
-
-    @Override
-    public void setOnUiStateChanged(Runnable callback) {}
+    @Override public List<String> getAddedCaseIds()                      { return List.of(); }
+    @Override public void removeAddedCasesByIds(List<String> ids)        {}
+    @Override public void addAddedCases(List<CycleCaseRef> refs)         {}
+    @Override public void closePickerPreviewCaseCard()                   {}
+    @Override public boolean isEditModeEnabled()                         { return false; }
+    @Override public void setOnUiStateChanged(Runnable callback)         {}
 }
