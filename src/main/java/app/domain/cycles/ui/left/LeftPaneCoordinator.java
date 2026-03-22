@@ -331,6 +331,11 @@ public final class LeftPaneCoordinator {
             v.btnTrash.setVisible(false);
             v.btnTrash.setManaged(false);
         }
+        // скрываем кнопку "Создать" — на экране Reports она не нужна
+        if (v.btnCreate != null) {
+            v.btnCreate.setVisible(false);
+            v.btnCreate.setManaged(false);
+        }
     }
 
     public void setMode(LeftMode newMode) {
