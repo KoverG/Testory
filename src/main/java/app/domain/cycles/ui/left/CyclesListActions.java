@@ -1,18 +1,15 @@
 // FILE: src/main/java/app/domain/cycles/ui/left/CyclesListActions.java
 package app.domain.cycles.ui.left;
 
-import app.domain.cycles.ui.CyclesViewRefs;
-import app.domain.cycles.ui.right.RightPaneCoordinator;
-
 public final class CyclesListActions implements LeftPaneActions {
 
-    private final CyclesViewRefs v;
-    private final RightPaneCoordinator right;
+    private final CyclesLeftViewRefs v;
+    private final CyclesLeftHost host;
     private final Runnable switchToCasesPicker;
 
-    public CyclesListActions(CyclesViewRefs v, RightPaneCoordinator right, Runnable switchToCasesPicker) {
+    public CyclesListActions(CyclesLeftViewRefs v, CyclesLeftHost host, Runnable switchToCasesPicker) {
         this.v = v;
-        this.right = right;
+        this.host = host;
         this.switchToCasesPicker = switchToCasesPicker;
     }
 
@@ -23,22 +20,20 @@ public final class CyclesListActions implements LeftPaneActions {
         // - если правая зона открыта:
         //     - если открыт existing-cycle -> переключаемся на create-card (с replace-анимацией)
         //     - если уже открыт create-card -> закрываем (сохраняем прежний toggle-UX)
-        if (right == null) return;
-
-        if (right.isOpen()) {
-            String openedId = safeTrim(right.openedCycleId());
+        if (host.isRightOpen()) {
+            String openedId = safeTrim(host.openedCycleId());
             if (!openedId.isEmpty()) {
                 // был открыт existing -> открыть create с той же анимацией replace
-                right.openCreateCard();
+                host.openCreateCard();
                 try {
                     if (v.lvLeft != null) v.lvLeft.getSelectionModel().clearSelection();
                 } catch (Exception ignored) {}
             } else {
                 // уже открыт create -> toggle-close как раньше
-                right.close();
+                host.closeRight();
             }
         } else {
-            right.openCreateCard();
+            host.openCreateCard();
             try {
                 if (v.lvLeft != null) v.lvLeft.getSelectionModel().clearSelection();
             } catch (Exception ignored) {}
@@ -46,29 +41,19 @@ public final class CyclesListActions implements LeftPaneActions {
     }
 
     @Override
-    public void onDelete() {
-        v.lblRightHint.setText("Delete cycle (stub)");
-    }
+    public void onDelete() {}
 
     @Override
-    public void onFilter() {
-        v.lblRightHint.setText("Filter cycles (stub)");
-    }
+    public void onFilter() {}
 
     @Override
-    public void onSort() {
-        v.lblRightHint.setText("Sort cycles (stub)");
-    }
+    public void onSort() {}
 
     @Override
-    public void onSearch(String query) {
-        v.lblRightHint.setText("Search: " + (query == null ? "" : query));
-    }
+    public void onSearch(String query) {}
 
     @Override
-    public void onOpenSelected() {
-        v.lblRightHint.setText("Open selected cycle (stub)");
-    }
+    public void onOpenSelected() {}
 
     private static String safeTrim(String v) {
         return v == null ? "" : v.trim();

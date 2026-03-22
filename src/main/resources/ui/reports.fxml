@@ -1,12 +1,166 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import app.ui.ToggleSwitch?>
 
-<VBox xmlns="http://javafx.com/javafx/23"
-      xmlns:fx="http://javafx.com/fxml/1"
-      spacing="10" styleClass="page-root">
-    <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
-    <Label text="Reports" styleClass="h1"/>
-    <Label text="Экран-заглушка. Отчёты — представления истории, не хранение данных." styleClass="muted"/>
-</VBox>
+<StackPane xmlns="http://javafx.com/javafx/23"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="app.domain.reports.ReportsController"
+           fx:id="root"
+           pickOnBounds="false"
+           styleClass="cy-root">
+
+    <BorderPane fx:id="contentRoot"
+                pickOnBounds="true">
+
+        <padding>
+            <Insets top="14" right="14" bottom="14" left="14"/>
+        </padding>
+
+        <center>
+            <HBox spacing="14">
+
+                <!-- Левая зона — идентична cycles.fxml, режим настраивается через LeftZoneMode.REPORTS -->
+                <VBox spacing="10" prefWidth="390" styleClass="cy-left">
+
+                    <StackPane fx:id="leftStack"
+                               VBox.vgrow="ALWAYS"
+                               maxWidth="Infinity"
+                               maxHeight="Infinity">
+                        <padding>
+                            <Insets top="14" right="14" bottom="14" left="14"/>
+                        </padding>
+
+                        <VBox fx:id="leftMain"
+                              spacing="10"
+                              maxWidth="Infinity"
+                              maxHeight="Infinity">
+
+                            <HBox spacing="10">
+                                <StackPane HBox.hgrow="ALWAYS">
+                                    <TextField fx:id="tfSearch"
+                                               maxWidth="Infinity"
+                                               promptText="%tc.search.placeholder"
+                                               styleClass="tc-search"/>
+
+                                    <Button fx:id="btnSearch"
+                                            focusTraversable="false"
+                                            userData="14"
+                                            styleClass="icon-btn,tc-tag-add-in"
+                                            StackPane.alignment="CENTER_RIGHT"/>
+                                </StackPane>
+
+                                <Button fx:id="btnFolder"
+                                        focusTraversable="false"
+                                        userData="14"
+                                        styleClass="icon-btn,sm"/>
+
+                                <Button fx:id="btnCreate"
+                                        text="%tc.btn.create"
+                                        focusTraversable="false"
+                                        styleClass="tc-btn"/>
+                            </HBox>
+
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <ToggleSwitch fx:id="tgThemeLeft"/>
+
+                                <Button fx:id="btnTrash"
+                                        focusTraversable="false"
+                                        userData="14"
+                                        styleClass="icon-btn,sm"/>
+
+                                <Region HBox.hgrow="ALWAYS"/>
+
+                                <Button fx:id="btnFilter"
+                                        text="%tc.btn.filter"
+                                        focusTraversable="false"
+                                        styleClass="tc-btn"/>
+
+                                <Button fx:id="btnSort"
+                                        text="%tc.btn.sort"
+                                        focusTraversable="false"
+                                        userData="14"
+                                        styleClass="tc-btn,tc-sort-btn"/>
+                            </HBox>
+
+                            <Label fx:id="lblSortSummary"
+                                   maxWidth="Infinity"
+                                   managed="false"
+                                   visible="false"
+                                   styleClass="cy-muted"/>
+
+                            <VBox fx:id="casesSheet"
+                                  VBox.vgrow="ALWAYS"
+                                  maxWidth="Infinity"
+                                  maxHeight="Infinity"
+                                  styleClass="tc-cases-sheet">
+
+                                <ListView fx:id="lvLeft"
+                                          VBox.vgrow="ALWAYS"
+                                          maxWidth="Infinity"
+                                          maxHeight="Infinity"
+                                          styleClass="tc-list"/>
+                            </VBox>
+
+                        </VBox>
+
+                        <StackPane fx:id="filterSheet"
+                                   visible="false"
+                                   managed="false"
+                                   pickOnBounds="true"
+                                   maxWidth="Infinity"
+                                   maxHeight="Infinity"
+                                   styleClass="tc-sheet-filter-sort"
+                                   StackPane.alignment="BOTTOM_CENTER"/>
+
+                        <StackPane fx:id="sortSheet"
+                                   visible="false"
+                                   managed="false"
+                                   pickOnBounds="true"
+                                   maxWidth="Infinity"
+                                   maxHeight="Infinity"
+                                   styleClass="tc-sheet-filter-sort"
+                                   StackPane.alignment="BOTTOM_CENTER"/>
+
+                    </StackPane>
+                </VBox>
+
+                <!-- Правая зона — подложка с кнопкой Закрыть, контент добавится в будущих задачах -->
+                <StackPane fx:id="rightRoot"
+                           visible="false"
+                           managed="false"
+                           HBox.hgrow="ALWAYS"
+                           maxWidth="Infinity"
+                           maxHeight="Infinity"
+                           styleClass="cy-right-root">
+
+                    <VBox fx:id="rightPlaceholder"
+                          spacing="0"
+                          maxWidth="Infinity"
+                          maxHeight="Infinity"
+                          styleClass="cy-right-placeholder">
+                        <padding>
+                            <Insets top="14" right="14" bottom="14" left="14"/>
+                        </padding>
+
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <Region HBox.hgrow="ALWAYS"/>
+
+                            <Button fx:id="btnCloseRight"
+                                    focusTraversable="false"
+                                    userData="14"
+                                    styleClass="icon-btn,sm"/>
+                        </HBox>
+
+                    </VBox>
+
+                </StackPane>
+
+            </HBox>
+        </center>
+
+    </BorderPane>
+
+</StackPane>
