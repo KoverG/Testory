@@ -155,6 +155,7 @@
     -fx-background-color: rgba(255,255,255,0.08);
     -fx-background-radius: 18;
     -fx-border-radius: 18;
+    -fx-border-width: 1;
     -fx-border-color: rgba(255,255,255,0.12);
 }
 
@@ -282,10 +283,12 @@
 
 .hy-month-cell.is-active {
     -fx-border-color: rgba(255, 255, 255, 0.48);
+    -fx-border-width: 1;
 }
 
 .root.theme-light .hy-month-cell.is-active {
     -fx-border-color: rgba(0, 0, 0, 0.28);
+    -fx-border-width: 1;
 }
 
 /* Выходные с активными циклами: рамка остаётся как у обычного выходного */
@@ -307,7 +310,7 @@
 
 .hy-month-cell.is-today {
     -fx-border-color: rgba(255, 255, 255, 0.42);
-    -fx-border-width: 1.2;
+    -fx-border-width: 1;
 }
 
 .hy-week-card.is-today,
@@ -318,7 +321,7 @@
 
 .root.theme-light .hy-month-cell.is-today {
     -fx-border-color: rgba(0, 0, 0, 0.30);
-    -fx-border-width: 1.2;
+    -fx-border-width: 1;
 }
 
 .root.theme-light .hy-week-card.is-today,
@@ -327,14 +330,22 @@
     -fx-border-width: 1.2;
 }
 
-.hy-month-cell.is-selected,
+.hy-month-cell.is-selected {
+    -fx-border-color: rgba(245, 0, 73, 0.55);
+    -fx-border-width: 1;
+}
+
 .hy-week-card.is-selected,
 .hy-year-card.is-selected {
     -fx-border-color: rgba(245, 0, 73, 0.55);
     -fx-border-width: 1.2;
 }
 
-.root.theme-light .hy-month-cell.is-selected,
+.root.theme-light .hy-month-cell.is-selected {
+    -fx-border-color: rgba(245, 0, 73, 0.40);
+    -fx-border-width: 1;
+}
+
 .root.theme-light .hy-week-card.is-selected,
 .root.theme-light .hy-year-card.is-selected {
     -fx-border-color: rgba(245, 0, 73, 0.40);
@@ -380,12 +391,16 @@
     -fx-cursor: hand;
 }
 
-.hy-summary-card:hover {
+.hy-summary-card:not(.is-static):hover {
     -fx-border-color: rgba(255,255,255,0.18);
 }
 
-.root.theme-light .hy-summary-card:hover {
+.root.theme-light .hy-summary-card:not(.is-static):hover {
     -fx-border-color: rgba(0,0,0,0.16);
+}
+
+.hy-summary-card.is-static {
+    -fx-cursor: default;
 }
 
 .hy-summary-card.is-active-card {
