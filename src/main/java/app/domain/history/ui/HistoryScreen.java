@@ -694,14 +694,18 @@ public final class HistoryScreen {
             activeSummaryFilter = SummaryFilter.ALL;
         }
 
+        boolean interactive = cards.size() > 1;
         for (SummaryCardData card : cards) {
-            row.getChildren().add(buildSummaryCard(card));
+            row.getChildren().add(buildSummaryCard(card, interactive));
         }
     }
 
-    private Node buildSummaryCard(SummaryCardData data) {
+    private Node buildSummaryCard(SummaryCardData data, boolean interactive) {
         VBox card = new VBox(4);
         card.getStyleClass().add("hy-summary-card");
+        if (!interactive) {
+            card.getStyleClass().add("is-static");
+        }
         if (data.filter() == activeSummaryFilter) {
             card.getStyleClass().add("is-active-card");
         }
@@ -717,14 +721,16 @@ public final class HistoryScreen {
         value.getStyleClass().add("hy-summary-value");
 
         card.getChildren().addAll(title, value);
-        card.setOnMouseClicked(event -> {
-            if (event.getButton() != MouseButton.PRIMARY) {
-                return;
-            }
-            activeSummaryFilter = data.filter();
-            refreshSummary();
-            refreshTimeline();
-        });
+        if (interactive) {
+            card.setOnMouseClicked(event -> {
+                if (event.getButton() != MouseButton.PRIMARY) {
+                    return;
+                }
+                activeSummaryFilter = data.filter();
+                refreshSummary();
+                refreshTimeline();
+            });
+        }
         return card;
     }
 
@@ -777,7 +783,7 @@ public final class HistoryScreen {
 
     private Node buildStaticSummaryCard(String titleText, int count) {
         VBox card = new VBox(4);
-        card.getStyleClass().add("hy-summary-card");
+        card.getStyleClass().addAll("hy-summary-card", "is-static");
         card.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(card, Priority.ALWAYS);
         card.setAlignment(Pos.CENTER_LEFT);
