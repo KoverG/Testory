@@ -53,4 +53,10 @@ public interface CyclesLeftHost {
      * Может вернуть null, если правая зона отсутствует (например, экран Отчётов).
      */
     ReadOnlyBooleanProperty rightVisibleProperty();
+
+    /**
+     * Контекст экрана, на котором используется левая зона.
+     * Координатор читает его один раз в init() и настраивает UI.
+     */
+    LeftZoneMode leftZoneMode();
 }

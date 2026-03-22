@@ -316,8 +316,21 @@ public final class LeftPaneCoordinator {
         installSearchBehavior();
         applyMode(LeftMode.CYCLES_LIST);
 
+        // применяем ограничения, если левая зона используется не на экране Cycles
+        if (host.leftZoneMode() == LeftZoneMode.REPORTS) {
+            applyReportsModeUi();
+        }
+
         // вњ… after scene ready: install outside-close for trash overlay (cycles)
         Platform.runLater(this::installTrashOutsideClose);
+    }
+
+    private void applyReportsModeUi() {
+        // скрываем кнопку удаления/добавления рядом с toggle
+        if (v.btnTrash != null) {
+            v.btnTrash.setVisible(false);
+            v.btnTrash.setManaged(false);
+        }
     }
 
     public void setMode(LeftMode newMode) {
@@ -1060,6 +1073,13 @@ public final class LeftPaneCoordinator {
 
     private void refreshLeftActionButtonVisibility() {
         if (v == null || v.btnTrash == null) return;
+
+        // в режиме REPORTS кнопка всегда скрыта
+        if (host.leftZoneMode() == LeftZoneMode.REPORTS) {
+            v.btnTrash.setVisible(false);
+            v.btnTrash.setManaged(false);
+            return;
+        }
 
         boolean show = mode != LeftMode.CASES_PICKER || host.isRightOpen();
         boolean disable = mode == LeftMode.CASES_PICKER

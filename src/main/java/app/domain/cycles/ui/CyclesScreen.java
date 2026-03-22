@@ -5,6 +5,7 @@ import app.domain.cycles.ui.left.CyclesLeftHost;
 import app.domain.cycles.ui.left.CyclesLeftViewRefs;
 import app.domain.cycles.ui.left.LeftMode;
 import app.domain.cycles.ui.left.LeftPaneCoordinator;
+import app.domain.cycles.ui.left.LeftZoneMode;
 import app.domain.cycles.ui.right.RightPaneCoordinator;
 import app.domain.cycles.usecase.CycleCaseRef;
 import javafx.beans.property.ReadOnlyBooleanProperty;
@@ -138,5 +139,10 @@ public final class CyclesScreen implements CyclesLeftHost {
     @Override
     public ReadOnlyBooleanProperty rightVisibleProperty() {
         return v.rightRoot != null ? (ReadOnlyBooleanProperty) v.rightRoot.visibleProperty() : null;
+    }
+
+    @Override
+    public LeftZoneMode leftZoneMode() {
+        return LeftZoneMode.CYCLES;
     }
 }
