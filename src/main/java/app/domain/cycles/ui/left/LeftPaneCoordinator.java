@@ -6,13 +6,11 @@ import app.core.PrivateRootConfig;
 import app.domain.cycles.query.CycleListSorter;
 import app.domain.cycles.repo.CaseHistoryIndexStore;
 import app.domain.cycles.repo.CycleCardJsonReader;
-import app.domain.cycles.ui.CyclesViewRefs;
 import app.domain.cycles.ui.list.CaseListItem;
 import app.domain.cycles.ui.list.CycleListItem;
 import app.domain.cycles.ui.list.ListPresenter;
 import app.domain.cycles.ui.overlay.FilterSheet;
 import app.domain.cycles.ui.overlay.SortSheet;
-import app.domain.cycles.ui.right.RightPaneCoordinator;
 import app.domain.cycles.usecase.CycleCaseRef;
 import app.domain.cycles.usecase.CycleDraft;
 import app.domain.cycles.usecase.CycleRunState;
@@ -152,8 +150,8 @@ public final class LeftPaneCoordinator {
     private StackPane listStack; // ListView + header overlay
     // ===============================================================
 
-    private final CyclesViewRefs v;
-    private final RightPaneCoordinator right;
+    private final CyclesLeftViewRefs v;
+    private final CyclesLeftHost host;
     private final ListPresenter list;
     private final FilterSheet leftFilterSheet;
     private final SortSheet leftSortSheet;
@@ -197,9 +195,9 @@ public final class LeftPaneCoordinator {
     // ====== confirm delete (same mechanic as TestCases, but texts differ) ======
     private LeftDeleteConfirm cyclesDeleteConfirm;
 
-    public LeftPaneCoordinator(CyclesViewRefs v, RightPaneCoordinator right) {
+    public LeftPaneCoordinator(CyclesLeftViewRefs v, CyclesLeftHost host) {
         this.v = v;
-        this.right = right;
+        this.host = host;
         this.list = new ListPresenter(v.lvLeft);
         this.leftFilterSheet = new FilterSheet(v.leftStack, v.filterSheet, v.casesSheet);
         this.leftSortSheet = new SortSheet(v.leftStack, v.sortSheet, v.casesSheet);
@@ -240,12 +238,10 @@ public final class LeftPaneCoordinator {
 
         v.btnFolder.setOnAction(e -> openCyclesFolder());
 
-        if (v.rightRoot != null) {
-            v.rightRoot.visibleProperty().addListener((obs, oldV, newV) -> refreshLeftActionButtonVisibility());
+        if (host.rightVisibleProperty() != null) {
+            host.rightVisibleProperty().addListener((obs, oldV, newV) -> refreshLeftActionButtonVisibility());
         }
-        if (right != null) {
-            right.setOnUiStateChanged(this::onRightUiStateChanged);
-        }
+        host.setOnUiStateChanged(this::onRightUiStateChanged);
 
         // ====== CASES PICKER overlay (universal) ======
         casesAddOverlay = new LeftListActionOverlay(v.leftStack, v.casesSheet, "Р”РѕР±Р°РІРёС‚СЊ");
@@ -423,7 +419,7 @@ public final class LeftPaneCoordinator {
         }
 
         if (newMode == LeftMode.CYCLES_LIST) {
-            actions = new CyclesListActions(v, right, () -> applyMode(LeftMode.CASES_PICKER));
+            actions = new CyclesListActions(v, host, () -> applyMode(LeftMode.CASES_PICKER));
 
             if (v.btnTrash != null) {
                 UiSvg.setButtonSvg(v.btnTrash, ICON_TRASH, getIconSizeFromFxml(v.btnTrash, 14));
@@ -446,7 +442,7 @@ public final class LeftPaneCoordinator {
             refreshCyclesDeleteAvailability();
 
         } else {
-            actions = new CasesPickerActions(v, right, () -> applyMode(LeftMode.CYCLES_LIST));
+            actions = new CasesPickerActions(v, host, () -> applyMode(LeftMode.CYCLES_LIST));
 
             if (v.btnTrash != null) {
                 UiSvg.setButtonSvg(v.btnTrash, ICON_CASES_PICK, getIconSizeFromFxml(v.btnTrash, 14));
@@ -646,10 +642,10 @@ public final class LeftPaneCoordinator {
         if (id.isEmpty() || TRASH_SPACER_ID.equals(id) || TOP_SPACER_ID.equals(id)) return;
 
         // toggle-close if clicking currently opened cycle (like TestCases)
-        if (right != null && right.isOpen()) {
-            String openedId = safeTrim(right.openedCycleId());
+        if (host.isRightOpen()) {
+            String openedId = safeTrim(host.openedCycleId());
             if (!openedId.isEmpty() && openedId.equals(id)) {
-                right.close();
+                host.closeRight();
                 try {
                     if (v.lvLeft != null) v.lvLeft.getSelectionModel().clearSelection();
                 } catch (Exception ignored) {}
@@ -659,17 +655,16 @@ public final class LeftPaneCoordinator {
 
         // open existing card
         Path file = CYCLES_ROOT.resolve(id + ".json");
-        if (right != null) right.openExistingCard(file);
+        host.openExistingCard(file);
     }
 
     // ===================== ADD SELECTED CASES -> RIGHT (UI-only) =====================
 
     private void addSelectedCasesToRight() {
-        if (right == null) return;
-        if (!right.isOpen()) return;
+        if (!host.isRightOpen()) return;
 
         LinkedHashSet<String> desiredIds = getCheckedCaseIds();
-        LinkedHashSet<String> currentIds = new LinkedHashSet<>(right.getAddedCaseIds());
+        LinkedHashSet<String> currentIds = new LinkedHashSet<>(host.getAddedCaseIds());
 
         // toRemove: Р±С‹Р»Рѕ СЃРїСЂР°РІР°, РЅРѕ СЃРµР№С‡Р°СЃ РЅРµ РѕС‚РјРµС‡РµРЅРѕ
         List<String> toRemove = new ArrayList<>();
@@ -687,16 +682,16 @@ public final class LeftPaneCoordinator {
 
         // 1) remove unchecked (СЃРѕС…СЂР°РЅСЏРµРј РїРѕСЂСЏРґРѕРє РѕСЃС‚Р°РІС€РёС…СЃСЏ)
         if (!toRemove.isEmpty()) {
-            right.removeAddedCasesByIds(toRemove);
+            host.removeAddedCasesByIds(toRemove);
         }
 
-        // 2) add new вЂ” РІ РїРѕСЂСЏРґРєРµ "РїРѕ РјРµСЂРµ РІС‹Р±РѕСЂР°" (casePickOrder), РёРЅР°С‡Рµ fallback РЅР° РїРѕСЂСЏРґРѕРє СЃРїРёСЃРєР°
+        // 2) add new вЂ” РІ РїРѕСЂСЏРґРєРµ “РїРѕ РјРµСЂРµ РІС‹Р±РѕСЂР°” (casePickOrder), РёРЅР°С‡Рµ fallback РЅР° РїРѕСЂСЏРґРѕРє СЃРїРёСЃРєР°
         if (!toAddIds.isEmpty()) {
             List<CycleCaseRef> toAdd = buildToAddRefsOrdered(toAddIds);
-            if (!toAdd.isEmpty()) right.addAddedCases(toAdd);
+            if (!toAdd.isEmpty()) host.addAddedCases(toAdd);
         }
 
-        right.closePickerPreviewCaseCard();
+        host.closePickerPreviewCaseCard();
 
         // вњ… СЂРµР¶РёРј Рё overlay РѕСЃС‚Р°СЋС‚СЃСЏ Р°РєС‚РёРІРЅС‹РјРё, РїСЂРѕСЃС‚Рѕ РѕР±РЅРѕРІР»СЏРµРј РґРѕСЃС‚СѓРїРЅРѕСЃС‚СЊ РєРЅРѕРїРєРё
         refreshAddAvailability();
@@ -724,10 +719,10 @@ public final class LeftPaneCoordinator {
     }
 
     private CasesPickerDiffType casesPickerDiffType() {
-        if (right == null || !right.isOpen()) return CasesPickerDiffType.NONE;
+        if (!host.isRightOpen()) return CasesPickerDiffType.NONE;
 
         LinkedHashSet<String> desired = getCheckedCaseIds();
-        LinkedHashSet<String> current = new LinkedHashSet<>(right.getAddedCaseIds());
+        LinkedHashSet<String> current = new LinkedHashSet<>(host.getAddedCaseIds());
         if (desired.equals(current)) return CasesPickerDiffType.NONE;
 
         if (current.isEmpty()) return CasesPickerDiffType.ADD;
@@ -786,11 +781,11 @@ public final class LeftPaneCoordinator {
      * вњ… РѕС‚РјРµС‡Р°РµРј СѓР¶Рµ РґРѕР±Р°РІР»РµРЅРЅС‹Рµ СЃРїСЂР°РІР° РєРµР№СЃС‹ Рё РќР• РїРёС€РµРј РёС… РІ order (СЌС‚Рѕ РЅРµ "РЅРѕРІРѕРµ РґРѕР±Р°РІР»РµРЅРёРµ")
      */
     private void syncCasesPickerChecksFromRight() {
-        if (right == null || !right.isOpen()) return;
+        if (!host.isRightOpen()) return;
 
         suppressPickOrder = true;
         try {
-            for (String idRaw : right.getAddedCaseIds()) {
+            for (String idRaw : host.getAddedCaseIds()) {
                 String id = safeTrim(idRaw);
                 if (id.isEmpty()) continue;
 
@@ -926,11 +921,11 @@ public final class LeftPaneCoordinator {
                 },
                 it -> {
                     if (!(it instanceof CaseListItem c)) return;
-                    right.openTestCaseCardFromList(c.id(), currentCasePickerIds());
+                    host.openTestCaseCardFromList(c.id(), currentCasePickerIds());
                 },
                 it -> {
                     if (!(it instanceof CaseListItem c)) return;
-                    right.openTestCaseCardFromList(c.id(), currentCasePickerIds());
+                    host.openTestCaseCardFromList(c.id(), currentCasePickerIds());
                 },
                 (it, id) -> {
                     BooleanProperty p = trashChecks.get(id);
@@ -1043,9 +1038,8 @@ public final class LeftPaneCoordinator {
     private void refreshCasesAddButtonText() {
         if (casesAddOverlay == null) return;
 
-        boolean useAddText = right == null
-                || !right.isOpen()
-                || right.getAddedCaseIds().isEmpty()
+        boolean useAddText = !host.isRightOpen()
+                || host.getAddedCaseIds().isEmpty()
                 || casesPickerDiffType() == CasesPickerDiffType.ADD;
         String text = useAddText
                 ? "Добавить"
@@ -1055,9 +1049,8 @@ public final class LeftPaneCoordinator {
 
     private void onRightUiStateChanged() {
         if (mode == LeftMode.CASES_PICKER
-                && right != null
-                && right.isOpen()
-                && !right.isEditModeEnabled()
+                && host.isRightOpen()
+                && !host.isEditModeEnabled()
                 && casesAddOverlay != null
                 && casesAddOverlay.isOpen()) {
             casesAddOverlay.close();
@@ -1068,9 +1061,9 @@ public final class LeftPaneCoordinator {
     private void refreshLeftActionButtonVisibility() {
         if (v == null || v.btnTrash == null) return;
 
-        boolean show = mode != LeftMode.CASES_PICKER || (right != null && right.isOpen());
+        boolean show = mode != LeftMode.CASES_PICKER || host.isRightOpen();
         boolean disable = mode == LeftMode.CASES_PICKER
-                && (right == null || !right.isOpen() || !right.isEditModeEnabled());
+                && (!host.isRightOpen() || !host.isEditModeEnabled());
         v.btnTrash.setVisible(show);
         v.btnTrash.setManaged(show);
         v.btnTrash.setDisable(disable);

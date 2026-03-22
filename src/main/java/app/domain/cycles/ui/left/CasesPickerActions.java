@@ -1,17 +1,14 @@
 package app.domain.cycles.ui.left;
 
-import app.domain.cycles.ui.CyclesViewRefs;
-import app.domain.cycles.ui.right.RightPaneCoordinator;
-
 public final class CasesPickerActions implements LeftPaneActions {
 
-    private final CyclesViewRefs v;
-    private final RightPaneCoordinator right;
+    private final CyclesLeftViewRefs v;
+    private final CyclesLeftHost host;
     private final Runnable switchToCyclesList;
 
-    public CasesPickerActions(CyclesViewRefs v, RightPaneCoordinator right, Runnable switchToCyclesList) {
+    public CasesPickerActions(CyclesLeftViewRefs v, CyclesLeftHost host, Runnable switchToCyclesList) {
         this.v = v;
-        this.right = right;
+        this.host = host;
         this.switchToCyclesList = switchToCyclesList;
     }
 
@@ -25,9 +22,7 @@ public final class CasesPickerActions implements LeftPaneActions {
             switchToCyclesList.run();
         }
 
-        if (right != null) {
-            right.openCreateCard();
-        }
+        host.openCreateCard();
 
         // как в CyclesListActions: снимаем выделение слева (на всякий случай)
         try {
@@ -37,27 +32,18 @@ public final class CasesPickerActions implements LeftPaneActions {
 
     @Override
     public void onDelete() {
-        // удаление кейсов запрещено — кнопка должна быть disabled в coordinator,
-        // но на всякий случай игнорируем
+        // удаление кейсов запрещено — кнопка должна быть disabled в coordinator
     }
 
     @Override
-    public void onFilter() {
-        v.lblRightHint.setText("Filter cases (stub)");
-    }
+    public void onFilter() {}
 
     @Override
-    public void onSort() {
-        v.lblRightHint.setText("Sort cases (stub)");
-    }
+    public void onSort() {}
 
     @Override
-    public void onSearch(String query) {
-        v.lblRightHint.setText("Search cases: " + (query == null ? "" : query));
-    }
+    public void onSearch(String query) {}
 
     @Override
-    public void onOpenSelected() {
-        v.lblRightHint.setText("Open selected case (stub)");
-    }
+    public void onOpenSelected() {}
 }
