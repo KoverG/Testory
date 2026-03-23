@@ -46,6 +46,9 @@ public final class CycleDraft {
     // cases: refs (id + snapshot title)
     public List<CycleCaseRef> cases = new ArrayList<>();
 
+    // решение по итогам цикла: "" | "recommended" | "needs_work" | "not_recommended"
+    public String recommendation = "";
+
     // cy_YYYYMMDDHHMMSSmmm_RRR
     private static final DateTimeFormatter ID_FMT = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
 

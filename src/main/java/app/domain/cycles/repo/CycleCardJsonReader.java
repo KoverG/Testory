@@ -83,6 +83,7 @@ public final class CycleCardJsonReader {
         d.cases = readCaseRefsAfterMeta(json);
         d.taskLinkTitle = readTaskLinkStringAfterMeta(json, "title");
         d.taskLinkUrl = readTaskLinkStringAfterMeta(json, "url");
+        d.recommendation = readRootStringAfterMeta(json, "recommendation");
 
         return d;
     }
