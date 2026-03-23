@@ -71,15 +71,15 @@ public final class TrendSectionProvider implements ReportSectionProvider {
 
         if (groups.isEmpty()) return List.of();
 
-        int min = groups.stream().mapToInt(Group::count).min().orElse(0);
         int max = groups.stream().mapToInt(Group::count).max().orElse(0);
 
-        // Если все значения одинаковы (min==max) — все круглые
-        boolean allEqual = (min == max);
+        // wide только если у группы строго уникальный максимум (одна группа с max > всех остальных)
+        long topCount = groups.stream().filter(g -> g.count() == max).count();
+        boolean uniqueTop = topCount == 1;
 
         List<TrendCapsule> capsules = new ArrayList<>();
         for (Group g : groups) {
-            boolean wide = !allEqual && g.count() > min;
+            boolean wide = uniqueTop && g.count() == max;
             capsules.add(new TrendCapsule(g.key(), g.count(), wide));
         }
         return capsules;

@@ -7,8 +7,10 @@ import app.domain.cycles.ui.left.LeftPaneCoordinator;
 import app.domain.cycles.ui.left.LeftZoneMode;
 import app.domain.cycles.usecase.CycleCaseRef;
 import app.domain.reports.model.ReportTarget;
+import app.domain.reports.model.ReportTargetType;
 import app.domain.reports.ui.ReportCardView;
 import app.domain.testcases.ui.RightPaneAnimator;
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
@@ -21,6 +23,12 @@ import java.util.List;
  * Координатор экрана Отчётов.
  */
 public final class ReportsScreen implements CyclesLeftHost {
+
+    private static ReportTarget pendingRestore = null;
+
+    public static void setPendingRestore(ReportTarget target) {
+        pendingRestore = target;
+    }
 
     private final CyclesLeftViewRefs leftRefs;
     private final StackPane rightRoot;
@@ -55,6 +63,18 @@ public final class ReportsScreen implements CyclesLeftHost {
             cardView = new ReportCardView(this::closeRight);
             VBox.setVgrow(cardView.view(), Priority.ALWAYS);
             rightPlaceholder.getChildren().add(cardView.view());
+        }
+
+        if (pendingRestore != null) {
+            ReportTarget t = pendingRestore;
+            pendingRestore = null;
+            Platform.runLater(() -> {
+                if (t.type() == ReportTargetType.CYCLE) {
+                    openExistingCard(t.file());
+                } else {
+                    openTestCaseCardFromList(t.id(), List.of());
+                }
+            });
         }
     }
 

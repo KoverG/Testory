@@ -10,6 +10,9 @@ import app.domain.reports.model.ReportSection;
 import app.domain.reports.model.ReportTarget;
 import app.domain.reports.model.ReportTargetType;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -21,10 +24,22 @@ import java.util.Optional;
  */
 public final class HistorySectionProvider implements ReportSectionProvider {
 
+    private static final DateTimeFormatter DISP_FMT = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+
     private final CaseHistoryIndexStore historyStore;
 
     public HistorySectionProvider(CaseHistoryIndexStore historyStore) {
         this.historyStore = historyStore;
+    }
+
+    private static String formatIso(String iso) {
+        if (iso == null || iso.isBlank()) return "";
+        try {
+            String trimmed = iso.length() > 19 ? iso.substring(0, 19) : iso;
+            return LocalDateTime.parse(trimmed, DateTimeFormatter.ISO_LOCAL_DATE_TIME).format(DISP_FMT);
+        } catch (DateTimeParseException e) {
+            return iso;
+        }
     }
 
     @Override
@@ -62,6 +77,9 @@ public final class HistorySectionProvider implements ReportSectionProvider {
         CycleDraft draft = CycleCardJsonReader.readDraft(target.file());
         if (draft == null || draft.cases == null || draft.cases.isEmpty()) return Optional.empty();
 
+        String savedAtDisplay = formatIso(draft.savedAtIso);
+        if (savedAtDisplay.isBlank()) savedAtDisplay = draft.createdAtUi != null ? draft.createdAtUi : "";
+
         List<HistoryRow> rows = new ArrayList<>();
         for (CycleCaseRef ref : draft.cases) {
             if (ref == null) continue;
@@ -71,7 +89,7 @@ public final class HistorySectionProvider implements ReportSectionProvider {
                     title,
                     ref.safeStatus(),
                     ref.safeComment(),
-                    draft.createdAtUi,
+                    savedAtDisplay,
                     ""
             ));
         }

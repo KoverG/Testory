@@ -38,6 +38,8 @@ public final class CycleJson {
         sb.append("  \"runStartedAtIso\": ").append(q(d.runStartedAtIso)).append(",").append(NL);
         sb.append("  \"cases\": ").append(arrCaseRefs(d.cases)).append(",").append(NL);
 
+        sb.append("  \"recommendation\": ").append(q(d.recommendation)).append(",").append(NL);
+
         sb.append("  \"taskLink\": {").append(NL);
         sb.append("    \"title\": ").append(q(d.taskLinkTitle)).append(",").append(NL);
         sb.append("    \"url\": ").append(q(d.taskLinkUrl)).append(NL);

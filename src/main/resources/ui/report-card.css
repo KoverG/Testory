@@ -115,14 +115,94 @@
 .root.theme-light .rp-badge-unknown { -fx-background-color: rgba(0,0,0,0.07); }
 
 /* ---- Summary stats ---- */
-.rp-stat-count {
-    -fx-font-size: 13px;
+/* Единый стиль для count и pct */
+.rp-stat-val {
+    -fx-font-size: 12px;
     -fx-font-weight: 700;
     -fx-text-fill: -fx-text-color;
 }
+/* Muted цвет для процента */
 .rp-stat-pct {
-    -fx-font-size: 11px;
     -fx-text-fill: -fx-muted-color;
+}
+/* Строка легенды — только отступ */
+.rp-legend-row {
+    -fx-padding: 5 0 5 0;
+}
+/* Лидер-линия между бейджем и цифрами */
+.rp-legend-leader {
+    -fx-border-color: transparent transparent rgba(255,255,255,0.12) transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-style: none none dotted none;
+}
+.root.theme-light .rp-legend-leader {
+    -fx-border-color: transparent transparent rgba(0,0,0,0.14) transparent;
+}
+
+/* ---- Navigate button (в шапке) ---- */
+.rp-navigate-btn {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 4;
+    -fx-cursor: hand;
+    -fx-opacity: 0.55;
+}
+.rp-navigate-btn:hover {
+    -fx-opacity: 1.0;
+}
+
+/* ---- Recommendation chips ---- */
+.rp-recommend-chip {
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-border-width: 1.5;
+    -fx-padding: 4 12 4 12;
+    -fx-cursor: hand;
+}
+/* Не выбранный чип */
+.rp-recommend-chip-none {
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(255,255,255,0.18);
+    -fx-text-fill: -fx-muted-color;
+}
+.root.theme-light .rp-recommend-chip-none {
+    -fx-border-color: rgba(0,0,0,0.18);
+}
+.rp-recommend-chip-none:hover {
+    -fx-background-color: rgba(255,255,255,0.07);
+}
+.root.theme-light .rp-recommend-chip-none:hover {
+    -fx-background-color: rgba(0,0,0,0.06);
+}
+/* Явно выбранный «Без решения» — акцентная рамка */
+.rp-recommend-chip-none-active {
+    -fx-background-color: rgba(255,255,255,0.08);
+    -fx-border-color: rgba(255,255,255,0.55);
+    -fx-text-fill: -fx-text-color;
+}
+.root.theme-light .rp-recommend-chip-none-active {
+    -fx-background-color: rgba(0,0,0,0.06);
+    -fx-border-color: rgba(0,0,0,0.55);
+}
+/* Рекомендован */
+.rp-recommend-chip-recommended {
+    -fx-background-color: rgba(39,174,96,0.18);
+    -fx-border-color: #27ae60;
+    -fx-text-fill: #27ae60;
+}
+/* Требует доработки */
+.rp-recommend-chip-needs-work {
+    -fx-background-color: rgba(243,156,18,0.18);
+    -fx-border-color: #f39c12;
+    -fx-text-fill: #f39c12;
+}
+/* Не рекомендован */
+.rp-recommend-chip-not-recommended {
+    -fx-background-color: rgba(231,76,60,0.18);
+    -fx-border-color: #e74c3c;
+    -fx-text-fill: #e74c3c;
 }
 
 /* ---- History rows ---- */
