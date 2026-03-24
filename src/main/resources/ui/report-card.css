@@ -8,6 +8,24 @@
     -fx-background: transparent;
 }
 
+.rp-sticky-header {
+    -fx-padding: 0;
+}
+.rp-sticky-block {
+    -fx-max-width: Infinity;
+}
+.rp-sticky-scroll-gap {
+    -fx-min-width: 0;
+    -fx-pref-width: 0;
+    -fx-max-width: 0;
+}
+.rp-meta-block {
+    -fx-spacing: 8;
+}
+.rp-meta-subtitle {
+    -fx-font-weight: 700;
+}
+
 /* ---- Шапка: тип-шильдик ---- */
 
 .rp-type-badge {
@@ -74,7 +92,6 @@
     -fx-font-weight: 800;
     -fx-background-radius: 999;
     -fx-alignment: center;
-    -fx-cursor: hand;
     -fx-text-fill: white;
 }
 .rp-capsule-wide {
@@ -130,12 +147,13 @@
     -fx-padding: 5 0 5 0;
 }
 /* Лидер-линия между бейджем и цифрами */
-.rp-legend-leader {
+.rp-legend-metrics {
     -fx-border-color: transparent transparent rgba(255,255,255,0.12) transparent;
     -fx-border-width: 0 0 1 0;
     -fx-border-style: none none dotted none;
+    -fx-padding: 0 0 2 0;
 }
-.root.theme-light .rp-legend-leader {
+.root.theme-light .rp-legend-metrics {
     -fx-border-color: transparent transparent rgba(0,0,0,0.14) transparent;
 }
 
