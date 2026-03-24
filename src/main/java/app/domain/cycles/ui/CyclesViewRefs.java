@@ -23,7 +23,6 @@ public class CyclesViewRefs {
     public final Button btnFolder;
     public final Button btnCreate;
 
-    // Р В Р’В Р В РІР‚В Р В Р Р‹Р РЋРІвЂћСћР В Р вЂ Р В РІР‚С™Р вЂ™Р’В¦ left toggle (Cycle/Cases)
     public final Object tgThemeLeft;
 
     public final Button btnTrash;
@@ -44,8 +43,6 @@ public class CyclesViewRefs {
 
     public final Label lblCycleCreatedAt;
     public final TaskLinkChip chipTaskLink;
-
-    // Р В Р’В Р В РІР‚В Р В Р Р‹Р РЋРІвЂћСћР В Р вЂ Р В РІР‚С™Р вЂ™Р’В¦ NEW: environment chip (desktop + mobile icons)
     public final EnvironmentChip chipEnvironment;
 
     public final TextField tfCycleTitle;
@@ -56,31 +53,18 @@ public class CyclesViewRefs {
     public final FlowPane fpCycleCategorySuggestions;
 
     public final Label lblRightHint;
-
-    // Р В Р’В Р В РІР‚В Р В Р Р‹Р РЋРІвЂћСћР В Р вЂ Р В РІР‚С™Р вЂ™Р’В¦ Р В Р’В Р вЂ™Р’В Р В Р Р‹Р Р†Р вЂљРЎСљР В Р’В Р вЂ™Р’В Р В Р’В Р Р†Р вЂљР’В¦Р В Р’В Р вЂ™Р’В Р В Р Р‹Р Р†Р вЂљРЎС›Р В Р’В Р вЂ™Р’В Р В Р Р‹Р Р†Р вЂљРІР‚СњР В Р’В Р вЂ™Р’В Р В Р Р‹Р Р†Р вЂљРЎСљР В Р’В Р вЂ™Р’В Р В РІР‚в„ўР вЂ™Р’В° Р В Р’В Р вЂ™Р’В Р В Р Р‹Р вЂ™Р’ВР В Р’В Р вЂ™Р’В Р В РІР‚в„ўР вЂ™Р’ВµР В Р’В Р вЂ™Р’В Р В Р’В Р Р†Р вЂљР’В¦Р В Р’В Р В Р вЂ№Р В Р’В Р Р†Р вЂљРІвЂћвЂ“ (Р В Р’В Р В Р вЂ№Р В Р’В Р РЋРІР‚СљР В Р’В Р вЂ™Р’В Р В РІР‚в„ўР вЂ™Р’В°Р В Р’В Р вЂ™Р’В Р В Р Р‹Р вЂ™Р’ВР В Р’В Р вЂ™Р’В Р В РІР‚в„ўР вЂ™Р’В° Р В Р’В Р вЂ™Р’В Р В РЎС›Р Р†Р вЂљР’ВР В Р’В Р вЂ™Р’В Р В РІР‚в„ўР вЂ™Р’ВµР В Р’В Р В Р вЂ№Р В Р’В Р Р†Р вЂљРЎв„ўР В Р’В Р вЂ™Р’В Р В РІР‚в„ўР вЂ™Р’В¶Р В Р’В Р вЂ™Р’В Р В Р Р‹Р Р†Р вЂљР’ВР В Р’В Р В Р вЂ№Р В Р вЂ Р В РІР‚С™Р РЋРІвЂћСћ Р В Р’В Р вЂ™Р’В Р В Р Р‹Р вЂ™Р’ВР В Р’В Р вЂ™Р’В Р В Р Р‹Р Р†Р вЂљРЎС›Р В Р’В Р вЂ™Р’В Р В РЎС›Р Р†Р вЂљР’ВР В Р’В Р вЂ™Р’В Р В РІР‚в„ўР вЂ™Р’В°Р В Р’В Р вЂ™Р’В Р В РІР‚в„ўР вЂ™Р’В»Р В Р’В Р вЂ™Р’В Р В Р Р‹Р Р†Р вЂљРЎСљР В Р’В Р В Р вЂ№Р В Р Р‹Р Р†Р вЂљРЎС™/overlay Р В Р’В Р вЂ™Р’В Р В Р’В Р Р†Р вЂљР’В Р В Р’В Р вЂ™Р’В Р В Р’В Р Р†Р вЂљР’В¦Р В Р’В Р В Р вЂ№Р В Р Р‹Р Р†Р вЂљРЎС™Р В Р’В Р В Р вЂ№Р В Р вЂ Р В РІР‚С™Р РЋРІвЂћСћР В Р’В Р В Р вЂ№Р В Р’В Р Р†Р вЂљРЎв„ўР В Р’В Р вЂ™Р’В Р В Р Р‹Р Р†Р вЂљР’В Р В Р’В Р В Р вЂ№Р В Р’В Р РЋРІР‚СљР В Р’В Р вЂ™Р’В Р В РІР‚в„ўР вЂ™Р’ВµР В Р’В Р вЂ™Р’В Р В РІР‚в„ўР вЂ™Р’В±Р В Р’В Р В Р вЂ№Р В Р’В Р В Р РЏ)
     public final CycleCardMenuButton btnMenuRight;
-
-    // Р В Р’В Р В РІР‚В Р В Р Р‹Р РЋРІвЂћСћР В Р вЂ Р В РІР‚С™Р вЂ™Р’В¦ NEW: profile button in first row
     public final Button btnProfileRight;
-
     public final Button btnCloseRight;
-
     public final Button btnRightAddCases;
-
-    // Р В Р’В Р В РІР‚В Р В Р Р‹Р РЋРІвЂћСћР В Р вЂ Р В РІР‚С™Р вЂ™Р’В¦ NEW: top trash toggle (delete-mode for rows)
     public final Button btnRightTrashCases;
-
     public final Label lblAddedCasesCount;
-
     public final VBox vbAddedCases;
-
-    // Р В Р’В Р В РІР‚В Р В Р Р‹Р РЋРІвЂћСћР В Р вЂ Р В РІР‚С™Р вЂ™Р’В¦ DELETE (right)
     public final Button btnDeleteRight;
     public final StackPane deleteLayer;
     public final VBox deleteModal;
     public final Button btnDeleteCancel;
     public final Button btnDeleteConfirm;
-
     public final Button btnSaveRight;
 
     public CyclesViewRefs(
@@ -157,7 +141,6 @@ public class CyclesViewRefs {
 
         this.lblCycleCreatedAt = lblCycleCreatedAt;
         this.chipTaskLink = chipTaskLink;
-
         this.chipEnvironment = chipEnvironment;
 
         this.tfCycleTitle = tfCycleTitle;
@@ -168,25 +151,18 @@ public class CyclesViewRefs {
         this.fpCycleCategorySuggestions = fpCycleCategorySuggestions;
 
         this.lblRightHint = lblRightHint;
-
         this.btnMenuRight = btnMenuRight;
         this.btnProfileRight = btnProfileRight;
-
         this.btnCloseRight = btnCloseRight;
-
         this.btnRightAddCases = btnRightAddCases;
         this.btnRightTrashCases = btnRightTrashCases;
-
         this.lblAddedCasesCount = lblAddedCasesCount;
-
         this.vbAddedCases = vbAddedCases;
-
         this.btnDeleteRight = btnDeleteRight;
         this.deleteLayer = deleteLayer;
         this.deleteModal = deleteModal;
         this.btnDeleteCancel = btnDeleteCancel;
         this.btnDeleteConfirm = btnDeleteConfirm;
-
         this.btnSaveRight = btnSaveRight;
     }
 }
