@@ -3,6 +3,7 @@ package app.domain.cycles.ui.left;
 
 import app.core.I18n;
 import app.core.PrivateRootConfig;
+import app.domain.cycles.CycleCategoryStore;
 import app.domain.cycles.query.CycleListSorter;
 import app.domain.cycles.repo.CaseHistoryIndexStore;
 import app.domain.cycles.repo.CycleCardJsonReader;
@@ -80,22 +81,22 @@ public final class LeftPaneCoordinator {
     // Cases picker mode
     private static final String ICON_CASES_PICK = "plus.svg";
 
-    // вњ… РџР°РїРєР° С†РёРєР»РѕРІ. JSON-С„Р°Р№Р»С‹ РІРЅСѓС‚СЂРё = РёСЃС‚РѕС‡РЅРёРє РґР°РЅРЅС‹С… СЃРїРёСЃРєР° С†РёРєР»РѕРІ.
+    // Р Р†РЎС™РІР‚В¦ Р В РЎСџР В Р’В°Р В РЎвЂ”Р В РЎвЂќР В Р’В° Р РЋРІР‚В Р В РЎвЂР В РЎвЂќР В Р’В»Р В РЎвЂўР В Р вЂ . JSON-Р РЋРІР‚С›Р В Р’В°Р В РІвЂћвЂ“Р В Р’В»Р РЋРІР‚в„– Р В Р вЂ Р В Р вЂ¦Р РЋРЎвЂњР РЋРІР‚С™Р РЋР вЂљР В РЎвЂ = Р В РЎвЂР РЋР С“Р РЋРІР‚С™Р В РЎвЂўР РЋРІР‚РЋР В Р вЂ¦Р В РЎвЂР В РЎвЂќ Р В РўвЂР В Р’В°Р В Р вЂ¦Р В Р вЂ¦Р РЋРІР‚в„–Р РЋРІР‚В¦ Р РЋР С“Р В РЎвЂ”Р В РЎвЂР РЋР С“Р В РЎвЂќР В Р’В° Р РЋРІР‚В Р В РЎвЂР В РЎвЂќР В Р’В»Р В РЎвЂўР В Р вЂ .
     private static final Path CYCLES_ROOT = Path.of("test_resources", "cycles");
 
-    // вњ… РёРјСЏ РїРѕРґРїР°РїРєРё-РјСѓСЃРѕСЂРєРё (РєР°Рє РІ TestCases: "_trash")
+    // Р Р†РЎС™РІР‚В¦ Р В РЎвЂР В РЎВР РЋР РЏ Р В РЎвЂ”Р В РЎвЂўР В РўвЂР В РЎвЂ”Р В Р’В°Р В РЎвЂ”Р В РЎвЂќР В РЎвЂ-Р В РЎВР РЋРЎвЂњР РЋР С“Р В РЎвЂўР РЋР вЂљР В РЎвЂќР В РЎвЂ (Р В РЎвЂќР В Р’В°Р В РЎвЂќ Р В Р вЂ  TestCases: "_trash")
     private static final String TRASH_DIR_NAME = "_trash";
 
     // ===================== I18N =====================
 
-    // вњ… delete confirm texts for cycles (NOT tc.*)
+    // Р Р†РЎС™РІР‚В¦ delete confirm texts for cycles (NOT tc.*)
     private static final String I18N_CY_TRASH_TITLE = "cy.trash.delete.title";
     private static final String I18N_CY_TRASH_HINT  = "cy.trash.delete.hint";
 
-    // вњ… fallback title for empty cycle title (but never show id)
+    // Р Р†РЎС™РІР‚В¦ fallback title for empty cycle title (but never show id)
     private static final String I18N_CY_UNTITLED = "cy.title.untitled";
 
-    // вњ… NEW: sticky header titles
+    // Р Р†РЎС™РІР‚В¦ NEW: sticky header titles
     private static final String I18N_CY_LEFT_LIST_CYCLES = "cy.left.list.cycles";
     private static final String I18N_CY_LEFT_LIST_CASES  = "cy.left.list.cases";
     private static final List<String> CASE_SORT_KEYS = List.of(
@@ -130,7 +131,7 @@ public final class LeftPaneCoordinator {
     // ===================== TRASH MODE (shared) =====================
     private static final String TRASH_SPACER_ID = "__TRASH_SPACER__";
 
-    // вњ… NEW: top spacer that offsets sticky header (scrolls away)
+    // Р Р†РЎС™РІР‚В¦ NEW: top spacer that offsets sticky header (scrolls away)
     private static final String TOP_SPACER_ID = "__TOP_SPACER__";
 
     private static final double TRASH_SHIFT_PX = 26.0;
@@ -139,7 +140,7 @@ public final class LeftPaneCoordinator {
     private final DoubleProperty trashShiftPx = new SimpleDoubleProperty(0.0);
     private Timeline trashShiftAnim;
 
-    // вњ… close overlay only on click OUTSIDE leftStack (like TestCasesController)
+    // Р Р†РЎС™РІР‚В¦ close overlay only on click OUTSIDE leftStack (like TestCasesController)
     private boolean trashOutsideCloseInstalled = false;
     // ===============================================================
 
@@ -160,7 +161,7 @@ public final class LeftPaneCoordinator {
     private LeftMode mode = LeftMode.CYCLES_LIST;
     private LeftPaneActions actions;
 
-    // вњ… СѓРІРµРґРѕРјР»РµРЅРёРµ РґР»СЏ РІРЅРµС€РЅРёС… Р±РёРЅРґРёРЅРіРѕРІ (tgThemeLeft)
+    // Р Р†РЎС™РІР‚В¦ Р РЋРЎвЂњР В Р вЂ Р В Р’ВµР В РўвЂР В РЎвЂўР В РЎВР В Р’В»Р В Р’ВµР В Р вЂ¦Р В РЎвЂР В Р’Вµ Р В РўвЂР В Р’В»Р РЋР РЏ Р В Р вЂ Р В Р вЂ¦Р В Р’ВµР РЋРІвЂљВ¬Р В Р вЂ¦Р В РЎвЂР РЋРІР‚В¦ Р В Р’В±Р В РЎвЂР В Р вЂ¦Р В РўвЂР В РЎвЂР В Р вЂ¦Р В РЎвЂ“Р В РЎвЂўР В Р вЂ  (tgThemeLeft)
     private Runnable onModeChanged;
 
     private final PauseTransition searchIdleTimer = new PauseTransition();
@@ -168,13 +169,13 @@ public final class LeftPaneCoordinator {
     private String appliedSearch = "";
 
     // ====== DATA ======
-    // вњ… cycles: С‚РѕР»СЊРєРѕ РёР· С„Р°Р№Р»РѕРІРѕР№ СЃРёСЃС‚РµРјС‹
+    // Р Р†РЎС™РІР‚В¦ cycles: Р РЋРІР‚С™Р В РЎвЂўР В Р’В»Р РЋР Р‰Р В РЎвЂќР В РЎвЂў Р В РЎвЂР В Р’В· Р РЋРІР‚С›Р В Р’В°Р В РІвЂћвЂ“Р В Р’В»Р В РЎвЂўР В Р вЂ Р В РЎвЂўР В РІвЂћвЂ“ Р РЋР С“Р В РЎвЂР РЋР С“Р РЋРІР‚С™Р В Р’ВµР В РЎВР РЋРІР‚в„–
     private final ObservableList<CycleListItem> cycleAll = FXCollections.observableArrayList();
     private final ObservableList<CycleListItem> cycleView = FXCollections.observableArrayList();
     private final Map<String, CycleFilterSnapshot> cycleFilterById = new HashMap<>();
     private final Map<String, CycleListSorter.Snapshot> cycleSortById = new HashMap<>();
 
-    // cases: РєР°Рє Р±С‹Р»Рѕ
+    // cases: Р В РЎвЂќР В Р’В°Р В РЎвЂќ Р В Р’В±Р РЋРІР‚в„–Р В Р’В»Р В РЎвЂў
     private final ObservableList<CaseListItem> caseAll = FXCollections.observableArrayList();
     private final ObservableList<CaseListItem> caseView = FXCollections.observableArrayList();
     private final Map<String, TestCase> caseById = new HashMap<>();
@@ -183,7 +184,7 @@ public final class LeftPaneCoordinator {
     private final Map<String, BooleanProperty> trashChecks = new HashMap<>();
     private final Map<String, BooleanProperty> cycleTrashChecks = new HashMap<>();
 
-    // вњ… РїРѕСЂСЏРґРѕРє РѕС‚РјРµС‚РєРё С‡РµРєР±РѕРєСЃРѕРІ (РґР»СЏ "РїРѕСЂСЏРґРєР° РґРѕР±Р°РІР»РµРЅРёСЏ")
+    // Р Р†РЎС™РІР‚В¦ Р В РЎвЂ”Р В РЎвЂўР РЋР вЂљР РЋР РЏР В РўвЂР В РЎвЂўР В РЎвЂќ Р В РЎвЂўР РЋРІР‚С™Р В РЎВР В Р’ВµР РЋРІР‚С™Р В РЎвЂќР В РЎвЂ Р РЋРІР‚РЋР В Р’ВµР В РЎвЂќР В Р’В±Р В РЎвЂўР В РЎвЂќР РЋР С“Р В РЎвЂўР В Р вЂ  (Р В РўвЂР В Р’В»Р РЋР РЏ "Р В РЎвЂ”Р В РЎвЂўР РЋР вЂљР РЋР РЏР В РўвЂР В РЎвЂќР В Р’В° Р В РўвЂР В РЎвЂўР В Р’В±Р В Р’В°Р В Р вЂ Р В Р’В»Р В Р’ВµР В Р вЂ¦Р В РЎвЂР РЋР РЏ")
     private final Map<String, Long> casePickOrder = new HashMap<>();
     private long casePickSeq = 0L;
     private boolean suppressPickOrder = false;
@@ -204,7 +205,7 @@ public final class LeftPaneCoordinator {
     }
 
     public void init() {
-        // вњ… install sticky header overlay inside list container (casesSheet)
+        // Р Р†РЎС™РІР‚В¦ install sticky header overlay inside list container (casesSheet)
         installStickyListHeader();
 
         if (v.btnFolder != null) UiSvg.setButtonSvg(v.btnFolder, ICON_FOLDER, getIconSizeFromFxml(v.btnFolder, 14));
@@ -244,11 +245,11 @@ public final class LeftPaneCoordinator {
         host.setOnUiStateChanged(this::onRightUiStateChanged);
 
         // ====== CASES PICKER overlay (universal) ======
-        casesAddOverlay = new LeftListActionOverlay(v.leftStack, v.casesSheet, "Р”РѕР±Р°РІРёС‚СЊ");
+        casesAddOverlay = new LeftListActionOverlay(v.leftStack, v.casesSheet, I18n.t("cy.right.addCases"));
         casesAddOverlay.setOnOpenChanged(open -> {
             animateTrashShift(open);
             updateCasesTrashSpacerItem();
-            // вњ… РїСЂРё РѕС‚РєСЂС‹С‚РёРё overlay СЃРёРЅС…СЂРѕРЅРёР·РёСЂСѓРµРј С‡РµРєР±РѕРєСЃС‹ СЃ РїСЂР°РІРѕР№ Р·РѕРЅРѕР№
+            // Р Р†РЎС™РІР‚В¦ Р В РЎвЂ”Р РЋР вЂљР В РЎвЂ Р В РЎвЂўР РЋРІР‚С™Р В РЎвЂќР РЋР вЂљР РЋРІР‚в„–Р РЋРІР‚С™Р В РЎвЂР В РЎвЂ overlay Р РЋР С“Р В РЎвЂР В Р вЂ¦Р РЋРІР‚В¦Р РЋР вЂљР В РЎвЂўР В Р вЂ¦Р В РЎвЂР В Р’В·Р В РЎвЂР РЋР вЂљР РЋРЎвЂњР В Р’ВµР В РЎВ Р РЋРІР‚РЋР В Р’ВµР В РЎвЂќР В Р’В±Р В РЎвЂўР В РЎвЂќР РЋР С“Р РЋРІР‚в„– Р РЋР С“ Р В РЎвЂ”Р РЋР вЂљР В Р’В°Р В Р вЂ Р В РЎвЂўР В РІвЂћвЂ“ Р В Р’В·Р В РЎвЂўР В Р вЂ¦Р В РЎвЂўР В РІвЂћвЂ“
             syncCasesPickerChecksFromRight();
             refreshAddAvailability();
             refreshCasesAddButtonText();
@@ -261,13 +262,13 @@ public final class LeftPaneCoordinator {
             refreshCasesAddButtonText();
         });
 
-        // вњ… РїСЂРёРјРµРЅРёС‚СЊ diff РІ РїСЂР°РІСѓСЋ Р·РѕРЅСѓ, РќР• Р·Р°РєСЂС‹РІР°СЏ СЂРµР¶РёРј
+        // Р Р†РЎС™РІР‚В¦ Р В РЎвЂ”Р РЋР вЂљР В РЎвЂР В РЎВР В Р’ВµР В Р вЂ¦Р В РЎвЂР РЋРІР‚С™Р РЋР Р‰ diff Р В Р вЂ  Р В РЎвЂ”Р РЋР вЂљР В Р’В°Р В Р вЂ Р РЋРЎвЂњР РЋР вЂ№ Р В Р’В·Р В РЎвЂўР В Р вЂ¦Р РЋРЎвЂњ, Р В РЎСљР В РІР‚Сћ Р В Р’В·Р В Р’В°Р В РЎвЂќР РЋР вЂљР РЋРІР‚в„–Р В Р вЂ Р В Р’В°Р РЋР РЏ Р РЋР вЂљР В Р’ВµР В Р’В¶Р В РЎвЂР В РЎВ
         casesAddOverlay.setOnAdd(this::addSelectedCasesToRight);
 
         // ====== CYCLES trash overlay (delete) ======
-        cyclesTrashOverlay = new LeftListActionOverlay(v.leftStack, v.casesSheet, "РЈРґР°Р»РёС‚СЊ");
+        cyclesTrashOverlay = new LeftListActionOverlay(v.leftStack, v.casesSheet, I18n.t("tc.trash.delete"));
         cyclesTrashOverlay.setOnOpenChanged(open -> {
-            // РµСЃР»Рё РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ Р±С‹Р»Рѕ РѕС‚РєСЂС‹С‚Рѕ вЂ” Р·Р°РєСЂС‹РІР°РµРј РІРјРµСЃС‚Рµ СЃ overlay
+            // Р В Р’ВµР РЋР С“Р В Р’В»Р В РЎвЂ Р В РЎвЂ”Р В РЎвЂўР В РўвЂР РЋРІР‚С™Р В Р вЂ Р В Р’ВµР РЋР вЂљР В Р’В¶Р В РўвЂР В Р’ВµР В Р вЂ¦Р В РЎвЂР В Р’Вµ Р В Р’В±Р РЋРІР‚в„–Р В Р’В»Р В РЎвЂў Р В РЎвЂўР РЋРІР‚С™Р В РЎвЂќР РЋР вЂљР РЋРІР‚в„–Р РЋРІР‚С™Р В РЎвЂў Р Р†Р вЂљРІР‚Сњ Р В Р’В·Р В Р’В°Р В РЎвЂќР РЋР вЂљР РЋРІР‚в„–Р В Р вЂ Р В Р’В°Р В Р’ВµР В РЎВ Р В Р вЂ Р В РЎВР В Р’ВµР РЋР С“Р РЋРІР‚С™Р В Р’Вµ Р РЋР С“ overlay
             if (!open && cyclesDeleteConfirm != null) {
                 cyclesDeleteConfirm.close();
             }
@@ -282,17 +283,17 @@ public final class LeftPaneCoordinator {
             refreshCyclesDeleteAvailability();
         });
 
-        // ====== confirm delete (РєР°Рє РІ TestCases), РЅРѕ СЃ i18n РґР»СЏ Cycles ======
+        // ====== confirm delete (Р В РЎвЂќР В Р’В°Р В РЎвЂќ Р В Р вЂ  TestCases), Р В Р вЂ¦Р В РЎвЂў Р РЋР С“ i18n Р В РўвЂР В Р’В»Р РЋР РЏ Cycles ======
         cyclesDeleteConfirm = new LeftDeleteConfirm(v.leftStack, this::deleteSelectedCyclesChecked);
         cyclesDeleteConfirm.setCanOpenSupplier(() ->
                 cyclesTrashOverlay != null
                         && cyclesTrashOverlay.isOpen()
                         && hasAnyCycleTrashChecked()
         );
-        // вњ… texts for cycles (not tc.*)
+        // Р Р†РЎС™РІР‚В¦ texts for cycles (not tc.*)
         cyclesDeleteConfirm.setTextKeys(I18N_CY_TRASH_TITLE, I18N_CY_TRASH_HINT);
 
-        // РєРЅРѕРїРєР° "РЈРґР°Р»РёС‚СЊ" РІ overlay -> РѕС‚РєСЂС‹РІР°РµРј confirm
+        // Р В РЎвЂќР В Р вЂ¦Р В РЎвЂўР В РЎвЂ”Р В РЎвЂќР В Р’В° "Р В Р в‚¬Р В РўвЂР В Р’В°Р В Р’В»Р В РЎвЂР РЋРІР‚С™Р РЋР Р‰" Р В Р вЂ  overlay -> Р В РЎвЂўР РЋРІР‚С™Р В РЎвЂќР РЋР вЂљР РЋРІР‚в„–Р В Р вЂ Р В Р’В°Р В Р’ВµР В РЎВ confirm
         cyclesTrashOverlay.setOnDelete(() -> {
             if (cyclesDeleteConfirm != null) cyclesDeleteConfirm.open();
         });
@@ -316,22 +317,22 @@ public final class LeftPaneCoordinator {
         installSearchBehavior();
         applyMode(LeftMode.CYCLES_LIST);
 
-        // применяем ограничения, если левая зона используется не на экране Cycles
+        // Р С—РЎР‚Р С‘Р СР ВµР Р…РЎРЏР ВµР С Р С•Р С–РЎР‚Р В°Р Р…Р С‘РЎвЂЎР ВµР Р…Р С‘РЎРЏ, Р ВµРЎРѓР В»Р С‘ Р В»Р ВµР Р†Р В°РЎРЏ Р В·Р С•Р Р…Р В° Р С‘РЎРѓР С—Р С•Р В»РЎРЉР В·РЎС“Р ВµРЎвЂљРЎРѓРЎРЏ Р Р…Р Вµ Р Р…Р В° РЎРЊР С”РЎР‚Р В°Р Р…Р Вµ Cycles
         if (host.leftZoneMode() == LeftZoneMode.REPORTS) {
             applyReportsModeUi();
         }
 
-        // вњ… after scene ready: install outside-close for trash overlay (cycles)
+        // Р Р†РЎС™РІР‚В¦ after scene ready: install outside-close for trash overlay (cycles)
         Platform.runLater(this::installTrashOutsideClose);
     }
 
     private void applyReportsModeUi() {
-        // скрываем кнопку удаления/добавления рядом с toggle
+        // РЎРѓР С”РЎР‚РЎвЂ№Р Р†Р В°Р ВµР С Р С”Р Р…Р С•Р С—Р С”РЎС“ РЎС“Р Т‘Р В°Р В»Р ВµР Р…Р С‘РЎРЏ/Р Т‘Р С•Р В±Р В°Р Р†Р В»Р ВµР Р…Р С‘РЎРЏ РЎР‚РЎРЏР Т‘Р С•Р С РЎРѓ toggle
         if (v.btnTrash != null) {
             v.btnTrash.setVisible(false);
             v.btnTrash.setManaged(false);
         }
-        // скрываем кнопку "Создать" — на экране Reports она не нужна
+        // РЎРѓР С”РЎР‚РЎвЂ№Р Р†Р В°Р ВµР С Р С”Р Р…Р С•Р С—Р С”РЎС“ "Р РЋР С•Р В·Р Т‘Р В°РЎвЂљРЎРЉ" РІР‚вЂќ Р Р…Р В° РЎРЊР С”РЎР‚Р В°Р Р…Р Вµ Reports Р С•Р Р…Р В° Р Р…Р Вµ Р Р…РЎС“Р В¶Р Р…Р В°
         if (v.btnCreate != null) {
             v.btnCreate.setVisible(false);
             v.btnCreate.setManaged(false);
@@ -347,14 +348,14 @@ public final class LeftPaneCoordinator {
         return mode;
     }
 
-    // вњ… РґР»СЏ ThemeToggleUiInstaller
+    // Р Р†РЎС™РІР‚В¦ Р В РўвЂР В Р’В»Р РЋР РЏ ThemeToggleUiInstaller
     public void setOnModeChanged(Runnable r) {
         this.onModeChanged = r;
     }
 
     /**
-     * вњ… Р±РµР·РѕРїР°СЃРЅС‹Р№ refresh cycles РїРѕСЃР»Рµ СЃРѕС…СЂР°РЅРµРЅРёСЏ С„Р°Р№Р»Р° РЅР° РґРёСЃРє.
-     * РќРµ РјРµРЅСЏРµС‚ mode, РЅРµ Р»РѕРјР°РµС‚ overlays вЂ” РїСЂРѕСЃС‚Рѕ РїРµСЂРµС‡РёС‚С‹РІР°РµС‚ РїР°РїРєСѓ Рё РїРµСЂРµСЂРёСЃРѕРІС‹РІР°РµС‚ СЃРїРёСЃРѕРє РµСЃР»Рё РјС‹ РІ CYCLES_LIST.
+     * Р Р†РЎС™РІР‚В¦ Р В Р’В±Р В Р’ВµР В Р’В·Р В РЎвЂўР В РЎвЂ”Р В Р’В°Р РЋР С“Р В Р вЂ¦Р РЋРІР‚в„–Р В РІвЂћвЂ“ refresh cycles Р В РЎвЂ”Р В РЎвЂўР РЋР С“Р В Р’В»Р В Р’Вµ Р РЋР С“Р В РЎвЂўР РЋРІР‚В¦Р РЋР вЂљР В Р’В°Р В Р вЂ¦Р В Р’ВµР В Р вЂ¦Р В РЎвЂР РЋР РЏ Р РЋРІР‚С›Р В Р’В°Р В РІвЂћвЂ“Р В Р’В»Р В Р’В° Р В Р вЂ¦Р В Р’В° Р В РўвЂР В РЎвЂР РЋР С“Р В РЎвЂќ.
+     * Р В РЎСљР В Р’Вµ Р В РЎВР В Р’ВµР В Р вЂ¦Р РЋР РЏР В Р’ВµР РЋРІР‚С™ mode, Р В Р вЂ¦Р В Р’Вµ Р В Р’В»Р В РЎвЂўР В РЎВР В Р’В°Р В Р’ВµР РЋРІР‚С™ overlays Р Р†Р вЂљРІР‚Сњ Р В РЎвЂ”Р РЋР вЂљР В РЎвЂўР РЋР С“Р РЋРІР‚С™Р В РЎвЂў Р В РЎвЂ”Р В Р’ВµР РЋР вЂљР В Р’ВµР РЋРІР‚РЋР В РЎвЂР РЋРІР‚С™Р РЋРІР‚в„–Р В Р вЂ Р В Р’В°Р В Р’ВµР РЋРІР‚С™ Р В РЎвЂ”Р В Р’В°Р В РЎвЂ”Р В РЎвЂќР РЋРЎвЂњ Р В РЎвЂ Р В РЎвЂ”Р В Р’ВµР РЋР вЂљР В Р’ВµР РЋР вЂљР В РЎвЂР РЋР С“Р В РЎвЂўР В Р вЂ Р РЋРІР‚в„–Р В Р вЂ Р В Р’В°Р В Р’ВµР РЋРІР‚С™ Р РЋР С“Р В РЎвЂ”Р В РЎвЂР РЋР С“Р В РЎвЂўР В РЎвЂќ Р В Р’ВµР РЋР С“Р В Р’В»Р В РЎвЂ Р В РЎВР РЋРІР‚в„– Р В Р вЂ  CYCLES_LIST.
      */
     public void refreshCyclesFromDisk() {
         reloadCyclesFromDisk();
@@ -374,13 +375,13 @@ public final class LeftPaneCoordinator {
     /**
      * UX shortcut:
      * - switch left list to CASES_PICKER
-     * - and open "Р”РѕР±Р°РІРёС‚СЊ" overlay (same as pressing the plus/trash button in cases picker mode).
+     * - and open "Р В РІР‚СњР В РЎвЂўР В Р’В±Р В Р’В°Р В Р вЂ Р В РЎвЂР РЋРІР‚С™Р РЋР Р‰" overlay (same as pressing the plus/trash button in cases picker mode).
      */
     public void openCasesPickerAddOverlay() {
         // switch list to cases picker (reloads items + sets btnTrash to plus)
         setMode(LeftMode.CASES_PICKER);
 
-        // вњ… СЃРёРЅС…СЂРѕРЅРёР·РёСЂСѓРµРј С‡РµРєР±РѕРєСЃС‹ СЃ РїСЂР°РІРѕР№ Р·РѕРЅРѕР№ Рё РѕР±РЅРѕРІР»СЏРµРј РґРѕСЃС‚СѓРїРЅРѕСЃС‚СЊ РєРЅРѕРїРєРё
+        // Р Р†РЎС™РІР‚В¦ Р РЋР С“Р В РЎвЂР В Р вЂ¦Р РЋРІР‚В¦Р РЋР вЂљР В РЎвЂўР В Р вЂ¦Р В РЎвЂР В Р’В·Р В РЎвЂР РЋР вЂљР РЋРЎвЂњР В Р’ВµР В РЎВ Р РЋРІР‚РЋР В Р’ВµР В РЎвЂќР В Р’В±Р В РЎвЂўР В РЎвЂќР РЋР С“Р РЋРІР‚в„– Р РЋР С“ Р В РЎвЂ”Р РЋР вЂљР В Р’В°Р В Р вЂ Р В РЎвЂўР В РІвЂћвЂ“ Р В Р’В·Р В РЎвЂўР В Р вЂ¦Р В РЎвЂўР В РІвЂћвЂ“ Р В РЎвЂ Р В РЎвЂўР В Р’В±Р В Р вЂ¦Р В РЎвЂўР В Р вЂ Р В Р’В»Р РЋР РЏР В Р’ВµР В РЎВ Р В РўвЂР В РЎвЂўР РЋР С“Р РЋРІР‚С™Р РЋРЎвЂњР В РЎвЂ”Р В Р вЂ¦Р В РЎвЂўР РЋР С“Р РЋРІР‚С™Р РЋР Р‰ Р В РЎвЂќР В Р вЂ¦Р В РЎвЂўР В РЎвЂ”Р В РЎвЂќР В РЎвЂ
         syncCasesPickerChecksFromRight();
         refreshAddAvailability();
         refreshCasesAddButtonText();
@@ -393,14 +394,14 @@ public final class LeftPaneCoordinator {
     }
 
     /**
-     * вњ… Р—Р°РґР°С‡Р°: РєРЅРѕРїРєР° "Р”РѕР±Р°РІРёС‚СЊ РєРµР№СЃС‹" СЂР°Р±РѕС‚Р°РµС‚ РєР°Рє С‚СѓРјР±Р»РµСЂ.
-     * РџРѕРІС‚РѕСЂРЅРѕРµ РЅР°Р¶Р°С‚РёРµ РІРѕР·РІСЂР°С‰Р°РµС‚ РёСЃС…РѕРґРЅРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ СЃРїРёСЃРєР°:
-     * - РµСЃР»Рё СЃРµР№С‡Р°СЃ СѓР¶Рµ РІ СЂРµР¶РёРјРµ РґРѕР±Р°РІР»РµРЅРёСЏ (CASES_PICKER) вЂ” РІРѕР·РІСЂР°С‰Р°РµРјСЃСЏ РІ CYCLES_LIST
-     * - РёРЅР°С‡Рµ вЂ” РѕС‚РєСЂС‹РІР°РµРј СЂРµР¶РёРј РґРѕР±Р°РІР»РµРЅРёСЏ (openCasesPickerAddOverlay)
+     * Р Р†РЎС™РІР‚В¦ Р В РІР‚вЂќР В Р’В°Р В РўвЂР В Р’В°Р РЋРІР‚РЋР В Р’В°: Р В РЎвЂќР В Р вЂ¦Р В РЎвЂўР В РЎвЂ”Р В РЎвЂќР В Р’В° "Р В РІР‚СњР В РЎвЂўР В Р’В±Р В Р’В°Р В Р вЂ Р В РЎвЂР РЋРІР‚С™Р РЋР Р‰ Р В РЎвЂќР В Р’ВµР В РІвЂћвЂ“Р РЋР С“Р РЋРІР‚в„–" Р РЋР вЂљР В Р’В°Р В Р’В±Р В РЎвЂўР РЋРІР‚С™Р В Р’В°Р В Р’ВµР РЋРІР‚С™ Р В РЎвЂќР В Р’В°Р В РЎвЂќ Р РЋРІР‚С™Р РЋРЎвЂњР В РЎВР В Р’В±Р В Р’В»Р В Р’ВµР РЋР вЂљ.
+     * Р В РЎСџР В РЎвЂўР В Р вЂ Р РЋРІР‚С™Р В РЎвЂўР РЋР вЂљР В Р вЂ¦Р В РЎвЂўР В Р’Вµ Р В Р вЂ¦Р В Р’В°Р В Р’В¶Р В Р’В°Р РЋРІР‚С™Р В РЎвЂР В Р’Вµ Р В Р вЂ Р В РЎвЂўР В Р’В·Р В Р вЂ Р РЋР вЂљР В Р’В°Р РЋРІР‚В°Р В Р’В°Р В Р’ВµР РЋРІР‚С™ Р В РЎвЂР РЋР С“Р РЋРІР‚В¦Р В РЎвЂўР В РўвЂР В Р вЂ¦Р В РЎвЂўР В Р’Вµ Р РЋР С“Р В РЎвЂўР РЋР С“Р РЋРІР‚С™Р В РЎвЂўР РЋР РЏР В Р вЂ¦Р В РЎвЂР В Р’Вµ Р РЋР С“Р В РЎвЂ”Р В РЎвЂР РЋР С“Р В РЎвЂќР В Р’В°:
+     * - Р В Р’ВµР РЋР С“Р В Р’В»Р В РЎвЂ Р РЋР С“Р В Р’ВµР В РІвЂћвЂ“Р РЋРІР‚РЋР В Р’В°Р РЋР С“ Р РЋРЎвЂњР В Р’В¶Р В Р’Вµ Р В Р вЂ  Р РЋР вЂљР В Р’ВµР В Р’В¶Р В РЎвЂР В РЎВР В Р’Вµ Р В РўвЂР В РЎвЂўР В Р’В±Р В Р’В°Р В Р вЂ Р В Р’В»Р В Р’ВµР В Р вЂ¦Р В РЎвЂР РЋР РЏ (CASES_PICKER) Р Р†Р вЂљРІР‚Сњ Р В Р вЂ Р В РЎвЂўР В Р’В·Р В Р вЂ Р РЋР вЂљР В Р’В°Р РЋРІР‚В°Р В Р’В°Р В Р’ВµР В РЎВР РЋР С“Р РЋР РЏ Р В Р вЂ  CYCLES_LIST
+     * - Р В РЎвЂР В Р вЂ¦Р В Р’В°Р РЋРІР‚РЋР В Р’Вµ Р Р†Р вЂљРІР‚Сњ Р В РЎвЂўР РЋРІР‚С™Р В РЎвЂќР РЋР вЂљР РЋРІР‚в„–Р В Р вЂ Р В Р’В°Р В Р’ВµР В РЎВ Р РЋР вЂљР В Р’ВµР В Р’В¶Р В РЎвЂР В РЎВ Р В РўвЂР В РЎвЂўР В Р’В±Р В Р’В°Р В Р вЂ Р В Р’В»Р В Р’ВµР В Р вЂ¦Р В РЎвЂР РЋР РЏ (openCasesPickerAddOverlay)
      */
     public void toggleCasesPickerAddOverlay() {
         if (mode == LeftMode.CASES_PICKER) {
-            // applyMode(CYCLES_LIST) СЃР°Рј Р·Р°РєСЂРѕРµС‚ casesAddOverlay РµСЃР»Рё РѕРЅ РѕС‚РєСЂС‹С‚
+            // applyMode(CYCLES_LIST) Р РЋР С“Р В Р’В°Р В РЎВ Р В Р’В·Р В Р’В°Р В РЎвЂќР РЋР вЂљР В РЎвЂўР В Р’ВµР РЋРІР‚С™ casesAddOverlay Р В Р’ВµР РЋР С“Р В Р’В»Р В РЎвЂ Р В РЎвЂўР В Р вЂ¦ Р В РЎвЂўР РЋРІР‚С™Р В РЎвЂќР РЋР вЂљР РЋРІР‚в„–Р РЋРІР‚С™
             setMode(LeftMode.CYCLES_LIST);
             return;
         }
@@ -430,7 +431,7 @@ public final class LeftPaneCoordinator {
         animateTrashShift(false);
         trashShiftPx.set(0.0);
 
-        // вњ… FIX: СЃР±СЂРѕСЃРёС‚СЊ items РїРµСЂРµРґ setItems РґСЂСѓРіРѕРіРѕ С‚РёРїР° (С‡С‚РѕР±С‹ СЃС‚Р°СЂС‹Рµ cells СѓС€Р»Рё РІ empty=true)
+        // Р Р†РЎС™РІР‚В¦ FIX: Р РЋР С“Р В Р’В±Р РЋР вЂљР В РЎвЂўР РЋР С“Р В РЎвЂР РЋРІР‚С™Р РЋР Р‰ items Р В РЎвЂ”Р В Р’ВµР РЋР вЂљР В Р’ВµР В РўвЂ setItems Р В РўвЂР РЋР вЂљР РЋРЎвЂњР В РЎвЂ“Р В РЎвЂўР В РЎвЂ“Р В РЎвЂў Р РЋРІР‚С™Р В РЎвЂР В РЎвЂ”Р В Р’В° (Р РЋРІР‚РЋР РЋРІР‚С™Р В РЎвЂўР В Р’В±Р РЋРІР‚в„– Р РЋР С“Р РЋРІР‚С™Р В Р’В°Р РЋР вЂљР РЋРІР‚в„–Р В Р’Вµ cells Р РЋРЎвЂњР РЋРІвЂљВ¬Р В Р’В»Р В РЎвЂ Р В Р вЂ  empty=true)
         if (v.lvLeft != null) {
             v.lvLeft.setItems(FXCollections.observableArrayList());
             v.lvLeft.getSelectionModel().clearSelection();
@@ -444,7 +445,7 @@ public final class LeftPaneCoordinator {
                 v.btnTrash.setDisable(false);
                 if (cyclesTrashOverlay != null) {
                     cyclesTrashOverlay.init(v.btnTrash);
-                    cyclesTrashOverlay.setButtonText("Удалить");
+                    cyclesTrashOverlay.setButtonText(I18n.t("tc.trash.delete"));
                 }
                 refreshCyclesDeleteAvailability();
             }
@@ -468,15 +469,15 @@ public final class LeftPaneCoordinator {
 
                 if (casesAddOverlay != null) {
                     casesAddOverlay.init(v.btnTrash);
-                    casesAddOverlay.setButtonText("Добавить");
+                    casesAddOverlay.setButtonText(I18n.t("cy.left.overlay.add"));
                 }
             }
 
-            // вњ… РїСЂРё РІС…РѕРґРµ РІ СЂРµР¶РёРј РІС‹Р±РѕСЂР° РєРµР№СЃРѕРІ вЂ” РЅР°С‡РёРЅР°РµРј РЅРѕРІСѓСЋ СЃРµСЃСЃРёСЋ РїРѕСЂСЏРґРєР° РІС‹Р±РѕСЂР°
+            // Р Р†РЎС™РІР‚В¦ Р В РЎвЂ”Р РЋР вЂљР В РЎвЂ Р В Р вЂ Р РЋРІР‚В¦Р В РЎвЂўР В РўвЂР В Р’Вµ Р В Р вЂ  Р РЋР вЂљР В Р’ВµР В Р’В¶Р В РЎвЂР В РЎВ Р В Р вЂ Р РЋРІР‚в„–Р В Р’В±Р В РЎвЂўР РЋР вЂљР В Р’В° Р В РЎвЂќР В Р’ВµР В РІвЂћвЂ“Р РЋР С“Р В РЎвЂўР В Р вЂ  Р Р†Р вЂљРІР‚Сњ Р В Р вЂ¦Р В Р’В°Р РЋРІР‚РЋР В РЎвЂР В Р вЂ¦Р В Р’В°Р В Р’ВµР В РЎВ Р В Р вЂ¦Р В РЎвЂўР В Р вЂ Р РЋРЎвЂњР РЋР вЂ№ Р РЋР С“Р В Р’ВµР РЋР С“Р РЋР С“Р В РЎвЂР РЋР вЂ№ Р В РЎвЂ”Р В РЎвЂўР РЋР вЂљР РЋР РЏР В РўвЂР В РЎвЂќР В Р’В° Р В Р вЂ Р РЋРІР‚в„–Р В Р’В±Р В РЎвЂўР РЋР вЂљР В Р’В°
             casePickOrder.clear();
             casePickSeq = 0L;
 
-            // вњ… Р’РђР–РќРћ: РѕСЃС‚Р°РІР»СЏРµРј С‚РІРѕСЋ СЂР°Р±РѕС‡СѓСЋ Р·Р°РіСЂСѓР·РєСѓ РєРµР№СЃРѕРІ РёР· TestCaseCardStore
+            // Р Р†РЎС™РІР‚В¦ Р В РІР‚в„ўР В РЎвЂ™Р В РІР‚вЂњР В РЎСљР В РЎвЂє: Р В РЎвЂўР РЋР С“Р РЋРІР‚С™Р В Р’В°Р В Р вЂ Р В Р’В»Р РЋР РЏР В Р’ВµР В РЎВ Р РЋРІР‚С™Р В Р вЂ Р В РЎвЂўР РЋР вЂ№ Р РЋР вЂљР В Р’В°Р В Р’В±Р В РЎвЂўР РЋРІР‚РЋР РЋРЎвЂњР РЋР вЂ№ Р В Р’В·Р В Р’В°Р В РЎвЂ“Р РЋР вЂљР РЋРЎвЂњР В Р’В·Р В РЎвЂќР РЋРЎвЂњ Р В РЎвЂќР В Р’ВµР В РІвЂћвЂ“Р РЋР С“Р В РЎвЂўР В Р вЂ  Р В РЎвЂР В Р’В· TestCaseCardStore
             reloadCasesFromDisk();
             applyFiltersToList();
 
@@ -485,7 +486,7 @@ public final class LeftPaneCoordinator {
             installCasesPickerCellFactory();
             updateCasesTrashSpacerItem();
 
-            // вњ… РѕС‚РјРµС‡Р°РµРј СѓР¶Рµ РґРѕР±Р°РІР»РµРЅРЅС‹Рµ СЃРїСЂР°РІР° РєРµР№СЃС‹
+            // Р Р†РЎС™РІР‚В¦ Р В РЎвЂўР РЋРІР‚С™Р В РЎВР В Р’ВµР РЋРІР‚РЋР В Р’В°Р В Р’ВµР В РЎВ Р РЋРЎвЂњР В Р’В¶Р В Р’Вµ Р В РўвЂР В РЎвЂўР В Р’В±Р В Р’В°Р В Р вЂ Р В Р’В»Р В Р’ВµР В Р вЂ¦Р В Р вЂ¦Р РЋРІР‚в„–Р В Р’Вµ Р РЋР С“Р В РЎвЂ”Р РЋР вЂљР В Р’В°Р В Р вЂ Р В Р’В° Р В РЎвЂќР В Р’ВµР В РІвЂћвЂ“Р РЋР С“Р РЋРІР‚в„–
             syncCasesPickerChecksFromRight();
             refreshAddAvailability();
             refreshCasesAddButtonText();
@@ -496,10 +497,10 @@ public final class LeftPaneCoordinator {
         updateFilterButtonText();
         updateSortButtonText();
 
-        // вњ… update sticky header title per current mode (i18n)
+        // Р Р†РЎС™РІР‚В¦ update sticky header title per current mode (i18n)
         updateStickyHeaderTitle();
 
-        // вњ… notify external binders (tgThemeLeft)
+        // Р Р†РЎС™РІР‚В¦ notify external binders (tgThemeLeft)
         if (onModeChanged != null) {
             try { onModeChanged.run(); } catch (Exception ignore) {}
         }
@@ -522,14 +523,14 @@ public final class LeftPaneCoordinator {
         if (stickyHeader != null && listStack != null) return;
 
         stickyHeader = new LeftListStickyHeader();
-        // вњ… important: allow scroll/clicks to pass through header overlay
+        // Р Р†РЎС™РІР‚В¦ important: allow scroll/clicks to pass through header overlay
         stickyHeader.setMouseTransparent(true);
         stickyHeader.setPickOnBounds(false);
 
         listStack = new StackPane();
         listStack.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
-        // вњ… CRITICAL: casesSheet is VBox, stack must grow (fixes bottom clipping)
+        // Р Р†РЎС™РІР‚В¦ CRITICAL: casesSheet is VBox, stack must grow (fixes bottom clipping)
         VBox.setVgrow(listStack, Priority.ALWAYS);
 
         // move ListView into stack
@@ -552,7 +553,7 @@ public final class LeftPaneCoordinator {
         v.casesSheet.getChildren().clear();
         v.casesSheet.getChildren().add(listStack);
 
-        // вњ… IMPORTANT: do NOT use ListView padding (it causes "scroll to header and stop").
+        // Р Р†РЎС™РІР‚В¦ IMPORTANT: do NOT use ListView padding (it causes "scroll to header and stop").
         // We use a TOP spacer item that scrolls away.
 
         ensureTopSpacers();
@@ -570,7 +571,7 @@ public final class LeftPaneCoordinator {
 
         stickyHeader.setTitleKey(key);
 
-        // title may affect header height в†’ update spacer height lazily by using supplier
+        // title may affect header height Р Р†РІР‚В РІР‚в„ў update spacer height lazily by using supplier
         // but also ensure spacer exists after mode switches/filters
 
         ensureTopSpacers();
@@ -684,26 +685,26 @@ public final class LeftPaneCoordinator {
         LinkedHashSet<String> desiredIds = getCheckedCaseIds();
         LinkedHashSet<String> currentIds = new LinkedHashSet<>(host.getAddedCaseIds());
 
-        // toRemove: Р±С‹Р»Рѕ СЃРїСЂР°РІР°, РЅРѕ СЃРµР№С‡Р°СЃ РЅРµ РѕС‚РјРµС‡РµРЅРѕ
+        // toRemove: Р В Р’В±Р РЋРІР‚в„–Р В Р’В»Р В РЎвЂў Р РЋР С“Р В РЎвЂ”Р РЋР вЂљР В Р’В°Р В Р вЂ Р В Р’В°, Р В Р вЂ¦Р В РЎвЂў Р РЋР С“Р В Р’ВµР В РІвЂћвЂ“Р РЋРІР‚РЋР В Р’В°Р РЋР С“ Р В Р вЂ¦Р В Р’Вµ Р В РЎвЂўР РЋРІР‚С™Р В РЎВР В Р’ВµР РЋРІР‚РЋР В Р’ВµР В Р вЂ¦Р В РЎвЂў
         List<String> toRemove = new ArrayList<>();
         for (String id : currentIds) {
             if (id == null || id.isBlank()) continue;
             if (!desiredIds.contains(id)) toRemove.add(id);
         }
 
-        // toAdd: РѕС‚РјРµС‡РµРЅРѕ, РЅРѕ РµС‰С‘ РЅРµС‚ СЃРїСЂР°РІР°
+        // toAdd: Р В РЎвЂўР РЋРІР‚С™Р В РЎВР В Р’ВµР РЋРІР‚РЋР В Р’ВµР В Р вЂ¦Р В РЎвЂў, Р В Р вЂ¦Р В РЎвЂў Р В Р’ВµР РЋРІР‚В°Р РЋРІР‚В Р В Р вЂ¦Р В Р’ВµР РЋРІР‚С™ Р РЋР С“Р В РЎвЂ”Р РЋР вЂљР В Р’В°Р В Р вЂ Р В Р’В°
         List<String> toAddIds = new ArrayList<>();
         for (String id : desiredIds) {
             if (id == null || id.isBlank()) continue;
             if (!currentIds.contains(id)) toAddIds.add(id);
         }
 
-        // 1) remove unchecked (СЃРѕС…СЂР°РЅСЏРµРј РїРѕСЂСЏРґРѕРє РѕСЃС‚Р°РІС€РёС…СЃСЏ)
+        // 1) remove unchecked (Р РЋР С“Р В РЎвЂўР РЋРІР‚В¦Р РЋР вЂљР В Р’В°Р В Р вЂ¦Р РЋР РЏР В Р’ВµР В РЎВ Р В РЎвЂ”Р В РЎвЂўР РЋР вЂљР РЋР РЏР В РўвЂР В РЎвЂўР В РЎвЂќ Р В РЎвЂўР РЋР С“Р РЋРІР‚С™Р В Р’В°Р В Р вЂ Р РЋРІвЂљВ¬Р В РЎвЂР РЋРІР‚В¦Р РЋР С“Р РЋР РЏ)
         if (!toRemove.isEmpty()) {
             host.removeAddedCasesByIds(toRemove);
         }
 
-        // 2) add new вЂ” РІ РїРѕСЂСЏРґРєРµ “РїРѕ РјРµСЂРµ РІС‹Р±РѕСЂР°” (casePickOrder), РёРЅР°С‡Рµ fallback РЅР° РїРѕСЂСЏРґРѕРє СЃРїРёСЃРєР°
+        // 2) add new Р Р†Р вЂљРІР‚Сњ Р В Р вЂ  Р В РЎвЂ”Р В РЎвЂўР РЋР вЂљР РЋР РЏР В РўвЂР В РЎвЂќР В Р’Вµ РІР‚СљР В РЎвЂ”Р В РЎвЂў Р В РЎВР В Р’ВµР РЋР вЂљР В Р’Вµ Р В Р вЂ Р РЋРІР‚в„–Р В Р’В±Р В РЎвЂўР РЋР вЂљР В Р’В°РІР‚Сњ (casePickOrder), Р В РЎвЂР В Р вЂ¦Р В Р’В°Р РЋРІР‚РЋР В Р’Вµ fallback Р В Р вЂ¦Р В Р’В° Р В РЎвЂ”Р В РЎвЂўР РЋР вЂљР РЋР РЏР В РўвЂР В РЎвЂўР В РЎвЂќ Р РЋР С“Р В РЎвЂ”Р В РЎвЂР РЋР С“Р В РЎвЂќР В Р’В°
         if (!toAddIds.isEmpty()) {
             List<CycleCaseRef> toAdd = buildToAddRefsOrdered(toAddIds);
             if (!toAdd.isEmpty()) host.addAddedCases(toAdd);
@@ -711,7 +712,7 @@ public final class LeftPaneCoordinator {
 
         host.closePickerPreviewCaseCard();
 
-        // вњ… СЂРµР¶РёРј Рё overlay РѕСЃС‚Р°СЋС‚СЃСЏ Р°РєС‚РёРІРЅС‹РјРё, РїСЂРѕСЃС‚Рѕ РѕР±РЅРѕРІР»СЏРµРј РґРѕСЃС‚СѓРїРЅРѕСЃС‚СЊ РєРЅРѕРїРєРё
+        // Р Р†РЎС™РІР‚В¦ Р РЋР вЂљР В Р’ВµР В Р’В¶Р В РЎвЂР В РЎВ Р В РЎвЂ overlay Р В РЎвЂўР РЋР С“Р РЋРІР‚С™Р В Р’В°Р РЋР вЂ№Р РЋРІР‚С™Р РЋР С“Р РЋР РЏ Р В Р’В°Р В РЎвЂќР РЋРІР‚С™Р В РЎвЂР В Р вЂ Р В Р вЂ¦Р РЋРІР‚в„–Р В РЎВР В РЎвЂ, Р В РЎвЂ”Р РЋР вЂљР В РЎвЂўР РЋР С“Р РЋРІР‚С™Р В РЎвЂў Р В РЎвЂўР В Р’В±Р В Р вЂ¦Р В РЎвЂўР В Р вЂ Р В Р’В»Р РЋР РЏР В Р’ВµР В РЎВ Р В РўвЂР В РЎвЂўР РЋР С“Р РЋРІР‚С™Р РЋРЎвЂњР В РЎвЂ”Р В Р вЂ¦Р В РЎвЂўР РЋР С“Р РЋРІР‚С™Р РЋР Р‰ Р В РЎвЂќР В Р вЂ¦Р В РЎвЂўР В РЎвЂ”Р В РЎвЂќР В РЎвЂ
         refreshAddAvailability();
         refreshCasesAddButtonText();
     }
@@ -755,7 +756,7 @@ public final class LeftPaneCoordinator {
     }
 
     private List<CycleCaseRef> buildToAddRefsOrdered(List<String> toAddIds) {
-        // 1) РµСЃР»Рё РµСЃС‚СЊ order РїРѕ С‡РµРєР±РѕРєСЃР°Рј вЂ” СЃРѕСЂС‚РёСЂСѓРµРј РїРѕ РЅРµРјСѓ
+        // 1) Р В Р’ВµР РЋР С“Р В Р’В»Р В РЎвЂ Р В Р’ВµР РЋР С“Р РЋРІР‚С™Р РЋР Р‰ order Р В РЎвЂ”Р В РЎвЂў Р РЋРІР‚РЋР В Р’ВµР В РЎвЂќР В Р’В±Р В РЎвЂўР В РЎвЂќР РЋР С“Р В Р’В°Р В РЎВ Р Р†Р вЂљРІР‚Сњ Р РЋР С“Р В РЎвЂўР РЋР вЂљР РЋРІР‚С™Р В РЎвЂР РЋР вЂљР РЋРЎвЂњР В Р’ВµР В РЎВ Р В РЎвЂ”Р В РЎвЂў Р В Р вЂ¦Р В Р’ВµР В РЎВР РЋРЎвЂњ
         List<String> ids = new ArrayList<>();
         for (String id : toAddIds) {
             if (id == null || id.isBlank()) continue;
@@ -771,7 +772,7 @@ public final class LeftPaneCoordinator {
             return Long.compare(oa, ob);
         });
 
-        // title lookup РёР· caseAll/caseView
+        // title lookup Р В РЎвЂР В Р’В· caseAll/caseView
         Map<String, String> titleById = new HashMap<>();
         for (CaseListItem it : caseAll) {
             if (it == null) continue;
@@ -795,8 +796,8 @@ public final class LeftPaneCoordinator {
     }
 
     /**
-     * РџСЂРё РІС…РѕРґРµ/РѕС‚РєСЂС‹С‚РёРё overlay РІ CASES_PICKER:
-     * вњ… РѕС‚РјРµС‡Р°РµРј СѓР¶Рµ РґРѕР±Р°РІР»РµРЅРЅС‹Рµ СЃРїСЂР°РІР° РєРµР№СЃС‹ Рё РќР• РїРёС€РµРј РёС… РІ order (СЌС‚Рѕ РЅРµ "РЅРѕРІРѕРµ РґРѕР±Р°РІР»РµРЅРёРµ")
+     * Р В РЎСџР РЋР вЂљР В РЎвЂ Р В Р вЂ Р РЋРІР‚В¦Р В РЎвЂўР В РўвЂР В Р’Вµ/Р В РЎвЂўР РЋРІР‚С™Р В РЎвЂќР РЋР вЂљР РЋРІР‚в„–Р РЋРІР‚С™Р В РЎвЂР В РЎвЂ overlay Р В Р вЂ  CASES_PICKER:
+     * Р Р†РЎС™РІР‚В¦ Р В РЎвЂўР РЋРІР‚С™Р В РЎВР В Р’ВµР РЋРІР‚РЋР В Р’В°Р В Р’ВµР В РЎВ Р РЋРЎвЂњР В Р’В¶Р В Р’Вµ Р В РўвЂР В РЎвЂўР В Р’В±Р В Р’В°Р В Р вЂ Р В Р’В»Р В Р’ВµР В Р вЂ¦Р В Р вЂ¦Р РЋРІР‚в„–Р В Р’Вµ Р РЋР С“Р В РЎвЂ”Р РЋР вЂљР В Р’В°Р В Р вЂ Р В Р’В° Р В РЎвЂќР В Р’ВµР В РІвЂћвЂ“Р РЋР С“Р РЋРІР‚в„– Р В РЎвЂ Р В РЎСљР В РІР‚Сћ Р В РЎвЂ”Р В РЎвЂР РЋРІвЂљВ¬Р В Р’ВµР В РЎВ Р В РЎвЂР РЋРІР‚В¦ Р В Р вЂ  order (Р РЋР РЉР РЋРІР‚С™Р В РЎвЂў Р В Р вЂ¦Р В Р’Вµ "Р В Р вЂ¦Р В РЎвЂўР В Р вЂ Р В РЎвЂўР В Р’Вµ Р В РўвЂР В РЎвЂўР В Р’В±Р В Р’В°Р В Р вЂ Р В Р’В»Р В Р’ВµР В Р вЂ¦Р В РЎвЂР В Р’Вµ")
      */
     private void syncCasesPickerChecksFromRight() {
         if (!host.isRightOpen()) return;
@@ -823,7 +824,7 @@ public final class LeftPaneCoordinator {
         if (p != null) return p;
 
         SimpleBooleanProperty prop = new SimpleBooleanProperty(false);
-        // вњ… С„РёРєСЃРёСЂСѓРµРј РїРѕСЂСЏРґРѕРє РІС‹Р±РѕСЂР° РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј
+        // Р Р†РЎС™РІР‚В¦ Р РЋРІР‚С›Р В РЎвЂР В РЎвЂќР РЋР С“Р В РЎвЂР РЋР вЂљР РЋРЎвЂњР В Р’ВµР В РЎВ Р В РЎвЂ”Р В РЎвЂўР РЋР вЂљР РЋР РЏР В РўвЂР В РЎвЂўР В РЎвЂќ Р В Р вЂ Р РЋРІР‚в„–Р В Р’В±Р В РЎвЂўР РЋР вЂљР В Р’В° Р В РЎвЂ”Р В РЎвЂўР В Р’В»Р РЋР Р‰Р В Р’В·Р В РЎвЂўР В Р вЂ Р В Р’В°Р РЋРІР‚С™Р В Р’ВµР В Р’В»Р В Р’ВµР В РЎВ
         prop.addListener((obs, oldV, newV) -> {
             if (suppressPickOrder) return;
 
@@ -1048,7 +1049,7 @@ public final class LeftPaneCoordinator {
     private void refreshAddAvailability() {
         if (casesAddOverlay == null) return;
 
-        // вњ… РєРЅРѕРїРєР° Р°РєС‚РёРІРЅР° С‚РѕР»СЊРєРѕ РµСЃР»Рё РµСЃС‚СЊ diff РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РїСЂР°РІРѕР№ Р·РѕРЅС‹
+        // Р Р†РЎС™РІР‚В¦ Р В РЎвЂќР В Р вЂ¦Р В РЎвЂўР В РЎвЂ”Р В РЎвЂќР В Р’В° Р В Р’В°Р В РЎвЂќР РЋРІР‚С™Р В РЎвЂР В Р вЂ Р В Р вЂ¦Р В Р’В° Р РЋРІР‚С™Р В РЎвЂўР В Р’В»Р РЋР Р‰Р В РЎвЂќР В РЎвЂў Р В Р’ВµР РЋР С“Р В Р’В»Р В РЎвЂ Р В Р’ВµР РЋР С“Р РЋРІР‚С™Р РЋР Р‰ diff Р В РЎвЂўР РЋРІР‚С™Р В Р вЂ¦Р В РЎвЂўР РЋР С“Р В РЎвЂР РЋРІР‚С™Р В Р’ВµР В Р’В»Р РЋР Р‰Р В Р вЂ¦Р В РЎвЂў Р В РЎвЂ”Р РЋР вЂљР В Р’В°Р В Р вЂ Р В РЎвЂўР В РІвЂћвЂ“ Р В Р’В·Р В РЎвЂўР В Р вЂ¦Р РЋРІР‚в„–
         boolean enable = hasCasesPickerDiff();
         casesAddOverlay.setAddEnabled(enable);
     }
@@ -1060,8 +1061,8 @@ public final class LeftPaneCoordinator {
                 || host.getAddedCaseIds().isEmpty()
                 || casesPickerDiffType() == CasesPickerDiffType.ADD;
         String text = useAddText
-                ? "Добавить"
-                : "Изменить";
+                ? I18n.t("cy.left.overlay.add")
+                : I18n.t("cy.left.overlay.edit");
         casesAddOverlay.setButtonText(text);
     }
 
@@ -1079,7 +1080,7 @@ public final class LeftPaneCoordinator {
     private void refreshLeftActionButtonVisibility() {
         if (v == null || v.btnTrash == null) return;
 
-        // в режиме REPORTS кнопка всегда скрыта
+        // Р Р† РЎР‚Р ВµР В¶Р С‘Р СР Вµ REPORTS Р С”Р Р…Р С•Р С—Р С”Р В° Р Р†РЎРѓР ВµР С–Р Т‘Р В° РЎРѓР С”РЎР‚РЎвЂ№РЎвЂљР В°
         if (host.leftZoneMode() == LeftZoneMode.REPORTS) {
             v.btnTrash.setVisible(false);
             v.btnTrash.setManaged(false);
@@ -1109,7 +1110,7 @@ public final class LeftPaneCoordinator {
     }
 
     private void setAllTrashChecks(boolean v) {
-        // вњ… select-all РЅРµ РґРѕР»Р¶РµРЅ Р»РѕРјР°С‚СЊ "РїРѕСЂСЏРґРѕРє РґРѕР±Р°РІР»РµРЅРёСЏ" вЂ” СЌС‚Рѕ РјР°СЃСЃРѕРІР°СЏ РѕРїРµСЂР°С†РёСЏ
+        // Р Р†РЎС™РІР‚В¦ select-all Р В Р вЂ¦Р В Р’Вµ Р В РўвЂР В РЎвЂўР В Р’В»Р В Р’В¶Р В Р’ВµР В Р вЂ¦ Р В Р’В»Р В РЎвЂўР В РЎВР В Р’В°Р РЋРІР‚С™Р РЋР Р‰ "Р В РЎвЂ”Р В РЎвЂўР РЋР вЂљР РЋР РЏР В РўвЂР В РЎвЂўР В РЎвЂќ Р В РўвЂР В РЎвЂўР В Р’В±Р В Р’В°Р В Р вЂ Р В Р’В»Р В Р’ВµР В Р вЂ¦Р В РЎвЂР РЋР РЏ" Р Р†Р вЂљРІР‚Сњ Р РЋР РЉР РЋРІР‚С™Р В РЎвЂў Р В РЎВР В Р’В°Р РЋР С“Р РЋР С“Р В РЎвЂўР В Р вЂ Р В Р’В°Р РЋР РЏ Р В РЎвЂўР В РЎвЂ”Р В Р’ВµР РЋР вЂљР В Р’В°Р РЋРІР‚В Р В РЎвЂР РЋР РЏ
         suppressPickOrder = true;
         try {
             for (var it : caseView) {
@@ -1229,7 +1230,7 @@ public final class LeftPaneCoordinator {
     private void reloadCasesFromDisk() {
         caseAll.clear();
         caseById.clear();
-        trashChecks.clear(); // вњ… РєР°Рє Р±С‹Р»Рѕ: РїСЂРё РІС…РѕРґРµ РІ СЂРµР¶РёРј РІС‹Р±РѕСЂРєРё вЂ” С‡РёСЃС‚С‹Р№ РІС‹Р±РѕСЂ
+        trashChecks.clear(); // Р Р†РЎС™РІР‚В¦ Р В РЎвЂќР В Р’В°Р В РЎвЂќ Р В Р’В±Р РЋРІР‚в„–Р В Р’В»Р В РЎвЂў: Р В РЎвЂ”Р РЋР вЂљР В РЎвЂ Р В Р вЂ Р РЋРІР‚В¦Р В РЎвЂўР В РўвЂР В Р’Вµ Р В Р вЂ  Р РЋР вЂљР В Р’ВµР В Р’В¶Р В РЎвЂР В РЎВ Р В Р вЂ Р РЋРІР‚в„–Р В Р’В±Р В РЎвЂўР РЋР вЂљР В РЎвЂќР В РЎвЂ Р Р†Р вЂљРІР‚Сњ Р РЋРІР‚РЋР В РЎвЂР РЋР С“Р РЋРІР‚С™Р РЋРІР‚в„–Р В РІвЂћвЂ“ Р В Р вЂ Р РЋРІР‚в„–Р В Р’В±Р В РЎвЂўР РЋР вЂљ
         casePickOrder.clear();
         casePickSeq = 0L;
 
@@ -1241,7 +1242,7 @@ public final class LeftPaneCoordinator {
                 String id = safeTrim(tc.getId());
                 if (id.isEmpty()) continue;
 
-                // вњ… РєР°Рє Р±С‹Р»Рѕ РІ СЂР°Р±РѕС‡РµРј РІР°СЂРёР°РЅС‚Рµ: РїРѕРєР°Р·С‹РІР°РµРј "CODE-NUMBER Title" (РёР»Рё head РµСЃР»Рё title РїСѓСЃС‚РѕР№)
+                // Р Р†РЎС™РІР‚В¦ Р В РЎвЂќР В Р’В°Р В РЎвЂќ Р В Р’В±Р РЋРІР‚в„–Р В Р’В»Р В РЎвЂў Р В Р вЂ  Р РЋР вЂљР В Р’В°Р В Р’В±Р В РЎвЂўР РЋРІР‚РЋР В Р’ВµР В РЎВ Р В Р вЂ Р В Р’В°Р РЋР вЂљР В РЎвЂР В Р’В°Р В Р вЂ¦Р РЋРІР‚С™Р В Р’Вµ: Р В РЎвЂ”Р В РЎвЂўР В РЎвЂќР В Р’В°Р В Р’В·Р РЋРІР‚в„–Р В Р вЂ Р В Р’В°Р В Р’ВµР В РЎВ "CODE-NUMBER Title" (Р В РЎвЂР В Р’В»Р В РЎвЂ head Р В Р’ВµР РЋР С“Р В Р’В»Р В РЎвЂ title Р В РЎвЂ”Р РЋРЎвЂњР РЋР С“Р РЋРІР‚С™Р В РЎвЂўР В РІвЂћвЂ“)
                 String title = buildLeftTitle(tc);
                 caseAll.add(new CaseListItem(id, title));
                 caseById.put(id, tc);
@@ -1412,6 +1413,13 @@ public final class LeftPaneCoordinator {
             if (!found) return false;
         }
 
+        List<String> selectedCategories = filters.categories();
+        if (!selectedCategories.isEmpty()) {
+            String category = safeTrim(snapshot.category);
+            if (category.isEmpty()) return false;
+            if (!containsIgnoreCase(selectedCategories, category)) return false;
+        }
+
         List<String> createdRanges = filters.createdDateRanges();
         if (!createdRanges.isEmpty()) {
             boolean createdMatches = false;
@@ -1483,7 +1491,13 @@ public final class LeftPaneCoordinator {
             addAllUniqueIgnoreCase(responsibles, PrivateRootConfig.qaUsers());
             addAllUniqueIgnoreCase(responsibles, collectAvailableResponsibles());
             addAllUniqueIgnoreCase(responsibles, leftFilterSheet.appliedCycleFilters().responsibles());
-            leftFilterSheet.toggleForCycles(responsibles);
+
+            List<String> categories = new ArrayList<>();
+            addAllUniqueIgnoreCase(categories, CycleCategoryStore.loadAll());
+            addAllUniqueIgnoreCase(categories, collectAvailableCategories());
+            addAllUniqueIgnoreCase(categories, leftFilterSheet.appliedCycleFilters().categories());
+
+            leftFilterSheet.toggleForCycles(responsibles, categories);
         }
     }
 
@@ -1580,6 +1594,20 @@ public final class LeftPaneCoordinator {
             if (item != null) caseView.add(item);
         }
     }
+    private List<String> collectAvailableCategories() {
+        List<String> out = new ArrayList<>();
+        Set<String> seen = new java.util.TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+
+        for (CycleFilterSnapshot snapshot : cycleFilterById.values()) {
+            if (snapshot == null) continue;
+            String category = safeTrim(snapshot.category);
+            if (category.isEmpty()) continue;
+            if (seen.add(category)) out.add(category);
+        }
+
+        return out;
+    }
+
     private List<String> collectAvailableResponsibles() {
         List<String> out = new ArrayList<>();
         Set<String> seen = new java.util.TreeSet<>(String.CASE_INSENSITIVE_ORDER);
@@ -1654,13 +1682,15 @@ public final class LeftPaneCoordinator {
 
         private final String runState;
         private final String qaResponsible;
+        private final String category;
         private final LocalDate createdDate;
         private final double progressPercent;
         private final Set<String> caseStatuses;
 
-        private CycleFilterSnapshot(String runState, String qaResponsible, LocalDate createdDate, double progressPercent, Set<String> caseStatuses) {
+        private CycleFilterSnapshot(String runState, String qaResponsible, String category, LocalDate createdDate, double progressPercent, Set<String> caseStatuses) {
             this.runState = runState;
             this.qaResponsible = qaResponsible;
+            this.category = category;
             this.createdDate = createdDate;
             this.progressPercent = progressPercent;
             this.caseStatuses = caseStatuses;
@@ -1669,6 +1699,7 @@ public final class LeftPaneCoordinator {
         private static CycleFilterSnapshot from(CycleDraft draft) {
             String runState = CycleRunState.normalize(draft.runState);
             String qaResponsible = safeTrim(draft.qaResponsible);
+            String category = safeTrim(draft.category);
             LocalDate createdDate = parseCreatedDate(draft);
 
             int total = draft.cases == null ? 0 : draft.cases.size();
@@ -1688,7 +1719,7 @@ public final class LeftPaneCoordinator {
             double progressPercent = total <= 0 ? 0.0 : (completed * 100.0) / total;
             if (completed == total && total > 0) progressPercent = 100.0;
 
-            return new CycleFilterSnapshot(runState, qaResponsible, createdDate, progressPercent, statuses);
+            return new CycleFilterSnapshot(runState, qaResponsible, category, createdDate, progressPercent, statuses);
         }
 
         private static LocalDate parseCreatedDate(CycleDraft draft) {

@@ -7,6 +7,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
@@ -22,7 +23,6 @@ public class CyclesViewRefs {
     public final Button btnFolder;
     public final Button btnCreate;
 
-    // вњ… left toggle (Cycle/Cases)
     public final Object tgThemeLeft;
 
     public final Button btnTrash;
@@ -43,38 +43,28 @@ public class CyclesViewRefs {
 
     public final Label lblCycleCreatedAt;
     public final TaskLinkChip chipTaskLink;
-
-    // вњ… NEW: environment chip (desktop + mobile icons)
     public final EnvironmentChip chipEnvironment;
 
     public final TextField tfCycleTitle;
+    public final TextField tfCycleCategory;
+    public final Button btnAddCycleCategory;
+    public final Label lblCycleCategoryDisplay;
+    public final Label lblCycleCategoryGhost;
+    public final FlowPane fpCycleCategorySuggestions;
 
     public final Label lblRightHint;
-
-    // вњ… РєРЅРѕРїРєР° РјРµРЅСЋ (СЃР°РјР° РґРµСЂР¶РёС‚ РјРѕРґР°Р»РєСѓ/overlay РІРЅСѓС‚СЂРё СЃРµР±СЏ)
     public final CycleCardMenuButton btnMenuRight;
-
-    // вњ… NEW: profile button in first row
     public final Button btnProfileRight;
-
     public final Button btnCloseRight;
-
     public final Button btnRightAddCases;
-
-    // вњ… NEW: top trash toggle (delete-mode for rows)
     public final Button btnRightTrashCases;
-
     public final Label lblAddedCasesCount;
-
     public final VBox vbAddedCases;
-
-    // вњ… DELETE (right)
     public final Button btnDeleteRight;
     public final StackPane deleteLayer;
     public final VBox deleteModal;
     public final Button btnDeleteCancel;
     public final Button btnDeleteConfirm;
-
     public final Button btnSaveRight;
 
     public CyclesViewRefs(
@@ -102,6 +92,11 @@ public class CyclesViewRefs {
             TaskLinkChip chipTaskLink,
             EnvironmentChip chipEnvironment,
             TextField tfCycleTitle,
+            TextField tfCycleCategory,
+            Button btnAddCycleCategory,
+            Label lblCycleCategoryDisplay,
+            Label lblCycleCategoryGhost,
+            FlowPane fpCycleCategorySuggestions,
             Label lblRightHint,
             CycleCardMenuButton btnMenuRight,
             Button btnProfileRight,
@@ -146,31 +141,28 @@ public class CyclesViewRefs {
 
         this.lblCycleCreatedAt = lblCycleCreatedAt;
         this.chipTaskLink = chipTaskLink;
-
         this.chipEnvironment = chipEnvironment;
 
         this.tfCycleTitle = tfCycleTitle;
+        this.tfCycleCategory = tfCycleCategory;
+        this.btnAddCycleCategory = btnAddCycleCategory;
+        this.lblCycleCategoryDisplay = lblCycleCategoryDisplay;
+        this.lblCycleCategoryGhost = lblCycleCategoryGhost;
+        this.fpCycleCategorySuggestions = fpCycleCategorySuggestions;
 
         this.lblRightHint = lblRightHint;
-
         this.btnMenuRight = btnMenuRight;
         this.btnProfileRight = btnProfileRight;
-
         this.btnCloseRight = btnCloseRight;
-
         this.btnRightAddCases = btnRightAddCases;
         this.btnRightTrashCases = btnRightTrashCases;
-
         this.lblAddedCasesCount = lblAddedCasesCount;
-
         this.vbAddedCases = vbAddedCases;
-
         this.btnDeleteRight = btnDeleteRight;
         this.deleteLayer = deleteLayer;
         this.deleteModal = deleteModal;
         this.btnDeleteCancel = btnDeleteCancel;
         this.btnDeleteConfirm = btnDeleteConfirm;
-
         this.btnSaveRight = btnSaveRight;
     }
 }

@@ -14,6 +14,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
@@ -54,6 +55,11 @@ public class CyclesController {
     @FXML private TaskLinkChip chipTaskLink;
     @FXML private EnvironmentChip chipEnvironment;
     @FXML private TextField tfCycleTitle;
+    @FXML private TextField tfCycleCategory;
+    @FXML private Button btnAddCycleCategory;
+    @FXML private Label lblCycleCategoryDisplay;
+    @FXML private Label lblCycleCategoryGhost;
+    @FXML private FlowPane fpCycleCategorySuggestions;
     @FXML private Label lblRightHint;
     @FXML private CycleCardMenuButton btnMenuRight;
     @FXML private Button btnProfileRight;
@@ -101,6 +107,11 @@ public class CyclesController {
                 chipTaskLink,
                 chipEnvironment,
                 tfCycleTitle,
+                tfCycleCategory,
+                btnAddCycleCategory,
+                lblCycleCategoryDisplay,
+                lblCycleCategoryGhost,
+                fpCycleCategorySuggestions,
                 lblRightHint,
                 btnMenuRight,
                 btnProfileRight,

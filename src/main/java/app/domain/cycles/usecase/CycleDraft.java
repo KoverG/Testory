@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Draft цикла для сохранения на диск.
- * Подход как в TestCases: file name = stable id.
+ * Draft С†РёРєР»Р° РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ РЅР° РґРёСЃРє.
+ * РџРѕРґС…РѕРґ РєР°Рє РІ TestCases: file name = stable id.
  */
 public final class CycleDraft {
 
@@ -18,10 +18,11 @@ public final class CycleDraft {
     public String createdAtIso = "";
     public String savedAtIso = "";
 
-    // UI-created (dd.MM.yyyy), сохраняем как есть (пока)
+    // UI-created (dd.MM.yyyy), СЃРѕС…СЂР°РЅСЏРµРј РєР°Рє РµСЃС‚СЊ (РїРѕРєР°)
     public String createdAtUi = "";
 
     public String title = "";
+    public String category = "";
 
     // QA responsible (profile modal)
     public String qaResponsible = "";
@@ -33,7 +34,7 @@ public final class CycleDraft {
     // environment (Environment modal)
     // envType: "desktop" | "mobile" | "" (empty means not set)
     public String envType = "";
-    // envUrl: поле "Builds"
+    // envUrl: РїРѕР»Рµ "Builds"
     public String envUrl = "";
     // envLinks: chips links
     public List<String> envLinks = new ArrayList<>();
@@ -46,7 +47,7 @@ public final class CycleDraft {
     // cases: refs (id + snapshot title)
     public List<CycleCaseRef> cases = new ArrayList<>();
 
-    // решение по итогам цикла: "" | "recommended" | "needs_work" | "not_recommended"
+    // СЂРµС€РµРЅРёРµ РїРѕ РёС‚РѕРіР°Рј С†РёРєР»Р°: "" | "recommended" | "needs_work" | "not_recommended"
     public String recommendation = "";
 
     // cy_YYYYMMDDHHMMSSmmm_RRR

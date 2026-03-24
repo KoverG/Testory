@@ -1,6 +1,7 @@
 package app.domain.cycles.ui.right;
 
 import app.core.I18n;
+import app.domain.cycles.CycleCategoryStore;
 import app.domain.cycles.CyclePrivateConfig;
 import app.domain.cycles.repo.CycleCardJsonReader;
 import app.domain.cycles.repo.CaseHistoryIndexStore;
@@ -71,6 +72,7 @@ public final class RightPaneCoordinator {
     private Runnable onDeleted;
 
     private AddedCasesListUi addedCasesList;
+    private CycleCategoryAutocomplete categoryAutocomplete;
     private TestCaseOverlayHost testcaseOverlay;
     private boolean testcaseOverlayHadCycleUnderlay = false;
     private String returnCaseIdFromHistory = "";
@@ -120,6 +122,7 @@ public final class RightPaneCoordinator {
     private String lastSaveBlockMessage = "closed";
 
     private String baselineTitle = "";
+    private String baselineCategory = "";
     private List<String> baselineCaseIds = List.of();
     private List<CycleCaseRef> baselineCases = List.of();
 
@@ -255,6 +258,20 @@ public final class RightPaneCoordinator {
 
         if (v.tfCycleTitle != null) {
             v.tfCycleTitle.textProperty().addListener((o, oldV, newV) -> updateSaveGateUi());
+        }
+        if (v.tfCycleCategory != null) {
+            v.tfCycleCategory.textProperty().addListener((o, oldV, newV) -> onCycleCategoryInputChanged());
+        }
+
+        categoryAutocomplete = new CycleCategoryAutocomplete(v.tfCycleCategory, v.lblCycleCategoryDisplay, v.lblCycleCategoryGhost, v.fpCycleCategorySuggestions);
+        categoryAutocomplete.setOnValueChanged(this::onCycleCategoryInputChanged);
+        categoryAutocomplete.init();
+        categoryAutocomplete.setAvailableValues(CycleCategoryStore.loadAll());
+
+        if (v.btnAddCycleCategory != null) {
+            v.btnAddCycleCategory.setFocusTraversable(false);
+            v.btnAddCycleCategory.setOnAction(e -> onCategoryAction());
+            updateCategoryActionButton();
         }
 
         addedCasesList = new AddedCasesListUi(v);
@@ -683,6 +700,7 @@ public final class RightPaneCoordinator {
         copy.savedAtIso = safe(base.savedAtIso);
         copy.createdAtUi = safe(base.createdAtUi);
         copy.title = safe(base.title);
+        copy.category = safe(base.category);
         copy.qaResponsible = safe(base.qaResponsible);
         copy.taskLinkTitle = safe(base.taskLinkTitle);
         copy.taskLinkUrl = safe(base.taskLinkUrl);
@@ -839,6 +857,9 @@ public final class RightPaneCoordinator {
         if (v.tfCycleTitle != null) {
             v.tfCycleTitle.setText(safe(d.title));
         }
+        if (categoryAutocomplete != null) {
+            categoryAutocomplete.syncFromValue(safe(d.category));
+        }
 
         currentQaResponsible = safe(d.qaResponsible);
         updateProfileTooltip();
@@ -921,6 +942,9 @@ public final class RightPaneCoordinator {
 
         if (v.tfCycleTitle != null) {
             v.tfCycleTitle.setText("");
+        }
+        if (categoryAutocomplete != null) {
+            categoryAutocomplete.syncFromValue("");
         }
 
         if (v.chipTaskLink != null) {
@@ -1417,9 +1441,21 @@ public final class RightPaneCoordinator {
             v.tfCycleTitle.setFocusTraversable(editMode);
             v.tfCycleTitle.setMouseTransparent(!editMode);
         }
+        if (v.tfCycleCategory != null) {
+            v.tfCycleCategory.setEditable(editMode);
+            v.tfCycleCategory.setFocusTraversable(editMode);
+            v.tfCycleCategory.setMouseTransparent(!editMode);
+        }
+        if (categoryAutocomplete != null) {
+            categoryAutocomplete.setEditable(editMode);
+        }
         if (v.btnRightAddCases != null) {
             v.btnRightAddCases.setDisable(!editMode);
         }
+        if (v.btnAddCycleCategory != null) {
+            v.btnAddCycleCategory.setDisable(!open);
+        }
+        updateCategoryActionButton();
         if (v.btnRightTrashCases != null) {
             v.btnRightTrashCases.setDisable(!editMode || selectedCases.isEmpty());
         }
@@ -1432,6 +1468,65 @@ public final class RightPaneCoordinator {
         if (onUiStateChanged != null) onUiStateChanged.run();
     }
 
+
+
+    private void onCycleCategoryInputChanged() {
+        updateCategoryActionButton();
+        updateSaveGateUi();
+    }
+
+    private void onCategoryAction() {
+        if (isCycleCategoryInputEmpty()) {
+            openCycleCategoryStoreFile();
+            return;
+        }
+        addCycleCategoryTemplate();
+    }
+
+    private void updateCategoryActionButton() {
+        if (v.btnAddCycleCategory == null) return;
+
+        boolean empty = isCycleCategoryInputEmpty();
+        boolean existing = !empty
+                && categoryAutocomplete != null
+                && categoryAutocomplete.containsExactValue(v.tfCycleCategory == null ? "" : v.tfCycleCategory.getText());
+
+        boolean showButton = empty || !existing;
+        v.btnAddCycleCategory.setVisible(showButton);
+        v.btnAddCycleCategory.setManaged(showButton);
+
+        if (showButton) {
+            String icon = empty ? "folder.svg" : "plus.svg";
+            UiSvg.setButtonSvg(v.btnAddCycleCategory, icon, getIconSizeFromUserData(v.btnAddCycleCategory, 14));
+        }
+    }
+
+    private boolean isCycleCategoryInputEmpty() {
+        return safe(v.tfCycleCategory == null ? "" : v.tfCycleCategory.getText()).isEmpty();
+    }
+
+    private void openCycleCategoryStoreFile() {
+        if (!Desktop.isDesktopSupported()) return;
+
+        try {
+            CycleCategoryStore.loadAll();
+            Path file = Path.of("config", "cycle-categories.json");
+            if (!Files.exists(file)) return;
+            Desktop.getDesktop().open(file.toFile());
+        } catch (Exception ignore) {
+            // ignore
+        }
+    }
+    private void addCycleCategoryTemplate() {
+        if (!editMode || categoryAutocomplete == null) return;
+
+        String value = categoryAutocomplete.commitCurrentValue();
+        if (value.isEmpty()) return;
+
+        CycleCategoryStore.add(value);
+        categoryAutocomplete.rememberValue(value);
+        updateSaveGateUi();
+    }
     private boolean canDeleteCurrentCycle() {
         return open && openedFile != null && Files.exists(openedFile);
     }
@@ -1639,6 +1734,9 @@ public final class RightPaneCoordinator {
 
         if (saveFx != null) saveFx.success();
 
+        CycleCategoryStore.add(draft.category);
+        if (categoryAutocomplete != null) categoryAutocomplete.rememberValue(draft.category);
+
         captureBaselineFromCurrentUi();
         exitEditMode();
 
@@ -1679,6 +1777,9 @@ public final class RightPaneCoordinator {
 
         if (v.tfCycleTitle != null) {
             d.title = safe(v.tfCycleTitle.getText());
+        }
+        if (v.tfCycleCategory != null) {
+            d.category = safe(v.tfCycleCategory.getText());
         }
 
         if (v.lblCycleCreatedAt != null) {
@@ -1806,6 +1907,14 @@ public final class RightPaneCoordinator {
             return false;
         }
 
+        String category = safe(v.tfCycleCategory == null ? "" : v.tfCycleCategory.getText());
+        if (category.isBlank()) {
+            setLastSaveBlockMessage("fill.category");
+            setSaveEnabled(false);
+            updateSaveDisabledHint();
+            return false;
+        }
+
         setLastSaveBlockMessage("");
         setSaveEnabled(true);
         updateSaveDisabledHint();
@@ -1832,6 +1941,7 @@ public final class RightPaneCoordinator {
 
     private void captureBaselineFromCurrentUi() {
         baselineTitle = safe(v.tfCycleTitle == null ? "" : v.tfCycleTitle.getText());
+        baselineCategory = safe(v.tfCycleCategory == null ? "" : v.tfCycleCategory.getText());
         baselineCaseIds = List.copyOf(getAddedCaseIds());
         baselineCases = snapshotCases(selectedCases);
 
@@ -1847,6 +1957,7 @@ public final class RightPaneCoordinator {
 
     private void captureBaselineEmptyForCreate() {
         baselineTitle = "";
+        baselineCategory = "";
         baselineCaseIds = List.of();
         baselineCases = snapshotCases(selectedCases);
 
@@ -1863,6 +1974,9 @@ public final class RightPaneCoordinator {
     private boolean computeDirty() {
         String nowTitle = safe(v.tfCycleTitle == null ? "" : v.tfCycleTitle.getText());
         if (!nowTitle.equals(baselineTitle)) return true;
+
+        String nowCategory = safe(v.tfCycleCategory == null ? "" : v.tfCycleCategory.getText());
+        if (!nowCategory.equals(baselineCategory)) return true;
 
         String nowQa = safe(currentQaResponsible);
         if (!nowQa.equals(baselineQaResponsible)) return true;
