@@ -68,6 +68,7 @@ public final class CycleCardJsonReader {
         d.createdAtUi = readMetaString(json, "createdAtUi");
 
         d.title = readRootTitleAfterMeta(json);
+        d.category = readRootStringAfterMeta(json, "category");
         d.qaResponsible = readRootStringAfterMeta(json, "qaResponsible");
         d.envType = readRootStringAfterMeta(json, "envType");
         d.envUrl = readRootStringAfterMeta(json, "envUrl");

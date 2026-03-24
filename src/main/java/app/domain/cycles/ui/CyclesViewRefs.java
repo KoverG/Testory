@@ -7,6 +7,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
@@ -22,7 +23,7 @@ public class CyclesViewRefs {
     public final Button btnFolder;
     public final Button btnCreate;
 
-    // вњ… left toggle (Cycle/Cases)
+    // Р В Р’В Р В РІР‚В Р В Р Р‹Р РЋРІвЂћСћР В Р вЂ Р В РІР‚С™Р вЂ™Р’В¦ left toggle (Cycle/Cases)
     public final Object tgThemeLeft;
 
     public final Button btnTrash;
@@ -44,31 +45,36 @@ public class CyclesViewRefs {
     public final Label lblCycleCreatedAt;
     public final TaskLinkChip chipTaskLink;
 
-    // вњ… NEW: environment chip (desktop + mobile icons)
+    // Р В Р’В Р В РІР‚В Р В Р Р‹Р РЋРІвЂћСћР В Р вЂ Р В РІР‚С™Р вЂ™Р’В¦ NEW: environment chip (desktop + mobile icons)
     public final EnvironmentChip chipEnvironment;
 
     public final TextField tfCycleTitle;
+    public final TextField tfCycleCategory;
+    public final Button btnAddCycleCategory;
+    public final Label lblCycleCategoryDisplay;
+    public final Label lblCycleCategoryGhost;
+    public final FlowPane fpCycleCategorySuggestions;
 
     public final Label lblRightHint;
 
-    // вњ… РєРЅРѕРїРєР° РјРµРЅСЋ (СЃР°РјР° РґРµСЂР¶РёС‚ РјРѕРґР°Р»РєСѓ/overlay РІРЅСѓС‚СЂРё СЃРµР±СЏ)
+    // Р В Р’В Р В РІР‚В Р В Р Р‹Р РЋРІвЂћСћР В Р вЂ Р В РІР‚С™Р вЂ™Р’В¦ Р В Р’В Р вЂ™Р’В Р В Р Р‹Р Р†Р вЂљРЎСљР В Р’В Р вЂ™Р’В Р В Р’В Р Р†Р вЂљР’В¦Р В Р’В Р вЂ™Р’В Р В Р Р‹Р Р†Р вЂљРЎС›Р В Р’В Р вЂ™Р’В Р В Р Р‹Р Р†Р вЂљРІР‚СњР В Р’В Р вЂ™Р’В Р В Р Р‹Р Р†Р вЂљРЎСљР В Р’В Р вЂ™Р’В Р В РІР‚в„ўР вЂ™Р’В° Р В Р’В Р вЂ™Р’В Р В Р Р‹Р вЂ™Р’ВР В Р’В Р вЂ™Р’В Р В РІР‚в„ўР вЂ™Р’ВµР В Р’В Р вЂ™Р’В Р В Р’В Р Р†Р вЂљР’В¦Р В Р’В Р В Р вЂ№Р В Р’В Р Р†Р вЂљРІвЂћвЂ“ (Р В Р’В Р В Р вЂ№Р В Р’В Р РЋРІР‚СљР В Р’В Р вЂ™Р’В Р В РІР‚в„ўР вЂ™Р’В°Р В Р’В Р вЂ™Р’В Р В Р Р‹Р вЂ™Р’ВР В Р’В Р вЂ™Р’В Р В РІР‚в„ўР вЂ™Р’В° Р В Р’В Р вЂ™Р’В Р В РЎС›Р Р†Р вЂљР’ВР В Р’В Р вЂ™Р’В Р В РІР‚в„ўР вЂ™Р’ВµР В Р’В Р В Р вЂ№Р В Р’В Р Р†Р вЂљРЎв„ўР В Р’В Р вЂ™Р’В Р В РІР‚в„ўР вЂ™Р’В¶Р В Р’В Р вЂ™Р’В Р В Р Р‹Р Р†Р вЂљР’ВР В Р’В Р В Р вЂ№Р В Р вЂ Р В РІР‚С™Р РЋРІвЂћСћ Р В Р’В Р вЂ™Р’В Р В Р Р‹Р вЂ™Р’ВР В Р’В Р вЂ™Р’В Р В Р Р‹Р Р†Р вЂљРЎС›Р В Р’В Р вЂ™Р’В Р В РЎС›Р Р†Р вЂљР’ВР В Р’В Р вЂ™Р’В Р В РІР‚в„ўР вЂ™Р’В°Р В Р’В Р вЂ™Р’В Р В РІР‚в„ўР вЂ™Р’В»Р В Р’В Р вЂ™Р’В Р В Р Р‹Р Р†Р вЂљРЎСљР В Р’В Р В Р вЂ№Р В Р Р‹Р Р†Р вЂљРЎС™/overlay Р В Р’В Р вЂ™Р’В Р В Р’В Р Р†Р вЂљР’В Р В Р’В Р вЂ™Р’В Р В Р’В Р Р†Р вЂљР’В¦Р В Р’В Р В Р вЂ№Р В Р Р‹Р Р†Р вЂљРЎС™Р В Р’В Р В Р вЂ№Р В Р вЂ Р В РІР‚С™Р РЋРІвЂћСћР В Р’В Р В Р вЂ№Р В Р’В Р Р†Р вЂљРЎв„ўР В Р’В Р вЂ™Р’В Р В Р Р‹Р Р†Р вЂљР’В Р В Р’В Р В Р вЂ№Р В Р’В Р РЋРІР‚СљР В Р’В Р вЂ™Р’В Р В РІР‚в„ўР вЂ™Р’ВµР В Р’В Р вЂ™Р’В Р В РІР‚в„ўР вЂ™Р’В±Р В Р’В Р В Р вЂ№Р В Р’В Р В Р РЏ)
     public final CycleCardMenuButton btnMenuRight;
 
-    // вњ… NEW: profile button in first row
+    // Р В Р’В Р В РІР‚В Р В Р Р‹Р РЋРІвЂћСћР В Р вЂ Р В РІР‚С™Р вЂ™Р’В¦ NEW: profile button in first row
     public final Button btnProfileRight;
 
     public final Button btnCloseRight;
 
     public final Button btnRightAddCases;
 
-    // вњ… NEW: top trash toggle (delete-mode for rows)
+    // Р В Р’В Р В РІР‚В Р В Р Р‹Р РЋРІвЂћСћР В Р вЂ Р В РІР‚С™Р вЂ™Р’В¦ NEW: top trash toggle (delete-mode for rows)
     public final Button btnRightTrashCases;
 
     public final Label lblAddedCasesCount;
 
     public final VBox vbAddedCases;
 
-    // вњ… DELETE (right)
+    // Р В Р’В Р В РІР‚В Р В Р Р‹Р РЋРІвЂћСћР В Р вЂ Р В РІР‚С™Р вЂ™Р’В¦ DELETE (right)
     public final Button btnDeleteRight;
     public final StackPane deleteLayer;
     public final VBox deleteModal;
@@ -102,6 +108,11 @@ public class CyclesViewRefs {
             TaskLinkChip chipTaskLink,
             EnvironmentChip chipEnvironment,
             TextField tfCycleTitle,
+            TextField tfCycleCategory,
+            Button btnAddCycleCategory,
+            Label lblCycleCategoryDisplay,
+            Label lblCycleCategoryGhost,
+            FlowPane fpCycleCategorySuggestions,
             Label lblRightHint,
             CycleCardMenuButton btnMenuRight,
             Button btnProfileRight,
@@ -150,6 +161,11 @@ public class CyclesViewRefs {
         this.chipEnvironment = chipEnvironment;
 
         this.tfCycleTitle = tfCycleTitle;
+        this.tfCycleCategory = tfCycleCategory;
+        this.btnAddCycleCategory = btnAddCycleCategory;
+        this.lblCycleCategoryDisplay = lblCycleCategoryDisplay;
+        this.lblCycleCategoryGhost = lblCycleCategoryGhost;
+        this.fpCycleCategorySuggestions = fpCycleCategorySuggestions;
 
         this.lblRightHint = lblRightHint;
 

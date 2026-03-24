@@ -42,6 +42,7 @@ public final class FilterSheet {
     public static final class CycleFilters {
         private final List<String> statuses = new ArrayList<>();
         private final List<String> responsibles = new ArrayList<>();
+        private final List<String> categories = new ArrayList<>();
         private final List<String> createdDateRanges = new ArrayList<>();
         private final List<String> progresses = new ArrayList<>();
         private final List<String> caseStatuses = new ArrayList<>();
@@ -50,6 +51,7 @@ public final class FilterSheet {
             CycleFilters copy = new CycleFilters();
             copy.statuses.addAll(statuses);
             copy.responsibles.addAll(responsibles);
+            copy.categories.addAll(categories);
             copy.createdDateRanges.addAll(createdDateRanges);
             copy.progresses.addAll(progresses);
             copy.caseStatuses.addAll(caseStatuses);
@@ -62,6 +64,10 @@ public final class FilterSheet {
 
         public List<String> responsibles() {
             return List.copyOf(responsibles);
+        }
+
+        public List<String> categories() {
+            return List.copyOf(categories);
         }
 
         public List<String> createdDateRanges() {
@@ -79,6 +85,7 @@ public final class FilterSheet {
         public void clear() {
             statuses.clear();
             responsibles.clear();
+            categories.clear();
             createdDateRanges.clear();
             progresses.clear();
             caseStatuses.clear();
@@ -88,6 +95,7 @@ public final class FilterSheet {
             int count = 0;
             if (!statuses.isEmpty()) count++;
             if (!responsibles.isEmpty()) count++;
+            if (!categories.isEmpty()) count++;
             if (!createdDateRanges.isEmpty()) count++;
             if (!progresses.isEmpty()) count++;
             if (!caseStatuses.isEmpty()) count++;
@@ -171,6 +179,7 @@ public final class FilterSheet {
     private final CaseFilters draftCase = new CaseFilters();
 
     private final List<String> availableResponsibles = new ArrayList<>();
+    private final List<String> availableCategories = new ArrayList<>();
     private final List<String> availableLabels = new ArrayList<>();
     private final List<String> availableTags = new ArrayList<>();
 
@@ -229,9 +238,13 @@ public final class FilterSheet {
         this.filterToggleNode = filterToggleNode;
     }
 
-    public void toggleForCycles(List<String> responsibles) {
+    public void toggleForCycles(List<String> responsibles, List<String> categories) {
         availableResponsibles.clear();
         if (responsibles != null) availableResponsibles.addAll(responsibles);
+
+        availableCategories.clear();
+        if (categories != null) availableCategories.addAll(categories);
+
         toggle(Mode.CYCLES);
     }
 
@@ -518,6 +531,13 @@ public final class FilterSheet {
         ));
 
         root.getChildren().add(buildSection(
+                I18n.t("cy.filter.category"),
+                true,
+                false,
+                buildMultiSelectChips(toOptions(availableCategories), draftCycle.categories)
+        ));
+
+        root.getChildren().add(buildSection(
                 I18n.t("cy.filter.createdAt"),
                 true,
                 false,
@@ -533,7 +553,7 @@ public final class FilterSheet {
 
         root.getChildren().add(buildSection(
                 I18n.t("cy.filter.progress"),
-                false,
+                true,
                 false,
                 buildMultiSelectChips(
                         List.of(
@@ -549,7 +569,7 @@ public final class FilterSheet {
 
         root.getChildren().add(buildSection(
                 I18n.t("cy.filter.caseStatuses"),
-                false,
+                true,
                 false,
                 buildMultiSelectChips(toOptions(CYCLE_CASE_STATUS_OPTIONS), draftCycle.caseStatuses)
         ));
@@ -668,6 +688,7 @@ public final class FilterSheet {
     private boolean isDraftDirty() {
         if (mode == Mode.CYCLES) {
             if (!sameValues(appliedCycle.statuses, draftCycle.statuses)) return true;
+            if (!sameValues(appliedCycle.categories, draftCycle.categories)) return true;
             if (!sameValues(appliedCycle.createdDateRanges, draftCycle.createdDateRanges)) return true;
             if (!sameValues(appliedCycle.progresses, draftCycle.progresses)) return true;
             if (!sameValues(appliedCycle.responsibles, draftCycle.responsibles)) return true;
@@ -801,6 +822,8 @@ public final class FilterSheet {
         to.statuses.addAll(from.statuses);
         to.responsibles.clear();
         to.responsibles.addAll(from.responsibles);
+        to.categories.clear();
+        to.categories.addAll(from.categories);
         to.createdDateRanges.clear();
         to.createdDateRanges.addAll(from.createdDateRanges);
         to.progresses.clear();

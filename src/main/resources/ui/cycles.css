@@ -1359,3 +1359,125 @@
 .root.theme-light .cy-menu-hint-warning {
     -fx-text-fill: -fx-accent-strong;
 }
+
+.cy-category-block {
+    -fx-padding: 0;
+}
+
+.cy-category-field {
+    -fx-padding: 0 34 0 12;
+}
+
+.cy-category-display {
+    -fx-text-fill: -fx-text-color;
+    -fx-font-size: 20px;
+    -fx-font-weight: 800;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.cy-category-field-unfocused {
+    -fx-text-fill: transparent;
+    -fx-highlight-fill: transparent;
+    -fx-highlight-text-fill: transparent;
+}
+
+.root.theme-light .cy-category-field-unfocused {
+    -fx-text-fill: transparent;
+    -fx-highlight-fill: transparent;
+    -fx-highlight-text-fill: transparent;
+}
+.cy-category-ghost {
+    -fx-text-fill: rgba(255,255,255,0.42);
+    -fx-font-size: 20px;
+    -fx-font-weight: 800;
+    -fx-cursor: hand;
+}
+
+.root.theme-light .cy-category-ghost {
+    -fx-text-fill: rgba(0,0,0,0.34);
+}
+
+.cy-category-suggestions {
+    -fx-padding: 0;
+}
+
+.button.cy-category-action-btn,
+.button.cy-category-action-btn.sm,
+.button.icon-btn.cy-category-action-btn,
+.button.icon-btn.sm.cy-category-action-btn {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+    -fx-border-insets: 0;
+    -fx-padding: 0 9 0 9;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+}
+
+.button.cy-category-action-btn:hover,
+.button.icon-btn.cy-category-action-btn:hover,
+.button.icon-btn.sm.cy-category-action-btn:hover,
+.root.theme-light .button.cy-category-action-btn:hover {
+    -fx-background-color: -fx-surface;
+    -fx-border-color: transparent;
+}
+
+.button.cy-category-action-btn:pressed,
+.button.icon-btn.cy-category-action-btn:pressed,
+.button.icon-btn.sm.cy-category-action-btn:pressed,
+.root.theme-light .button.cy-category-action-btn:pressed {
+    -fx-background-color: -fx-surface-2;
+    -fx-border-color: transparent;
+}
+
+.button.cy-category-action-btn .svg-path,
+.button.icon-btn.cy-category-action-btn .svg-path,
+.button.icon-btn.sm.cy-category-action-btn .svg-path {
+    -fx-fill: -fx-icon-primary;
+}
+
+.cy-category-popup-root {
+    -fx-background-color: -fx-background-level-2-dark;
+    -fx-background-insets: 0;
+    -fx-border-color: -fx-background-border-level-2-dark;
+    -fx-border-width: 1;
+    -fx-border-insets: 0;
+    -fx-background-radius: 0 0 12 12;
+    -fx-border-radius: 0 0 12 12;
+    -fx-padding: 4 6 6 6;
+
+}
+
+.cy-category-popup-root.theme-light {
+    -fx-background-color: -fx-background-level-2-light;
+    -fx-border-color: -fx-background-border-level-2-light;
+
+}
+
+.cy-category-popup-item {
+    -fx-alignment: CENTER_LEFT;
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 8;
+    -fx-padding: 7 10 7 10;
+    -fx-text-fill: -fx-text-color;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-cursor: hand;
+}
+
+.cy-category-popup-item:hover {
+    -fx-background-color: -fx-surface;
+}
+
+.cy-category-popup-item:pressed {
+    -fx-background-color: -fx-surface-2;
+}
+
+.cy-category-popup-root.theme-light .cy-category-popup-item:hover {
+    -fx-background-color: -fx-surface;
+}
+
+.cy-category-popup-root.theme-light .cy-category-popup-item:pressed {
+    -fx-background-color: -fx-surface-2;
+}

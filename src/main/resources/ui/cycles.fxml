@@ -167,7 +167,7 @@
                                    styleClass="cy-meta-label"/>
 
                             <Label fx:id="lblCycleCreatedAt"
-                                   text="РІР‚вЂќ"
+                                   text="&#8212;"
                                    styleClass="cy-meta-value"/>
 
                             <TaskLinkChip fx:id="chipTaskLink" minWidth="70"/>
@@ -188,10 +188,54 @@
                                     styleClass="icon-btn,sm"/>
                         </HBox>
 
-                        <TextField fx:id="tfCycleTitle"
-                                   maxWidth="Infinity"
-                                   promptText="%cy.right.title.placeholder"
-                                   styleClass="tc-title-field"/>
+                        <HBox spacing="12"
+                              alignment="CENTER_LEFT"
+                              maxWidth="Infinity">
+                            <TextField fx:id="tfCycleTitle"
+                                       maxWidth="Infinity"
+                                       HBox.hgrow="ALWAYS"
+                                       promptText="%cy.right.title.placeholder"
+                                       styleClass="tc-title-field"/>
+
+                            <VBox spacing="0" alignment="BOTTOM_LEFT"
+                                  prefWidth="250"
+                                  minWidth="250"
+                                  maxWidth="250"
+                                  styleClass="cy-category-block">
+                                <StackPane alignment="CENTER_LEFT"
+                                           maxWidth="Infinity">
+                                    <TextField fx:id="tfCycleCategory"
+                                               maxWidth="Infinity"
+                                               promptText="%cy.right.category.placeholder"
+                                               styleClass="tc-title-field,cy-category-field"/>
+
+                                    <Label fx:id="lblCycleCategoryDisplay"
+                                           managed="false"
+                                           mouseTransparent="true"
+                                           styleClass="cy-category-display"
+                                           StackPane.alignment="CENTER_LEFT"/>
+
+                                    <Label fx:id="lblCycleCategoryGhost"
+                                           managed="false"
+                                           mouseTransparent="false"
+                                           styleClass="cy-category-ghost"
+                                           StackPane.alignment="CENTER_LEFT"/>
+
+                                    <Button fx:id="btnAddCycleCategory"
+                                            focusTraversable="false"
+                                            userData="14"
+                                            styleClass="icon-btn,sm,cy-category-action-btn"
+                                            StackPane.alignment="CENTER_RIGHT"/>
+                                </StackPane>
+                                <FlowPane fx:id="fpCycleCategorySuggestions"
+                                          hgap="8"
+                                          vgap="8"
+                                          managed="false"
+                                          visible="false"
+                                          maxWidth="Infinity"
+                                          styleClass="cy-category-suggestions"/>
+                            </VBox>
+                        </HBox>
 
                         <StackPane VBox.vgrow="ALWAYS"
                                    maxWidth="Infinity"

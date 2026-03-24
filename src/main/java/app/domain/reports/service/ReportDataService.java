@@ -51,7 +51,7 @@ public final class ReportDataService {
         return new ReportData(target, title, subtitle, startedAt, finishedAt, lastDate, sections);
     }
 
-    // ===== вспомогательные =====
+    // ===== РІСЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Рµ =====
 
     private String resolveTitle(ReportTarget target) {
         if (target.type() == ReportTargetType.TEST_CASE) {
@@ -75,7 +75,11 @@ public final class ReportDataService {
         } else {
             CycleDraft draft = readCycle(target);
             if (draft == null) return "";
-            return draft.envType.isBlank() ? "" : draft.envType;
+            String category = draft.category == null ? "" : draft.category.trim();
+            String environment = draft.envType == null ? "" : draft.envType.trim();
+            if (!category.isBlank() && !environment.isBlank()) return category + "  |  " + environment;
+            if (!category.isBlank()) return category;
+            return environment;
         }
     }
 
@@ -107,7 +111,7 @@ public final class ReportDataService {
     private static String formatIso(String iso) {
         if (iso == null || iso.isBlank()) return "";
         try {
-            // ISO может быть "2026-03-15T00:00:35.660582500" — обрезаем наносекунды
+            // ISO РјРѕР¶РµС‚ Р±С‹С‚СЊ "2026-03-15T00:00:35.660582500" вЂ” РѕР±СЂРµР·Р°РµРј РЅР°РЅРѕСЃРµРєСѓРЅРґС‹
             String trimmed = iso.length() > 19 ? iso.substring(0, 19) : iso;
             LocalDateTime dt = LocalDateTime.parse(trimmed, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
             return dt.format(DISP_FMT);

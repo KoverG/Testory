@@ -29,6 +29,7 @@ public final class CycleJson {
         sb.append("  },").append(NL);
 
         sb.append("  \"title\": ").append(q(d.title)).append(",").append(NL);
+        sb.append("  \"category\": ").append(q(d.category)).append(",").append(NL);
         sb.append("  \"qaResponsible\": ").append(q(d.qaResponsible)).append(",").append(NL);
         sb.append("  \"envType\": ").append(q(d.envType)).append(",").append(NL);
         sb.append("  \"envUrl\": ").append(q(d.envUrl)).append(",").append(NL);
