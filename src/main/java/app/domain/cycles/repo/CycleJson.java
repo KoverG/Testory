@@ -105,6 +105,7 @@ public final class CycleJson {
             String title = ref.safeTitleSnapshot();
             String status = ref.safeStatus();
             String comment = ref.safeComment();
+            String statusChangedAtIso = ref.safeStatusChangedAtIso();
 
             if (emitted > 0) {
                 sb.append(",").append(NL).append("    ");
@@ -115,7 +116,8 @@ public final class CycleJson {
             sb.append("\"id\": ").append(q(id)).append(", ");
             sb.append("\"title\": ").append(q(title)).append(", ");
             sb.append("\"status\": ").append(q(status)).append(", ");
-            sb.append("\"comment\": ").append(q(comment));
+            sb.append("\"comment\": ").append(q(comment)).append(", ");
+            sb.append("\"statusChangedAtIso\": ").append(q(statusChangedAtIso));
             sb.append("}");
 
             emitted++;

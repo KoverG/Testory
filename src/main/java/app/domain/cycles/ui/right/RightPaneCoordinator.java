@@ -693,7 +693,7 @@ public final class RightPaneCoordinator {
         if (base.cases != null) {
             for (CycleCaseRef ref : base.cases) {
                 if (ref == null) continue;
-                copy.cases.add(new CycleCaseRef(ref.safeId(), ref.safeTitleSnapshot(), ref.safeStatus(), ref.safeComment()));
+                copy.cases.add(new CycleCaseRef(ref.safeId(), ref.safeTitleSnapshot(), ref.safeStatus(), ref.safeComment(), ref.safeStatusChangedAtIso()));
             }
         }
         applyRunStateToDraft(copy);
@@ -855,7 +855,7 @@ public final class RightPaneCoordinator {
                 if (ref == null) continue;
                 String id = ref.safeId();
                 if (id.isEmpty()) continue;
-                selectedCases.add(new CycleCaseRef(id, ref.safeTitleSnapshot(), ref.safeStatus(), ref.safeComment()));
+                selectedCases.add(new CycleCaseRef(id, ref.safeTitleSnapshot(), ref.safeStatus(), ref.safeComment(), ref.safeStatusChangedAtIso()));
             }
         }
         syncAddedCasesUi();
@@ -1114,7 +1114,7 @@ public final class RightPaneCoordinator {
             if (id.isEmpty()) continue;
 
             String title = ref.safeTitleSnapshot();
-            selectedCases.add(new CycleCaseRef(id, title, ref.safeStatus(), ref.safeComment()));
+            selectedCases.add(new CycleCaseRef(id, title, ref.safeStatus(), ref.safeComment(), ref.safeStatusChangedAtIso()));
         }
 
         syncAddedCasesUi();
@@ -1154,7 +1154,9 @@ public final class RightPaneCoordinator {
 
             if (hasAddedCase(id)) continue;
 
-            selectedCases.add(new CycleCaseRef(id, ref.safeTitleSnapshot(), ref.safeStatus(), ref.safeComment()));
+            String addedAtIso = ref.safeStatusChangedAtIso();
+            if (addedAtIso.isBlank()) addedAtIso = CycleDraft.nowIso();
+            selectedCases.add(new CycleCaseRef(id, ref.safeTitleSnapshot(), ref.safeStatus(), ref.safeComment(), addedAtIso));
         }
 
         syncAddedCasesUi();
@@ -1218,7 +1220,17 @@ public final class RightPaneCoordinator {
             CycleCaseRef current = selectedCases.get(i);
             if (current == null || !id.equals(current.safeId())) continue;
 
-            CycleCaseRef updated = new CycleCaseRef(current.safeId(), current.safeTitleSnapshot(), normalizedStatus, current.safeComment());
+            String updatedTimestamp = current.safeStatusChangedAtIso();
+            if (!current.safeStatus().equals(normalizedStatus)) {
+                updatedTimestamp = CycleDraft.nowIso();
+            }
+            CycleCaseRef updated = new CycleCaseRef(
+                    current.safeId(),
+                    current.safeTitleSnapshot(),
+                    normalizedStatus,
+                    current.safeComment(),
+                    updatedTimestamp
+            );
             if (!sameCaseRef(current, updated)) {
                 selectedCases.set(i, updated);
                 changed = true;
@@ -1251,7 +1263,8 @@ public final class RightPaneCoordinator {
                     current.safeId(),
                     current.safeTitleSnapshot(),
                     current.safeStatus(),
-                    normalizedComment
+                    normalizedComment,
+                    current.safeStatusChangedAtIso()
             );
             if (!sameCaseRef(current, updated)) {
                 selectedCases.set(i, updated);
@@ -1688,9 +1701,51 @@ public final class RightPaneCoordinator {
         d.envLinks = new ArrayList<>(currentEnvLinks);
         applyRunStateToDraft(d);
 
-        d.cases = new ArrayList<>(selectedCases);
+        d.cases = new ArrayList<>();
+        for (CycleCaseRef ref : selectedCases) {
+            if (ref == null) continue;
+            d.cases.add(new CycleCaseRef(
+                    ref.safeId(),
+                    ref.safeTitleSnapshot(),
+                    ref.safeStatus(),
+                    ref.safeComment(),
+                    resolveStatusChangedAtIsoForSave(ref)
+            ));
+        }
 
         return d;
+    }
+
+
+    private String resolveStatusChangedAtIsoForSave(CycleCaseRef ref) {
+        if (ref == null) return "";
+
+        String currentStatus = ref.safeStatus();
+        String currentTimestamp = ref.safeStatusChangedAtIso();
+        CycleCaseRef previous = findOpenedDraftCaseRef(ref.safeId());
+
+        if (previous != null) {
+            if (previous.safeStatus().equals(currentStatus)) {
+                String previousTimestamp = previous.safeStatusChangedAtIso();
+                if (!previousTimestamp.isBlank()) return previousTimestamp;
+                if (!currentTimestamp.isBlank()) return currentTimestamp;
+                return openedDraft == null ? "" : safe(openedDraft.savedAtIso);
+            }
+            return CycleDraft.nowIso();
+        }
+
+        return currentTimestamp.isBlank() ? CycleDraft.nowIso() : currentTimestamp;
+    }
+
+    private CycleCaseRef findOpenedDraftCaseRef(String caseId) {
+        if (caseId == null || caseId.isBlank()) return null;
+        if (openedDraft == null || openedDraft.cases == null || openedDraft.cases.isEmpty()) return null;
+
+        for (CycleCaseRef ref : openedDraft.cases) {
+            if (ref == null) continue;
+            if (caseId.equals(ref.safeId())) return ref;
+        }
+        return null;
     }
 
     private void applyEnvironmentFromDraftOrRemembered(CycleDraft d) {
@@ -1847,7 +1902,7 @@ public final class RightPaneCoordinator {
             String id = ref.safeId();
             if (id.isEmpty()) continue;
 
-            out.add(new CycleCaseRef(id, ref.safeTitleSnapshot(), ref.safeStatus(), ref.safeComment()));
+            out.add(new CycleCaseRef(id, ref.safeTitleSnapshot(), ref.safeStatus(), ref.safeComment(), ref.safeStatusChangedAtIso()));
         }
         return List.copyOf(out);
     }
@@ -1858,7 +1913,8 @@ public final class RightPaneCoordinator {
         return left.safeId().equals(right.safeId())
                 && left.safeTitleSnapshot().equals(right.safeTitleSnapshot())
                 && left.safeStatus().equals(right.safeStatus())
-                && left.safeComment().equals(right.safeComment());
+                && left.safeComment().equals(right.safeComment())
+                && left.safeStatusChangedAtIso().equals(right.safeStatusChangedAtIso());
     }
 
     private void installSaveDisabledHintUnderButton() {

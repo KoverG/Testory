@@ -22,6 +22,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.OverrunStyle;
@@ -47,8 +48,6 @@ import java.util.Map;
  */
 public final class ReportCardView {
 
-    private static final int MAX_HISTORY_ROWS = 20;
-
     // Порядок статусов для сводки
     private static final List<String> STATUS_ORDER = List.of(
             "PASSED", "PASSED_WITH_BUGS", "FAILED", "CRITICAL_FAILED", "IN_PROGRESS", "SKIPPED"
@@ -66,14 +65,18 @@ public final class ReportCardView {
     private final HtmlReportExporter exporter   = new HtmlReportExporter();
     private final Runnable onClose;
 
-    // корневой StackPane: VBox с контентом + оверлей с кнопкой Отчёт
+    // Root StackPane: content + report button overlay
     private final StackPane root;
-    // шапка
+    // Header
     private final Label lblTypeBadge = new Label();
     private final Label lblTitle     = new Label();
     private final Button btnNavigate = new Button();
     private final Button btnReport;
     private final Label hintReport  = new Label(" ");
+    private final VBox stickyMetaBox = new VBox(8);
+    private final VBox stickyRecommendationBox = new VBox(8);
+    private final Region stickyMetaScrollbarGap = new Region();
+    private final Region stickyRecommendationScrollbarGap = new Region();
     // scroll content
     private final VBox scrollContent = new VBox(12);
     private final ScrollPane scroll;
@@ -82,14 +85,14 @@ public final class ReportCardView {
     public ReportCardView(Runnable onClose) {
         this.onClose = onClose;
 
-        // --- Кнопка закрытия ---
+        // Close button
         Button btnClose = new Button();
         btnClose.getStyleClass().addAll("icon-btn", "sm");
         btnClose.setFocusTraversable(false);
         UiSvg.setButtonSvg(btnClose, "close.svg", 14);
         btnClose.setOnAction(e -> { if (onClose != null) onClose.run(); });
 
-        // --- Шапка ---
+        // Header
         lblTypeBadge.getStyleClass().addAll("rp-type-badge");
         lblTitle.getStyleClass().add("rp-title");
         lblTitle.setWrapText(true);
@@ -98,26 +101,44 @@ public final class ReportCardView {
         btnNavigate.setFocusTraversable(false);
         UiSvg.setButtonSvg(btnNavigate, "navigate.svg", 14);
 
-        // Верхняя строка шапки: шильдик + пространство + кнопка закрытия
+        // Top header row: badge + spacer + close button
         Region badgeSpacer = new Region();
         HBox.setHgrow(badgeSpacer, Priority.ALWAYS);
         HBox badgeRow = new HBox(8);
         badgeRow.setAlignment(Pos.CENTER_LEFT);
         badgeRow.getChildren().addAll(lblTypeBadge, badgeSpacer, btnClose);
 
-        // Нижняя строка шапки: кнопка навигации + заголовок
+        // Bottom header row: navigate button + title
         HBox.setHgrow(lblTitle, Priority.ALWAYS);
         HBox titleRow = new HBox(8);
         titleRow.setAlignment(Pos.CENTER_LEFT);
         titleRow.getChildren().addAll(btnNavigate, lblTitle);
 
         VBox header = new VBox(4, badgeRow, titleRow);
-        header.setPadding(new Insets(0, 0, 12, 0));
+        header.getStyleClass().add("rp-header");
+        header.setPadding(new Insets(0, 0, 4, 0));
+
+        stickyMetaBox.getStyleClass().add("rp-sticky-block");
+        stickyRecommendationBox.getStyleClass().add("rp-sticky-block");
+        stickyMetaScrollbarGap.getStyleClass().add("rp-sticky-scroll-gap");
+        stickyRecommendationScrollbarGap.getStyleClass().add("rp-sticky-scroll-gap");
+
+        HBox stickyMetaRow = new HBox(stickyMetaBox, stickyMetaScrollbarGap);
+        stickyMetaRow.setAlignment(Pos.TOP_LEFT);
+        HBox.setHgrow(stickyMetaBox, Priority.ALWAYS);
+
+        HBox stickyRecommendationRow = new HBox(stickyRecommendationBox, stickyRecommendationScrollbarGap);
+        stickyRecommendationRow.setAlignment(Pos.TOP_LEFT);
+        HBox.setHgrow(stickyRecommendationBox, Priority.ALWAYS);
+
+        VBox stickyHeader = new VBox(6, header, stickyMetaRow, stickyRecommendationRow);
+        stickyHeader.getStyleClass().add("rp-sticky-header");
+        stickyHeader.setFillWidth(true);
 
         // --- Scroll content ---
-        scrollContent.setPadding(new Insets(0, 0, 8, 0));
+        scrollContent.setPadding(new Insets(10, 0, 8, 0));
 
-        // Спейсер в конце скролла — чтобы контент можно было проскролить мимо кнопки-оверлея
+        // Bottom spacer so content can scroll past the overlay button
         bottomSpacer = new Region();
         bottomSpacer.setMinHeight(80);
         bottomSpacer.setPrefHeight(80);
@@ -131,17 +152,17 @@ public final class ReportCardView {
         scroll.setFocusTraversable(false);
         VBox.setVgrow(scroll, Priority.ALWAYS);
 
-        VBox contentBox = new VBox(0, header, scroll);
+        VBox contentBox = new VBox(0, stickyHeader, scroll);
         contentBox.setMaxWidth(Double.MAX_VALUE);
         contentBox.setMaxHeight(Double.MAX_VALUE);
 
-        // --- Кнопка Отчёт (оверлей внизу) ---
+        // Report button overlay
         btnReport = new Button("Отчёт");
         btnReport.getStyleClass().addAll("tc-filter-apply", "tc-save-btn", "tc-disabled-base");
         btnReport.setPrefWidth(250);
         btnReport.setFocusTraversable(false);
 
-        // Подсказка под кнопкой (показывается при блокировке)
+        // Hint under the button when export is blocked
         hintReport.getStyleClass().add("tc-save-hint");
         hintReport.setWrapText(true);
         hintReport.setMouseTransparent(true);
@@ -154,31 +175,58 @@ public final class ReportCardView {
         btnHintBox.setPickOnBounds(false);
         btnHintBox.setMaxWidth(Double.MAX_VALUE);
 
-        // Внутренний StackPane — занимает полную ширину, внутри позиционирует кнопку+подсказку
+        // Inner overlay container
         StackPane innerOverlay = new StackPane(btnHintBox);
         innerOverlay.setPickOnBounds(false);
         innerOverlay.setMaxWidth(Double.MAX_VALUE);
         StackPane.setAlignment(btnHintBox, Pos.BOTTOM_CENTER);
         StackPane.setMargin(btnHintBox, new Insets(0, 0, 12, 0));
 
-        // Внешний VBox — занимает весь StackPane, выравнивает внутренний StackPane к низу
+        // Outer overlay aligned to bottom
         VBox overlay = new VBox(innerOverlay);
         overlay.setAlignment(Pos.BOTTOM_CENTER);
         overlay.setPickOnBounds(false);
 
-        // --- Корень ---
+        // Root
         root = new StackPane(contentBox, overlay);
         root.setMaxWidth(Double.MAX_VALUE);
         root.setMaxHeight(Double.MAX_VALUE);
 
         String cssUrl = getClass().getResource("/ui/report-card.css").toExternalForm();
         root.getStylesheets().add(cssUrl);
+        installStickyScrollbarGapBinding();
     }
 
     public StackPane view() { return root; }
 
+    private void installStickyScrollbarGapBinding() {
+        scroll.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                Platform.runLater(this::updateStickyScrollbarGap);
+            }
+        });
+        scroll.skinProperty().addListener((obs, oldSkin, newSkin) -> Platform.runLater(this::updateStickyScrollbarGap));
+    }
+
+    private void updateStickyScrollbarGap() {
+        double gap = 0;
+        for (Node node : scroll.lookupAll(".scroll-bar:vertical")) {
+            if (node instanceof ScrollBar bar) {
+                gap = Math.max(gap, bar.prefWidth(-1));
+            }
+        }
+        stickyMetaScrollbarGap.setPrefWidth(gap);
+        stickyMetaScrollbarGap.setMinWidth(gap);
+        stickyMetaScrollbarGap.setMaxWidth(gap);
+        stickyRecommendationScrollbarGap.setPrefWidth(gap);
+        stickyRecommendationScrollbarGap.setMinWidth(gap);
+        stickyRecommendationScrollbarGap.setMaxWidth(gap);
+    }
+
     public void load(ReportTarget target) {
         scrollContent.getChildren().clear();
+        stickyMetaBox.getChildren().clear();
+        stickyRecommendationBox.getChildren().clear();
         lblTitle.setText("...");
         lblTypeBadge.setText("");
 
@@ -187,12 +235,13 @@ public final class ReportCardView {
         buildScrollContent(data);
     }
 
-    // ===== шапка =====
+    // ===== Header =====
 
     private void applyHeader(ReportData data) {
         String typeText = data.target().type() == ReportTargetType.TEST_CASE ? "КЕЙС" : "ЦИКЛ";
         lblTypeBadge.setText(typeText);
         lblTitle.setText(data.title().isBlank() ? data.target().id() : data.title());
+        buildStickySections(data);
         btnReport.setOnAction(e -> exporter.export(data,
                 msg -> Platform.runLater(() -> btnReport.setText("!"))));
 
@@ -216,43 +265,56 @@ public final class ReportCardView {
         }
     }
 
+    private void buildStickySections(ReportData data) {
+        stickyMetaBox.getChildren().clear();
+        stickyRecommendationBox.getChildren().clear();
+
+        Node meta = buildStickyMetaBlock(data);
+        if (meta != null) {
+            stickyMetaBox.getChildren().add(meta);
+        }
+
+        if (data.target().type() == ReportTargetType.CYCLE) {
+            String rec = readRecommendation(data.target());
+            stickyRecommendationBox.getChildren().add(buildRecommendationSection(rec, data.target()));
+        }
+    }
+
     // ===== scroll content =====
 
     private void buildScrollContent(ReportData data) {
-        // subtitle (теги/описание)
-        if (!data.subtitle().isBlank()) {
-            Label sub = new Label(data.subtitle());
-            sub.getStyleClass().add("rp-subtitle");
-            sub.setWrapText(true);
-            scrollContent.getChildren().add(sub);
-        }
-
-        // блок дат
-        scrollContent.getChildren().add(buildDateBlock(data));
-
-        // тренд ВЫШЕ сводки
         data.<TrendSection>section(TrendSection.TYPE)
                 .ifPresent(s -> scrollContent.getChildren().add(buildTrendSection(s)));
 
-        // сводка (donut)
         data.<StatusSummarySection>section(StatusSummarySection.TYPE)
                 .ifPresent(s -> scrollContent.getChildren().add(buildSummarySection(s)));
 
-        // история
         data.<HistorySection>section(HistorySection.TYPE)
                 .ifPresent(s -> scrollContent.getChildren().add(buildHistorySection(s)));
 
-        // рекомендация (только для цикла)
-        if (data.target().type() == ReportTargetType.CYCLE) {
-            String rec = readRecommendation(data.target());
-            scrollContent.getChildren().add(buildRecommendationSection(rec, data.target()));
-        }
-
-        // спейсер для прокрутки мимо кнопки-оверлея
         scrollContent.getChildren().add(bottomSpacer);
     }
 
-    // ===== блок дат =====
+    // ===== Dates =====
+
+    private Node buildStickyMetaBlock(ReportData data) {
+        VBox box = new VBox(8);
+        box.getStyleClass().add("rp-meta-block");
+
+        if (!data.subtitle().isBlank()) {
+            Label sub = new Label(data.subtitle());
+            sub.getStyleClass().addAll("rp-subtitle", "rp-meta-subtitle");
+            sub.setWrapText(true);
+            box.getChildren().add(sub);
+        }
+
+        Node dates = buildDateBlock(data);
+        if (dates != null) {
+            box.getChildren().add(dates);
+        }
+
+        return box.getChildren().isEmpty() ? null : box;
+    }
 
     private Node buildDateBlock(ReportData data) {
         VBox box = new VBox(4);
@@ -270,7 +332,7 @@ public final class ReportCardView {
             }
         }
 
-        return box;
+        return box.getChildren().isEmpty() ? null : box;
     }
 
     private static Node dateRow(String label, String value) {
@@ -284,7 +346,7 @@ public final class ReportCardView {
         return row;
     }
 
-    // ===== тренд (капсулы) =====
+    // ===== Trend =====
 
     private Node buildTrendSection(TrendSection section) {
         if (section.capsules().isEmpty()) return new Region();
@@ -305,6 +367,7 @@ public final class ReportCardView {
     private Node buildCapsule(TrendCapsule cap) {
         Label lbl = new Label(String.valueOf(cap.count()));
         lbl.setAlignment(Pos.CENTER);
+        lbl.setMouseTransparent(true);
 
         String colorClass = capsuleColorClass(cap.colorKey());
 
@@ -337,7 +400,7 @@ public final class ReportCardView {
         };
     }
 
-    // ===== сводка (donut) =====
+    // ===== Summary =====
 
     private Node buildSummarySection(StatusSummarySection section) {
         VBox box = sectionBox("Сводка");
@@ -353,7 +416,7 @@ public final class ReportCardView {
         }
         donut.draw(slices, section.total());
 
-        // Легенда: [бейдж] [····лидер-линия····] [count] [pct-muted]
+        // Legend: [badge] [leader line + metrics]
         VBox legend = new VBox(0);
         for (String status : STATUS_ORDER) {
             int count = section.countsByStatus().getOrDefault(status, 0);
@@ -368,9 +431,13 @@ public final class ReportCardView {
             Label badge = statusBadge(status);
             badge.setMinWidth(108);
 
-            Region leader = new Region();
-            leader.getStyleClass().add("rp-legend-leader");
-            HBox.setHgrow(leader, Priority.ALWAYS);
+            HBox metrics = new HBox(8);
+            metrics.getStyleClass().add("rp-legend-metrics");
+            metrics.setAlignment(Pos.CENTER_RIGHT);
+            HBox.setHgrow(metrics, Priority.ALWAYS);
+
+            Region metricsSpacer = new Region();
+            HBox.setHgrow(metricsSpacer, Priority.ALWAYS);
 
             Label countLbl = new Label(String.valueOf(count));
             countLbl.getStyleClass().add("rp-stat-val");
@@ -382,36 +449,30 @@ public final class ReportCardView {
             pctLbl.setMinWidth(36);
             pctLbl.setAlignment(Pos.CENTER_RIGHT);
 
-            row.getChildren().addAll(badge, leader, countLbl, pctLbl);
+            metrics.getChildren().addAll(metricsSpacer, countLbl, pctLbl);
+            row.getChildren().addAll(badge, metrics);
             legend.getChildren().add(row);
         }
 
-        // Компоновка: donut слева, легенда справа
+        // Layout: donut left, legend right
         HBox inner = new HBox(16);
         inner.setAlignment(Pos.CENTER_LEFT);
         inner.getChildren().addAll(donut, legend);
-        HBox.setHgrow(legend, Priority.ALWAYS);  // легенда занимает остаток
+        HBox.setHgrow(legend, Priority.ALWAYS);  // legend takes the remaining width
 
         box.getChildren().add(inner);
         return box;
     }
 
-    // ===== история =====
+    // ===== History =====
 
     private Node buildHistorySection(HistorySection section) {
         if (section.rows().isEmpty()) return new Region();
 
         VBox box = sectionBox("История");
 
-        int shown = Math.min(section.rows().size(), MAX_HISTORY_ROWS);
-        for (int i = 0; i < shown; i++) {
-            box.getChildren().add(buildHistoryRow(section.rows().get(i)));
-        }
-
-        if (section.rows().size() > MAX_HISTORY_ROWS) {
-            Label more = new Label("... ещё " + (section.rows().size() - MAX_HISTORY_ROWS));
-            more.getStyleClass().add("rp-subtitle");
-            box.getChildren().add(more);
+        for (HistorySection.HistoryRow row : section.rows()) {
+            box.getChildren().add(buildHistoryRow(row));
         }
 
         return box;
@@ -421,7 +482,7 @@ public final class ReportCardView {
         VBox box = new VBox(3);
         box.getStyleClass().add("rp-history-row");
 
-        // BorderPane: badge слева, дата справа, название по центру (обрезается с ...)
+        // BorderPane: badge left, date right, title in the center
         Label badge = statusBadge(row.status());
 
         String titleText = row.title().isBlank() ? row.contextLabel() : row.title();
@@ -462,7 +523,7 @@ public final class ReportCardView {
         return box;
     }
 
-    // ===== утилиты =====
+    // ===== Utilities =====
 
     private static VBox sectionBox(String sectionTitle) {
         VBox box = new VBox(8);
@@ -508,7 +569,7 @@ public final class ReportCardView {
         };
     }
 
-    // ===== рекомендация =====
+    // ===== Recommendation =====
 
     private void updateReportHint(boolean blocked) {
         if (!blocked) {

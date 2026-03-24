@@ -12,13 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Ридер метаданных цикла для левого списка:
- * - title (root)
- * - meta.createdAtUi
- *
- * + ридер полного драфта для открытия карточки цикла справа.
- *
- * Без JSON-библиотек. Устойчиво к пробелам/переносам строк и "title" внутри cases.
+ * Reads cycle card metadata for the list and the full cycle draft for the right panel.
+ * Works without external JSON libraries.
  */
 public final class CycleCardJsonReader {
 
@@ -161,13 +156,15 @@ public final class CycleCardJsonReader {
             String title = readString(obj, "title");
             String status = readString(obj, "status");
             String comment = readString(obj, "comment");
+            String statusChangedAtIso = readString(obj, "statusChangedAtIso");
 
             if (id != null && !id.isBlank()) {
                 out.add(new CycleCaseRef(
                         id.trim(),
                         title == null ? "" : title.trim(),
                         status == null ? "" : status.trim(),
-                        comment == null ? "" : comment.trim()
+                        comment == null ? "" : comment.trim(),
+                        statusChangedAtIso == null ? "" : statusChangedAtIso.trim()
                 ));
             }
 
