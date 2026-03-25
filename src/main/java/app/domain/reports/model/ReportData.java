@@ -4,20 +4,19 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Собранные данные для отчёта.
- * Не хранится — пересобирается при каждом открытии/генерации.
+ * Aggregated data for a generated report.
  */
 public record ReportData(
         ReportTarget target,
-        String title,           // название кейса или цикла
-        String subtitle,        // теги/описание
-        String startedAt,       // для цикла: дата+время начала; для кейса: пусто
-        String finishedAt,      // для цикла: дата+время завершения; для кейса: пусто
-        String lastRunDate,     // для кейса: дата последнего прохождения
+        String title,
+        String subtitle,
+        String startedAt,
+        String finishedAt,
+        String lastRunDate,
+        ReportMetaSummary metaSummary,
         List<ReportSection> sections
 ) {
 
-    /** Находит секцию по типу, если она присутствует. */
     @SuppressWarnings("unchecked")
     public <T extends ReportSection> Optional<T> section(String type) {
         return sections.stream()
