@@ -2,13 +2,11 @@ package app.domain.reports.ui;
 
 import app.core.CardNavigationBridge;
 import app.core.Router;
-import app.domain.cycles.repo.CycleCardJsonReader;
-import app.domain.cycles.repo.CycleJson;
-import app.domain.cycles.usecase.CycleDraft;
 import app.domain.reports.ReportsScreen;
 import app.domain.reports.export.HtmlReportExporter;
 import app.domain.reports.model.HistorySection;
 import app.domain.reports.model.ReportData;
+import app.domain.reports.model.ReportMetaSummary;
 import app.domain.reports.model.ReportTarget;
 import app.domain.reports.model.ReportTargetType;
 import app.domain.reports.model.StatusSummarySection;
@@ -22,10 +20,10 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
-import javafx.scene.control.OverrunStyle;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
@@ -34,66 +32,59 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
+import java.awt.Desktop;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Правая зона экрана Reports.
- * Структура: StackPane = VBox(шапка + скролл) + оверлей с кнопкой Отчёт внизу.
- * view() возвращает StackPane, который добавляется в rightPlaceholder.
- */
 public final class ReportCardView {
 
-    // Порядок статусов для сводки
     private static final List<String> STATUS_ORDER = List.of(
             "PASSED", "PASSED_WITH_BUGS", "FAILED", "CRITICAL_FAILED", "IN_PROGRESS", "SKIPPED"
     );
     private static final Map<String, String> STATUS_LABELS = Map.of(
-            "PASSED",           "Passed",
+            "PASSED", "Passed",
             "PASSED_WITH_BUGS", "Passed with bugs",
-            "FAILED",           "Failed",
-            "CRITICAL_FAILED",  "Critical failed",
-            "IN_PROGRESS",      "In progress",
-            "SKIPPED",          "Skipped"
+            "FAILED", "Failed",
+            "CRITICAL_FAILED", "Critical failed",
+            "IN_PROGRESS", "In progress",
+            "SKIPPED", "Skipped"
     );
 
     private final ReportDataService dataService = new ReportDataService();
-    private final HtmlReportExporter exporter   = new HtmlReportExporter();
+    private final HtmlReportExporter exporter = new HtmlReportExporter();
     private final Runnable onClose;
 
-    // Root StackPane: content + report button overlay
     private final StackPane root;
-    // Header
     private final Label lblTypeBadge = new Label();
-    private final Label lblTitle     = new Label();
+    private final Label lblTitle = new Label();
     private final Button btnNavigate = new Button();
     private final Button btnReport;
-    private final Label hintReport  = new Label(" ");
+    private final Label hintReport = new Label(" ");
     private final VBox stickyMetaBox = new VBox(8);
     private final VBox stickyRecommendationBox = new VBox(8);
     private final Region stickyMetaScrollbarGap = new Region();
     private final Region stickyRecommendationScrollbarGap = new Region();
-    // scroll content
     private final VBox scrollContent = new VBox(12);
     private final ScrollPane scroll;
     private final Region bottomSpacer;
 
+    private ReportData currentData;
+    private String currentRecommendation = "";
+
     public ReportCardView(Runnable onClose) {
         this.onClose = onClose;
 
-        // Close button
         Button btnClose = new Button();
         btnClose.getStyleClass().addAll("icon-btn", "sm");
         btnClose.setFocusTraversable(false);
         UiSvg.setButtonSvg(btnClose, "close.svg", 14);
-        btnClose.setOnAction(e -> { if (onClose != null) onClose.run(); });
+        btnClose.setOnAction(e -> {
+            if (onClose != null) onClose.run();
+        });
 
-        // Header
-        lblTypeBadge.getStyleClass().addAll("rp-type-badge");
+        lblTypeBadge.getStyleClass().add("rp-type-badge");
         lblTitle.getStyleClass().add("rp-title");
         lblTitle.setWrapText(true);
 
@@ -101,18 +92,14 @@ public final class ReportCardView {
         btnNavigate.setFocusTraversable(false);
         UiSvg.setButtonSvg(btnNavigate, "navigate.svg", 14);
 
-        // Top header row: badge + spacer + close button
         Region badgeSpacer = new Region();
         HBox.setHgrow(badgeSpacer, Priority.ALWAYS);
-        HBox badgeRow = new HBox(8);
+        HBox badgeRow = new HBox(8, lblTypeBadge, badgeSpacer, btnClose);
         badgeRow.setAlignment(Pos.CENTER_LEFT);
-        badgeRow.getChildren().addAll(lblTypeBadge, badgeSpacer, btnClose);
 
-        // Bottom header row: navigate button + title
         HBox.setHgrow(lblTitle, Priority.ALWAYS);
-        HBox titleRow = new HBox(8);
+        HBox titleRow = new HBox(8, btnNavigate, lblTitle);
         titleRow.setAlignment(Pos.CENTER_LEFT);
-        titleRow.getChildren().addAll(btnNavigate, lblTitle);
 
         VBox header = new VBox(4, badgeRow, titleRow);
         header.getStyleClass().add("rp-header");
@@ -131,14 +118,13 @@ public final class ReportCardView {
         stickyRecommendationRow.setAlignment(Pos.TOP_LEFT);
         HBox.setHgrow(stickyRecommendationBox, Priority.ALWAYS);
 
-        VBox stickyHeader = new VBox(6, header, stickyMetaRow, stickyRecommendationRow);
+        VBox stickyTopGroup = new VBox(6, header, stickyMetaRow);
+        VBox stickyHeader = new VBox(12, stickyTopGroup, stickyRecommendationRow);
         stickyHeader.getStyleClass().add("rp-sticky-header");
         stickyHeader.setFillWidth(true);
 
-        // --- Scroll content ---
-        scrollContent.setPadding(new Insets(10, 0, 8, 0));
+        scrollContent.setPadding(new Insets(12, 0, 8, 0));
 
-        // Bottom spacer so content can scroll past the overlay button
         bottomSpacer = new Region();
         bottomSpacer.setMinHeight(80);
         bottomSpacer.setPrefHeight(80);
@@ -156,13 +142,11 @@ public final class ReportCardView {
         contentBox.setMaxWidth(Double.MAX_VALUE);
         contentBox.setMaxHeight(Double.MAX_VALUE);
 
-        // Report button overlay
         btnReport = new Button("Отчёт");
         btnReport.getStyleClass().addAll("tc-filter-apply", "tc-save-btn", "tc-disabled-base");
         btnReport.setPrefWidth(250);
         btnReport.setFocusTraversable(false);
 
-        // Hint under the button when export is blocked
         hintReport.getStyleClass().add("tc-save-hint");
         hintReport.setWrapText(true);
         hintReport.setMouseTransparent(true);
@@ -175,19 +159,16 @@ public final class ReportCardView {
         btnHintBox.setPickOnBounds(false);
         btnHintBox.setMaxWidth(Double.MAX_VALUE);
 
-        // Inner overlay container
         StackPane innerOverlay = new StackPane(btnHintBox);
         innerOverlay.setPickOnBounds(false);
         innerOverlay.setMaxWidth(Double.MAX_VALUE);
         StackPane.setAlignment(btnHintBox, Pos.BOTTOM_CENTER);
         StackPane.setMargin(btnHintBox, new Insets(0, 0, 12, 0));
 
-        // Outer overlay aligned to bottom
         VBox overlay = new VBox(innerOverlay);
         overlay.setAlignment(Pos.BOTTOM_CENTER);
         overlay.setPickOnBounds(false);
 
-        // Root
         root = new StackPane(contentBox, overlay);
         root.setMaxWidth(Double.MAX_VALUE);
         root.setMaxHeight(Double.MAX_VALUE);
@@ -197,7 +178,22 @@ public final class ReportCardView {
         installStickyScrollbarGapBinding();
     }
 
-    public StackPane view() { return root; }
+    public StackPane view() {
+        return root;
+    }
+
+    public void load(ReportTarget target) {
+        currentRecommendation = "";
+        scrollContent.getChildren().clear();
+        stickyMetaBox.getChildren().clear();
+        stickyRecommendationBox.getChildren().clear();
+        lblTitle.setText("...");
+        lblTypeBadge.setText("");
+
+        currentData = dataService.build(target);
+        applyHeader(currentData);
+        buildScrollContent(currentData);
+    }
 
     private void installStickyScrollbarGapBinding() {
         scroll.sceneProperty().addListener((obs, oldScene, newScene) -> {
@@ -223,27 +219,16 @@ public final class ReportCardView {
         stickyRecommendationScrollbarGap.setMaxWidth(gap);
     }
 
-    public void load(ReportTarget target) {
-        scrollContent.getChildren().clear();
-        stickyMetaBox.getChildren().clear();
-        stickyRecommendationBox.getChildren().clear();
-        lblTitle.setText("...");
-        lblTypeBadge.setText("");
-
-        ReportData data = dataService.build(target);
-        applyHeader(data);
-        buildScrollContent(data);
-    }
-
-    // ===== Header =====
-
     private void applyHeader(ReportData data) {
         String typeText = data.target().type() == ReportTargetType.TEST_CASE ? "КЕЙС" : "ЦИКЛ";
         lblTypeBadge.setText(typeText);
         lblTitle.setText(data.title().isBlank() ? data.target().id() : data.title());
         buildStickySections(data);
-        btnReport.setOnAction(e -> exporter.export(data,
-                msg -> Platform.runLater(() -> btnReport.setText("!"))));
+        btnReport.setOnAction(e -> exporter.export(
+                data,
+                normalizeRecommendationForExport(currentRecommendation),
+                msg -> Platform.runLater(() -> btnReport.setText("!"))
+        ));
 
         if (data.target().type() == ReportTargetType.CYCLE) {
             btnNavigate.setOnAction(e -> {
@@ -251,7 +236,7 @@ public final class ReportCardView {
                 CardNavigationBridge.requestCycleHistoryNavigation(data.target().id(), "");
                 Router.get().cycles();
             });
-            boolean blocked = readRecommendation(data.target()).isEmpty();
+            boolean blocked = currentRecommendation.isBlank();
             btnReport.setDisable(blocked);
             updateReportHint(blocked);
         } else {
@@ -275,17 +260,11 @@ public final class ReportCardView {
         }
 
         if (data.target().type() == ReportTargetType.CYCLE) {
-            String rec = readRecommendation(data.target());
-            stickyRecommendationBox.getChildren().add(buildRecommendationSection(rec, data.target()));
+            stickyRecommendationBox.getChildren().add(buildRecommendationSection());
         }
     }
 
-    // ===== scroll content =====
-
     private void buildScrollContent(ReportData data) {
-        data.<TrendSection>section(TrendSection.TYPE)
-                .ifPresent(s -> scrollContent.getChildren().add(buildTrendSection(s)));
-
         data.<StatusSummarySection>section(StatusSummarySection.TYPE)
                 .ifPresent(s -> scrollContent.getChildren().add(buildSummarySection(s)));
 
@@ -295,9 +274,63 @@ public final class ReportCardView {
         scrollContent.getChildren().add(bottomSpacer);
     }
 
-    // ===== Dates =====
-
     private Node buildStickyMetaBlock(ReportData data) {
+        if (data.target().type() == ReportTargetType.CYCLE && data.metaSummary() != null) {
+            TrendSection trend = data.<TrendSection>section(TrendSection.TYPE).orElse(null);
+            return buildCycleMetaBlock(data.metaSummary(), trend);
+        }
+        return buildCaseMetaBlock(data);
+    }
+
+    private Node buildCycleMetaBlock(ReportMetaSummary meta, TrendSection trend) {
+        VBox box = new VBox(10);
+        box.getStyleClass().add("rp-meta-surface");
+
+        if (meta.hasContext()) {
+            HBox chipsRow = new HBox(8);
+            chipsRow.setAlignment(Pos.CENTER_LEFT);
+            chipsRow.getStyleClass().add("rp-meta-chip-row");
+            addChipIfPresent(chipsRow, meta.category(), null);
+            addChipIfPresent(chipsRow, meta.environment(), null);
+            addTaskChipIfPresent(chipsRow, "Задача: " + meta.taskLabel(), meta.taskUrl());
+            if (!chipsRow.getChildren().isEmpty()) {
+                box.getChildren().add(chipsRow);
+            }
+        }
+
+        HBox timingRow = buildMetricRow(
+                new MetaMetric("Начат", meta.startedAt(), false, ""),
+                new MetaMetric(meta.lifecycleLabel(), meta.lifecycleValue(), false, ""),
+                new MetaMetric("Длительность", meta.duration(), true, meta.durationFull())
+        );
+        if (!timingRow.getChildren().isEmpty()) {
+            box.getChildren().add(timingRow);
+        }
+
+        HBox progressRow = buildMetricRow(
+                new MetaMetric("Всего кейсов", String.valueOf(meta.totalCases()), true, ""),
+                new MetaMetric("Пройдено кейсов", String.valueOf(meta.completedCases()), true, ""),
+                new MetaMetric("Прогресс", meta.completionPercent() + "%", true, "")
+        );
+        if (trend != null && !trend.capsules().isEmpty()) {
+            Region spacer = new Region();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+            HBox capsules = new HBox(8);
+            capsules.setAlignment(Pos.CENTER_RIGHT);
+            capsules.getStyleClass().add("rp-meta-capsules");
+            for (TrendCapsule cap : trend.capsules()) {
+                capsules.getChildren().add(buildCapsule(cap));
+            }
+            progressRow.getChildren().addAll(spacer, capsules);
+        }
+        if (!progressRow.getChildren().isEmpty()) {
+            box.getChildren().add(progressRow);
+        }
+
+        return box.getChildren().isEmpty() ? null : box;
+    }
+
+    private Node buildCaseMetaBlock(ReportData data) {
         VBox box = new VBox(8);
         box.getStyleClass().add("rp-meta-block");
 
@@ -308,60 +341,82 @@ public final class ReportCardView {
             box.getChildren().add(sub);
         }
 
-        Node dates = buildDateBlock(data);
-        if (dates != null) {
-            box.getChildren().add(dates);
+        if (!data.lastRunDate().isBlank()) {
+            HBox lastRunRow = buildMetricRow(new MetaMetric("Последнее прохождение", data.lastRunDate(), false, ""));
+            box.getChildren().add(lastRunRow);
         }
 
         return box.getChildren().isEmpty() ? null : box;
     }
 
-    private Node buildDateBlock(ReportData data) {
-        VBox box = new VBox(4);
-
-        if (data.target().type() == ReportTargetType.CYCLE) {
-            if (!data.startedAt().isBlank()) {
-                box.getChildren().add(dateRow("Начат:", data.startedAt()));
-            }
-            if (!data.finishedAt().isBlank()) {
-                box.getChildren().add(dateRow("Завершён:", data.finishedAt()));
-            }
-        } else {
-            if (!data.lastRunDate().isBlank()) {
-                box.getChildren().add(dateRow("Последнее прохождение:", data.lastRunDate()));
-            }
-        }
-
-        return box.getChildren().isEmpty() ? null : box;
-    }
-
-    private static Node dateRow(String label, String value) {
-        HBox row = new HBox(6);
+    private static HBox buildMetricRow(MetaMetric... metrics) {
+        HBox row = new HBox(8);
         row.setAlignment(Pos.CENTER_LEFT);
-        Label lbl = new Label(label);
-        lbl.getStyleClass().add("rp-date-label");
-        Label val = new Label(value);
-        val.getStyleClass().add("rp-date-value");
-        row.getChildren().addAll(lbl, val);
+        row.getStyleClass().add("rp-meta-inline-row");
+
+        boolean first = true;
+        for (MetaMetric metric : metrics) {
+            if (metric == null || metric.isEmpty()) continue;
+            if (!first) {
+                row.getChildren().add(buildMetaSeparator());
+            }
+            row.getChildren().add(buildMetaMetric(metric.label(), metric.value(), metric.accentValue(), metric.tooltipText()));
+            first = false;
+        }
         return row;
     }
 
-    // ===== Trend =====
+    private static Label buildMetaSeparator() {
+        Label sep = new Label("|");
+        sep.getStyleClass().add("rp-meta-separator");
+        return sep;
+    }
 
-    private Node buildTrendSection(TrendSection section) {
-        if (section.capsules().isEmpty()) return new Region();
+    private static void addChipIfPresent(HBox row, String text, String tooltipText) {
+        if (text == null || text.isBlank()) return;
+        Label chip = new Label(text);
+        chip.getStyleClass().add("rp-meta-chip");
+        if (tooltipText != null && !tooltipText.isBlank()) {
+            Tooltip.install(chip, new Tooltip(tooltipText));
+        }
+        row.getChildren().add(chip);
+    }
 
-        VBox box = sectionBox("Тренд");
+    private void addTaskChipIfPresent(HBox row, String text, String url) {
+        if (text == null || text.isBlank()) return;
+        Button chip = new Button(text);
+        chip.setFocusTraversable(false);
+        chip.getStyleClass().addAll("rp-meta-chip", "rp-meta-chip-link");
+        if (url != null && !url.isBlank()) {
+            chip.setOnAction(e -> openExternalUrl(url));
+            chip.setTooltip(new Tooltip(url));
+        } else {
+            chip.setMouseTransparent(true);
+        }
+        row.getChildren().add(chip);
+    }
 
-        HBox capsuleRow = new HBox(8);
-        capsuleRow.setAlignment(Pos.CENTER_LEFT);
+    private static Node buildMetaMetric(String label, String value, boolean accentValue, String tooltipText) {
+        HBox item = new HBox(6);
+        item.setAlignment(Pos.CENTER_LEFT);
+        item.getStyleClass().add("rp-meta-item");
 
-        for (TrendCapsule cap : section.capsules()) {
-            capsuleRow.getChildren().add(buildCapsule(cap));
+        if (label != null && !label.isBlank()) {
+            Label labelNode = new Label(label);
+            labelNode.getStyleClass().add("rp-meta-label");
+            item.getChildren().add(labelNode);
         }
 
-        box.getChildren().add(capsuleRow);
-        return box;
+        if (value != null && !value.isBlank()) {
+            Label valueNode = new Label(value);
+            valueNode.getStyleClass().addAll("rp-meta-value", accentValue ? "rp-meta-value-strong" : "rp-meta-value-soft");
+            if (tooltipText != null && !tooltipText.isBlank()) {
+                Tooltip.install(valueNode, new Tooltip(tooltipText));
+            }
+            item.getChildren().add(valueNode);
+        }
+
+        return item;
     }
 
     private Node buildCapsule(TrendCapsule cap) {
@@ -370,7 +425,6 @@ public final class ReportCardView {
         lbl.setMouseTransparent(true);
 
         String colorClass = capsuleColorClass(cap.colorKey());
-
         if (cap.wide()) {
             lbl.getStyleClass().addAll("rp-capsule", "rp-capsule-wide", colorClass);
         } else {
@@ -382,30 +436,9 @@ public final class ReportCardView {
         return lbl;
     }
 
-    private static String capsuleColorClass(String colorKey) {
-        return switch (colorKey == null ? "" : colorKey) {
-            case "passed" -> "rp-cap-passed";
-            case "bugs"   -> "rp-cap-bugs";
-            case "failed" -> "rp-cap-failed";
-            default       -> "rp-cap-unknown";
-        };
-    }
-
-    private static String capsuleLabel(String colorKey) {
-        return switch (colorKey == null ? "" : colorKey) {
-            case "passed" -> "Passed";
-            case "bugs"   -> "With bugs";
-            case "failed" -> "Failed";
-            default       -> colorKey;
-        };
-    }
-
-    // ===== Summary =====
-
     private Node buildSummarySection(StatusSummarySection section) {
         VBox box = sectionBox("Сводка");
 
-        // Donut chart
         DonutChart donut = new DonutChart();
         List<DonutChart.Slice> slices = new ArrayList<>();
         for (String status : STATUS_ORDER) {
@@ -416,7 +449,6 @@ public final class ReportCardView {
         }
         donut.draw(slices, section.total());
 
-        // Legend: [badge] [leader line + metrics]
         VBox legend = new VBox(0);
         for (String status : STATUS_ORDER) {
             int count = section.countsByStatus().getOrDefault(status, 0);
@@ -454,27 +486,21 @@ public final class ReportCardView {
             legend.getChildren().add(row);
         }
 
-        // Layout: donut left, legend right
-        HBox inner = new HBox(16);
+        HBox inner = new HBox(16, donut, legend);
         inner.setAlignment(Pos.CENTER_LEFT);
-        inner.getChildren().addAll(donut, legend);
-        HBox.setHgrow(legend, Priority.ALWAYS);  // legend takes the remaining width
+        HBox.setHgrow(legend, Priority.ALWAYS);
 
         box.getChildren().add(inner);
         return box;
     }
 
-    // ===== History =====
-
     private Node buildHistorySection(HistorySection section) {
         if (section.rows().isEmpty()) return new Region();
 
         VBox box = sectionBox("История");
-
         for (HistorySection.HistoryRow row : section.rows()) {
             box.getChildren().add(buildHistoryRow(row));
         }
-
         return box;
     }
 
@@ -482,7 +508,6 @@ public final class ReportCardView {
         VBox box = new VBox(3);
         box.getStyleClass().add("rp-history-row");
 
-        // BorderPane: badge left, date right, title in the center
         Label badge = statusBadge(row.status());
 
         String titleText = row.title().isBlank() ? row.contextLabel() : row.title();
@@ -523,8 +548,6 @@ public final class ReportCardView {
         return box;
     }
 
-    // ===== Utilities =====
-
     private static VBox sectionBox(String sectionTitle) {
         VBox box = new VBox(8);
         box.getStyleClass().add("rp-section");
@@ -547,29 +570,42 @@ public final class ReportCardView {
     private static String badgeCssClass(String status) {
         if (status == null || status.isBlank()) return "rp-badge-none";
         return switch (status) {
-            case "PASSED"           -> "rp-badge-passed";
+            case "PASSED" -> "rp-badge-passed";
             case "PASSED_WITH_BUGS" -> "rp-badge-bugs";
-            case "FAILED"           -> "rp-badge-failed";
-            case "CRITICAL_FAILED"  -> "rp-badge-critical";
-            case "SKIPPED"          -> "rp-badge-skipped";
-            case "IN_PROGRESS"      -> "rp-badge-progress";
-            default                 -> "rp-badge-unknown";
+            case "FAILED" -> "rp-badge-failed";
+            case "CRITICAL_FAILED" -> "rp-badge-critical";
+            case "SKIPPED" -> "rp-badge-skipped";
+            case "IN_PROGRESS" -> "rp-badge-progress";
+            default -> "rp-badge-unknown";
         };
     }
 
     private static String statusToColorKey(String status) {
         return switch (status == null ? "" : status) {
-            case "PASSED"           -> "passed";
+            case "PASSED" -> "passed";
             case "PASSED_WITH_BUGS" -> "bugs";
-            case "FAILED"           -> "failed";
-            case "CRITICAL_FAILED"  -> "critical";
-            case "SKIPPED"          -> "skipped";
-            case "IN_PROGRESS"      -> "progress";
-            default                 -> "unknown";
+            case "FAILED", "CRITICAL_FAILED" -> "failed";
+            default -> "unknown";
         };
     }
 
-    // ===== Recommendation =====
+    private static String capsuleColorClass(String colorKey) {
+        return switch (colorKey == null ? "" : colorKey) {
+            case "passed" -> "rp-cap-passed";
+            case "bugs" -> "rp-cap-bugs";
+            case "failed" -> "rp-cap-failed";
+            default -> "rp-cap-unknown";
+        };
+    }
+
+    private static String capsuleLabel(String colorKey) {
+        return switch (colorKey == null ? "" : colorKey) {
+            case "passed" -> "Passed";
+            case "bugs" -> "With bugs";
+            case "failed" -> "Failed";
+            default -> colorKey;
+        };
+    }
 
     private void updateReportHint(boolean blocked) {
         if (!blocked) {
@@ -581,64 +617,65 @@ public final class ReportCardView {
         }
     }
 
-    private String readRecommendation(ReportTarget target) {
-        if (target.file() == null) return "";
-        CycleDraft draft = CycleCardJsonReader.readDraft(target.file());
-        if (draft == null) return "";
-        return draft.recommendation != null ? draft.recommendation : "";
-    }
-
-    private Node buildRecommendationSection(String currentValue, ReportTarget target) {
+    private Node buildRecommendationSection() {
         VBox box = sectionBox("Решение");
 
-        record Chip(String value, String label, String activeClass) {}
-        List<Chip> chips = List.of(
-                new Chip("none",            "Без решения",       "rp-recommend-chip-none-active"),
-                new Chip("recommended",     "Рекомендован",      "rp-recommend-chip-recommended"),
-                new Chip("needs_work",      "Требует доработки", "rp-recommend-chip-needs-work"),
-                new Chip("not_recommended", "Не рекомендован",   "rp-recommend-chip-not-recommended")
+        List<RecommendationChip> chips = List.of(
+                new RecommendationChip("none", "Без решения", "rp-recommend-chip-none-active"),
+                new RecommendationChip("recommended", "Рекомендован", "rp-recommend-chip-recommended"),
+                new RecommendationChip("needs_work", "Требует доработки", "rp-recommend-chip-needs-work"),
+                new RecommendationChip("not_recommended", "Не рекомендован", "rp-recommend-chip-not-recommended")
         );
 
-        Button[] btns = new Button[chips.size()];
-        for (int i = 0; i < chips.size(); i++) {
-            Chip chip = chips.get(i);
+        FlowPane chipsPane = new FlowPane(8, 8);
+        for (RecommendationChip chip : chips) {
             Button btn = new Button(chip.label());
-            btn.getStyleClass().addAll("rp-recommend-chip",
-                    chip.value().equals(currentValue) ? chip.activeClass() : "rp-recommend-chip-none");
             btn.setFocusTraversable(false);
-            btns[i] = btn;
-        }
-
-        for (int i = 0; i < chips.size(); i++) {
-            final int idx = i;
-            final Chip chip = chips.get(i);
-            btns[i].setOnAction(e -> {
-                for (int j = 0; j < chips.size(); j++) {
-                    btns[j].getStyleClass().removeIf(c -> c.startsWith("rp-recommend-chip-"));
-                    btns[j].getStyleClass().add("rp-recommend-chip-none");
-                }
-                btns[idx].getStyleClass().remove("rp-recommend-chip-none");
-                btns[idx].getStyleClass().add(chip.activeClass());
-                saveRecommendation(target, chip.value());
+            applyRecommendationChipState(btn, chip, chip.value().equals(currentRecommendation));
+            btn.setOnAction(e -> {
+                currentRecommendation = chip.value();
                 btnReport.setDisable(false);
                 updateReportHint(false);
+                buildStickySections(currentData);
             });
+            chipsPane.getChildren().add(btn);
         }
 
-        FlowPane chipsPane = new FlowPane(8, 8);
-        chipsPane.getChildren().addAll(btns);
         box.getChildren().add(chipsPane);
         return box;
     }
 
-    private void saveRecommendation(ReportTarget target, String value) {
-        if (target.file() == null) return;
-        CycleDraft draft = CycleCardJsonReader.readDraft(target.file());
-        if (draft == null) return;
-        draft.recommendation = value != null ? value : "";
+    private static void applyRecommendationChipState(Button btn, RecommendationChip chip, boolean active) {
+        btn.getStyleClass().removeIf(c -> c.startsWith("rp-recommend-chip-"));
+        btn.getStyleClass().add("rp-recommend-chip");
+        if (active) {
+            btn.getStyleClass().add(chip.activeClass());
+        } else {
+            btn.getStyleClass().add("rp-recommend-chip-none");
+        }
+    }
+
+    private static String normalizeRecommendationForExport(String recommendation) {
+        if (recommendation == null || recommendation.isBlank() || "none".equals(recommendation)) {
+            return "";
+        }
+        return recommendation;
+    }
+
+    private static void openExternalUrl(String url) {
+        if (url == null || url.isBlank() || !Desktop.isDesktopSupported()) {
+            return;
+        }
         try {
-            Files.writeString(target.file(), CycleJson.toJson(draft), StandardCharsets.UTF_8);
-        } catch (IOException ignored) {
+            Desktop.getDesktop().browse(URI.create(url));
+        } catch (Exception ignore) {
+        }
+    }
+
+    private record RecommendationChip(String value, String label, String activeClass) {}
+    private record MetaMetric(String label, String value, boolean accentValue, String tooltipText) {
+        boolean isEmpty() {
+            return (label == null || label.isBlank()) && (value == null || value.isBlank());
         }
     }
 }
