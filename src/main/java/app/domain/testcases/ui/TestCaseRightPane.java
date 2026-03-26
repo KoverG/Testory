@@ -2,6 +2,7 @@ package app.domain.testcases.ui;
 
 import app.core.I18n;
 import app.core.PrivateRootConfig;
+import app.domain.cycles.ui.right.TaskLinkChip;
 import app.domain.testcases.repo.FileTestCaseRepository;
 import app.domain.testcases.usecase.CreateTestCaseUseCase;
 import app.domain.testcases.usecase.TestCaseDraft;
@@ -83,6 +84,7 @@ public final class TestCaseRightPane {
     private final TextField tfTop2;
 
     private final TextField tfTitle;
+    private TaskLinkChip taskLinkChip;
 
     private final FlowPane fpRightLabels;
     private final TextField tfRightLabel;
@@ -173,6 +175,19 @@ public final class TestCaseRightPane {
         return !sameDraftNormalized(baselineDraft, cur);
     }
 
+    public boolean isTaskLinkDirty() {
+        if (!existingCard) {
+            return taskLinkChip != null
+                    && (!n(taskLinkChip.getTitle()).isEmpty() || !n(taskLinkChip.getUrl()).isEmpty());
+        }
+        if (baselineDraft == null) return false;
+        String baselineTitle = n(baselineDraft.taskLinkTitle);
+        String baselineUrl = n(baselineDraft.taskLinkUrl);
+        String currentTitle = n(taskLinkChip != null ? taskLinkChip.getTitle() : "");
+        String currentUrl = n(taskLinkChip != null ? taskLinkChip.getUrl() : "");
+        return !baselineTitle.equals(currentTitle) || !baselineUrl.equals(currentUrl);
+    }
+
     private void captureBaselineFromUi() {
         baselineDraft = buildDraftFromUi();
     }
@@ -184,6 +199,8 @@ public final class TestCaseRightPane {
         if (!n(a.number).equals(n(b.number))) return false;
         if (!n(a.title).equals(n(b.title))) return false;
         if (!n(a.description).equals(n(b.description))) return false;
+        if (!n(a.taskLinkTitle).equals(n(b.taskLinkTitle))) return false;
+        if (!n(a.taskLinkUrl).equals(n(b.taskLinkUrl))) return false;
 
         if (!listN(a.labels).equals(listN(b.labels))) return false;
         if (!listN(a.tags).equals(listN(b.tags))) return false;
@@ -229,6 +246,10 @@ public final class TestCaseRightPane {
 
     public void setOnSaved(Runnable onSaved) {
         this.onSaved = onSaved;
+    }
+
+    public void setTaskLinkChip(TaskLinkChip taskLinkChip) {
+        this.taskLinkChip = taskLinkChip;
     }
 
     public void setCanSaveSupplier(BooleanSupplier supplier) {
@@ -595,7 +616,7 @@ public final class TestCaseRightPane {
     }
 
     public void onSaveRight() {
-        if (existingCard && !editEnabled) return;
+        if (existingCard && !editEnabled && !isTaskLinkDirty()) return;
 
         if (canSaveSupplier != null) {
             boolean ok;
@@ -707,6 +728,7 @@ public final class TestCaseRightPane {
             if (tfTop2 != null) tfTop2.setText(s(d.number));
             if (tfTitle != null) tfTitle.setText(s(d.title));
             if (taRightDescription != null) taRightDescription.setText(s(d.description));
+            if (taskLinkChip != null) taskLinkChip.setTaskLink(s(d.taskLinkTitle), s(d.taskLinkUrl));
 
             clearChipsKeepInput(fpRightLabels);
             if (fpRightLabels != null && chipFactory != null && d.labels != null) {
@@ -836,6 +858,8 @@ public final class TestCaseRightPane {
         d.number = s(tfTop2 != null ? tfTop2.getText() : "");
         d.title = s(tfTitle != null ? tfTitle.getText() : "");
         d.description = s(taRightDescription != null ? taRightDescription.getText() : "");
+        d.taskLinkTitle = s(taskLinkChip != null ? taskLinkChip.getTitle() : "");
+        d.taskLinkUrl = s(taskLinkChip != null ? taskLinkChip.getUrl() : "");
 
         d.labels = collectChips(fpRightLabels);
         d.tags = collectChips(fpRightTags);
@@ -1032,6 +1056,7 @@ public final class TestCaseRightPane {
     private void applyLockState() {
         boolean allow = !existingCard || editEnabled;
 
+        if (taskLinkChip != null) taskLinkChip.setEditable(true);
         if (tfPrivTop != null) tfPrivTop.setEditable(allow && privEditable);
 
         if (tfTop2 != null) tfTop2.setEditable(allow);

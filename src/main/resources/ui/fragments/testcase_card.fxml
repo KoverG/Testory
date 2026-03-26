@@ -20,6 +20,7 @@
         </VBox.margin>
 
         <HBox spacing="4" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+            <HBox fx:id="taskLinkHost" alignment="CENTER_LEFT"/>
             <!-- Поле ввода Код -->
             <TextField fx:id="tfPrivTop"
                        editable="false"

@@ -17,6 +17,8 @@ public final class TestCase {
 
     private String title;
     private String description;
+    private String taskLinkTitle;
+    private String taskLinkUrl;
 
     private List<String> labels;
     private List<String> tags;
@@ -51,6 +53,12 @@ public final class TestCase {
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+
+    public String getTaskLinkTitle() { return taskLinkTitle; }
+    public void setTaskLinkTitle(String taskLinkTitle) { this.taskLinkTitle = taskLinkTitle == null ? "" : taskLinkTitle; }
+
+    public String getTaskLinkUrl() { return taskLinkUrl; }
+    public void setTaskLinkUrl(String taskLinkUrl) { this.taskLinkUrl = taskLinkUrl == null ? "" : taskLinkUrl; }
 
     public List<String> getLabels() { return labels; }
     public void setLabels(List<String> labels) { this.labels = (labels != null) ? labels : new ArrayList<>(); }

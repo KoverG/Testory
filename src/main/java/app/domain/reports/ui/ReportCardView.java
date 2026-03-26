@@ -54,6 +54,7 @@ public final class ReportCardView {
     private final StackPane root;
     private final Label lblTypeBadge = new Label();
     private final Label lblTitle = new Label();
+    private final Button btnTaskLink = new Button();
     private final Button btnNavigate = new Button();
     private final Button btnReport;
     private final Label hintReport = new Label(" ");
@@ -84,6 +85,12 @@ public final class ReportCardView {
         lblTitle.getStyleClass().add("rp-title");
         lblTitle.setWrapText(true);
 
+        btnTaskLink.getStyleClass().addAll("icon-btn", "sm", "rp-task-link-btn", "rp-task-link-btn-lg");
+        btnTaskLink.setFocusTraversable(false);
+        btnTaskLink.setVisible(false);
+        btnTaskLink.setManaged(false);
+        UiSvg.setButtonSvg(btnTaskLink, "link-open.svg", 14);
+
         btnNavigate.getStyleClass().addAll("icon-btn", "sm", "rp-navigate-btn");
         btnNavigate.setFocusTraversable(false);
         UiSvg.setButtonSvg(btnNavigate, "navigate.svg", 14);
@@ -95,7 +102,7 @@ public final class ReportCardView {
         badgeRow.setMinWidth(0);
 
         HBox.setHgrow(lblTitle, Priority.ALWAYS);
-        HBox titleRow = new HBox(8, btnNavigate, lblTitle);
+        HBox titleRow = new HBox(8, btnTaskLink, btnNavigate, lblTitle);
         titleRow.setAlignment(Pos.CENTER_LEFT);
         titleRow.setMinWidth(0);
 
@@ -234,6 +241,7 @@ public final class ReportCardView {
                 : tr("rp.type.cycle", "Цикл").toUpperCase();
         lblTypeBadge.setText(typeText);
         lblTitle.setText(data.title().isBlank() ? data.target().id() : data.title());
+        applyTaskLinkHeaderButton(data);
         buildStickySections(data);
         btnReport.setOnAction(e -> exporter.export(
                 data,
@@ -539,6 +547,33 @@ public final class ReportCardView {
         row.getChildren().add(chip);
     }
 
+    private void applyTaskLinkHeaderButton(ReportData data) {
+        String url = data == null ? "" : data.caseTaskUrl();
+        boolean visible = url != null && !url.isBlank() && data != null && data.target().type() == ReportTargetType.TEST_CASE;
+        btnTaskLink.setVisible(visible);
+        btnTaskLink.setManaged(visible);
+        if (!visible) {
+            btnTaskLink.setOnAction(null);
+            btnTaskLink.setTooltip(null);
+            return;
+        }
+        btnTaskLink.setTooltip(new Tooltip(url));
+        btnTaskLink.setOnAction(e -> openExternalUrl(url));
+    }
+
+    private Node buildTaskLinkButton(String url, double iconSize, String... styleClasses) {
+        if (url == null || url.isBlank()) {
+            return null;
+        }
+        Button button = new Button();
+        button.setFocusTraversable(false);
+        button.getStyleClass().addAll(styleClasses);
+        UiSvg.setButtonSvg(button, "link-open.svg", (int) Math.round(iconSize));
+        button.setTooltip(new Tooltip(url));
+        button.setOnAction(e -> openExternalUrl(url));
+        return button;
+    }
+
     private static Node buildMetaMetric(String label, String value, boolean accentValue, String tooltipText) {
         HBox item = new HBox(6);
         item.setAlignment(Pos.CENTER_LEFT);
@@ -695,6 +730,7 @@ public final class ReportCardView {
         badge.setPrefWidth(Region.USE_COMPUTED_SIZE);
         badge.setMaxWidth(Region.USE_PREF_SIZE);
 
+        Node taskLinkButton = buildTaskLinkButton(row.taskUrl(), 10, "rp-task-link-btn", "rp-task-link-btn-sm");
         Node title = buildHistoryTitleNode(row);
         HBox.setHgrow(title, Priority.ALWAYS);
 
@@ -706,12 +742,16 @@ public final class ReportCardView {
         date.setMinWidth(Region.USE_PREF_SIZE);
         date.setAlignment(Pos.CENTER_RIGHT);
 
-        HBox top = new HBox(8);
-        top.setAlignment(Pos.TOP_LEFT);
+        HBox top = new HBox(4);
+        top.setAlignment(Pos.CENTER_LEFT);
         if (ordinal != null) {
             top.getChildren().add(ordinal);
         }
-        top.getChildren().addAll(badge, title);
+        top.getChildren().add(badge);
+        if (taskLinkButton != null) {
+            top.getChildren().add(taskLinkButton);
+        }
+        top.getChildren().add(title);
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
         top.getChildren().add(spacer);
@@ -862,6 +902,9 @@ public final class ReportCardView {
         for (CaseStatusDefinition definition : CaseStatusRegistry.orderedWith(countsByStatus)) {
             ordered.add(definition.code());
         }
+        if (countsByStatus != null && countsByStatus.containsKey("") && !ordered.contains("")) {
+            ordered.add("");
+        }
         return ordered;
     }
 
@@ -882,6 +925,9 @@ public final class ReportCardView {
 
 
     private static String statusToColorKey(String status) {
+        if (status == null || status.isBlank()) {
+            return "unknown";
+        }
         return CaseStatusRegistry.trendColorKey(status);
     }
 

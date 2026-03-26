@@ -273,8 +273,42 @@
     -fx-cursor: hand;
     -fx-opacity: 0.55;
 }
+.rp-navigate-btn .svg-path {
+    -fx-fill: -fx-text-color;
+}
 .rp-navigate-btn:hover {
     -fx-opacity: 1.0;
+}
+
+.rp-task-link-btn {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 4;
+    -fx-background-insets: 0;
+    -fx-border-insets: 0;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-cursor: hand;
+    -fx-opacity: 0.55;
+    -fx-alignment: center;
+}
+.rp-task-link-btn .svg-path {
+    -fx-fill: -fx-text-color;
+}
+.rp-task-link-btn:hover {
+    -fx-opacity: 1.0;
+}
+.rp-task-link-btn-sm {
+    -fx-padding: 0;
+    -fx-min-width: 16px;
+    -fx-pref-width: 16px;
+    -fx-max-width: 16px;
+    -fx-min-height: 16px;
+    -fx-pref-height: 16px;
+    -fx-max-height: 16px;
+}
+.rp-task-link-btn-lg {
+    -fx-padding: 4;
 }
 
 /* ---- Recommendation chips ---- */
@@ -421,7 +455,7 @@
     -fx-max-width: 104px;
 }
 .rp-history-trailing {
-    -fx-alignment: top-right;
+    -fx-alignment: center-right;
 }
 .rp-history-comment-slot {
     -fx-min-width: 180px;

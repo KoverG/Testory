@@ -12,6 +12,7 @@ public record ReportData(
         String subtitle,
         String caseLabelsText,
         String caseTagsText,
+        String caseTaskUrl,
         String startedAt,
         String finishedAt,
         String lastRunDate,

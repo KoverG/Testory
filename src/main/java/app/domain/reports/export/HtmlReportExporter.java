@@ -70,11 +70,21 @@ public final class HtmlReportExporter {
         sb.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n");
         sb.append("<title>Отчёт: ").append(esc(data.title())).append("</title>\n");
         sb.append("<style>\n").append(CSS).append("</style>\n");
-        sb.append("</head>\n<body>\n");
+        sb.append("</head>\n<body data-theme=\"light\">\n");
 
         sb.append("<header>\n");
-        sb.append("  <div class=\"header-meta\">Testory - ").append(esc(typeLabel)).append("</div>\n");
-        sb.append("  <h1>").append(esc(data.title())).append("</h1>\n");
+        sb.append("  <div class=\"header-topline\">\n");
+        appendTopMeta(sb, "Сгенерировано", genDate);
+        appendTopMeta(sb, "Тип", typeLabel);
+        if (data.target().type() == app.domain.reports.model.ReportTargetType.CYCLE) {
+            appendRecommendationMeta(sb, recommendation);
+        }
+        sb.append("    <button type=\"button\" class=\"theme-toggle\" data-theme-toggle aria-label=\"Переключить тему\"><span class=\"theme-toggle-light\">Светлая</span><span class=\"theme-toggle-divider\">/</span><span class=\"theme-toggle-dark\">Темная</span></button>\n");
+        sb.append("  </div>\n");
+        sb.append("  <div class=\"header-title-row\">");
+        appendIconLink(sb, data.caseTaskUrl(), "Открыть задачу", "header-task-link");
+        sb.append("<h1>").append(esc(data.title())).append("</h1>");
+        sb.append("</div>\n");
 
         if (data.metaSummary() != null) {
             renderMetaSummary(data.metaSummary(), data.<TrendSection>section(TrendSection.TYPE).orElse(null), recommendation, sb);
@@ -88,7 +98,6 @@ public final class HtmlReportExporter {
             }
         }
 
-        sb.append("  <p class=\"meta-line gen-date\">Сгенерировано: ").append(esc(genDate)).append("</p>\n");
         sb.append("</header>\n");
 
         for (ReportSection section : data.sections()) {
@@ -100,6 +109,7 @@ public final class HtmlReportExporter {
         }
 
         sb.append("<footer>Testory - система управления тестированием</footer>\n");
+        sb.append("<script>\n").append(JS).append("</script>\n");
         sb.append("</body>\n</html>\n");
         return sb.toString();
     }
@@ -144,12 +154,6 @@ public final class HtmlReportExporter {
         }
         sb.append("    </div>\n");
 
-        if (recommendation != null && !recommendation.isBlank()) {
-            sb.append("    <div class=\"metric-row\">\n");
-            appendChip(sb, recommendationLabel(recommendation), "chip chip-recommend " + recommendationCss(recommendation));
-            sb.append("    </div>\n");
-        }
-
         sb.append("  </div>\n");
     }
 
@@ -193,6 +197,19 @@ public final class HtmlReportExporter {
                 .append("</a>\n");
     }
 
+    static void appendIconLink(StringBuilder sb, String url, String ariaLabel, String cssClass) {
+        if (url == null || url.isBlank()) return;
+        sb.append("<a class=\"")
+                .append(cssClass)
+                .append("\" href=\"")
+                .append(esc(url))
+                .append("\" title=\"")
+                .append(esc(url))
+                .append("\" aria-label=\"")
+                .append(esc(ariaLabel))
+                .append("\" target=\"_blank\" rel=\"noopener noreferrer\">&#128279;</a>");
+    }
+
     private static void appendMetric(StringBuilder sb, String label, String value, boolean strongValue, String tooltipText) {
         boolean hasLabel = label != null && !label.isBlank();
         boolean hasValue = value != null && !value.isBlank();
@@ -216,6 +233,27 @@ public final class HtmlReportExporter {
         sb.append("</span>\n");
     }
 
+    private static void appendTopMeta(StringBuilder sb, String label, String value) {
+        if (value == null || value.isBlank()) return;
+        sb.append("    <span class=\"top-meta\">");
+        sb.append("<span class=\"top-meta-label\">").append(esc(label)).append(":</span>");
+        sb.append("<span class=\"top-meta-value\">").append(esc(value)).append("</span>");
+        sb.append("</span>\n");
+    }
+
+    private static void appendRecommendationMeta(StringBuilder sb, String recommendation) {
+        String label = recommendationLabel(recommendation);
+        String css = recommendationCss(recommendation);
+        sb.append("    <span class=\"top-meta top-meta-recommend chip chip-recommend");
+        if (!css.isBlank()) {
+            sb.append(" ").append(css);
+        }
+        sb.append("\">");
+        sb.append("<span class=\"top-meta-label\">Решение:</span>");
+        sb.append("<span class=\"top-meta-value\">").append(esc(label)).append("</span>");
+        sb.append("</span>\n");
+    }
+
     private static String capsuleCss(String colorKey) {
         return switch (colorKey == null ? "" : colorKey) {
             case "passed" -> "cap-passed";
@@ -235,6 +273,9 @@ public final class HtmlReportExporter {
     }
 
     private static String recommendationLabel(String recommendation) {
+        if (recommendation == null || recommendation.isBlank()) {
+            return "Без решения";
+        }
         return switch (recommendation) {
             case "recommended" -> "Рекомендован";
             case "needs_work" -> "Требует доработки";
@@ -244,6 +285,9 @@ public final class HtmlReportExporter {
     }
 
     private static String recommendationCss(String recommendation) {
+        if (recommendation == null || recommendation.isBlank()) {
+            return "recommend-none";
+        }
         return switch (recommendation) {
             case "recommended" -> "recommend-good";
             case "needs_work" -> "recommend-warn";
@@ -273,36 +317,72 @@ public final class HtmlReportExporter {
     }
 
     private static final String CSS =
+            ":root { --bg: #f5f5f7; --surface: #ffffff; --surface-soft: linear-gradient(180deg, rgba(255,255,255,0.82), rgba(248,248,251,0.96)); --surface-muted: rgba(26,26,46,0.04); --surface-muted-hover: rgba(26,26,46,0.08); --border: rgba(26,26,46,0.08); --border-strong: rgba(26,26,46,0.16); --text: #212736; --text-soft: #3c4357; --muted: #7a7f8e; --shadow: 0 1px 4px rgba(0,0,0,.08); --table-border: #f0f0f0; --hole: #ffffff; }\n" +
+            "body[data-theme='dark'] { --bg: #11161d; --surface: #171d26; --surface-soft: linear-gradient(180deg, rgba(31,39,50,0.94), rgba(22,28,37,0.98)); --surface-muted: rgba(255,255,255,0.08); --surface-muted-hover: rgba(255,255,255,0.14); --border: rgba(255,255,255,0.12); --border-strong: rgba(255,255,255,0.24); --text: #eef3fb; --text-soft: #d7dfeb; --muted: #97a3b7; --shadow: 0 10px 30px rgba(0,0,0,.28); --table-border: rgba(255,255,255,0.08); --hole: #171d26; }\n" +
             "* { box-sizing: border-box; margin: 0; padding: 0; }\n" +
-            "body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; color: #1a1a2e; background: #f5f5f7; padding: 24px; }\n" +
-            "header { background: #fff; border-radius: 12px; padding: 24px 28px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }\n" +
-            ".header-meta { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }\n" +
-            "h1 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }\n" +
-            ".subtitle { color: #555; margin-bottom: 4px; }\n" +
-            ".meta-line { font-size: 12px; color: #888; margin-top: 6px; }\n" +
-            ".meta-surface { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; padding: 14px 16px; border: 1px solid rgba(26,26,46,0.08); border-radius: 14px; background: linear-gradient(180deg, rgba(255,255,255,0.82), rgba(248,248,251,0.96)); }\n" +
+            "body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; color: var(--text); background: var(--bg); padding: 24px; transition: background-color .2s ease, color .2s ease; }\n" +
+            "header { background: var(--surface); border-radius: 12px; padding: 24px 28px; margin-bottom: 16px; box-shadow: var(--shadow); transition: background-color .2s ease, box-shadow .2s ease; }\n" +
+            ".header-topline { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }\n" +
+            ".top-meta { display: inline-flex; align-items: center; gap: 6px; min-height: 28px; padding: 0 12px; border-radius: 999px; background: var(--surface-muted); border: 1px solid var(--border); color: var(--text-soft); font-size: 12px; font-weight: 700; transition: background-color .2s ease, border-color .2s ease, color .2s ease; }\n" +
+            ".top-meta-label { color: var(--muted); font-weight: 600; }\n" +
+            ".top-meta-value { color: var(--text); font-weight: 800; }\n" +
+            ".top-meta-recommend { margin-left: auto; }\n" +
+            ".theme-toggle { margin-left: auto; appearance: none; border: 1px solid var(--border); background: var(--surface-muted); color: var(--text-soft); border-radius: 999px; padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background-color .2s ease, border-color .2s ease, color .2s ease; }\n" +
+            ".theme-toggle:hover { background: var(--surface-muted-hover); }\n" +
+            ".theme-toggle-light, .theme-toggle-dark { opacity: .55; }\n" +
+            "body[data-theme='light'] .theme-toggle-light, body[data-theme='dark'] .theme-toggle-dark { opacity: 1; color: var(--text); }\n" +
+            ".theme-toggle-divider { color: var(--muted); }\n" +
+            ".header-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }\n" +
+            "h1 { font-size: 22px; font-weight: 700; margin: 0; color: var(--text); }\n" +
+            ".header-task-link { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-muted); color: var(--text-soft); text-decoration: none; font-size: 15px; line-height: 1; transition: background-color .2s ease, border-color .2s ease, color .2s ease; }\n" +
+            ".header-task-link:hover { background: var(--surface-muted-hover); color: var(--text); }\n" +
+            ".subtitle { color: var(--text-soft); margin-bottom: 4px; }\n" +
+            ".meta-line { font-size: 12px; color: var(--muted); margin-top: 6px; }\n" +
+            ".meta-surface { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface-soft); transition: background .2s ease, border-color .2s ease; }\n" +
             ".chip-row, .metric-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }\n" +
             ".metric-row-progress { width: 100%; }\n" +
             ".metric-spacer { flex: 1 1 auto; }\n" +
-            ".chip { display: inline-flex; align-items: center; min-height: 28px; padding: 0 12px; border-radius: 999px; border: 1px solid rgba(26,26,46,0.08); background: rgba(26,26,46,0.04); color: #3c4357; font-size: 12px; font-weight: 700; text-decoration: none; }\n" +
+            ".chip { display: inline-flex; align-items: center; min-height: 28px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface-muted); color: var(--text-soft); font-size: 12px; font-weight: 700; text-decoration: none; transition: background-color .2s ease, border-color .2s ease, color .2s ease; }\n" +
             ".chip-link { cursor: pointer; }\n" +
-            ".chip-link:hover { background: rgba(26,26,46,0.08); }\n" +
+            ".chip-link:hover { background: var(--surface-muted-hover); }\n" +
             ".chip-recommend { border-width: 1.5px; }\n" +
+            ".recommend-none { background: transparent; color: var(--muted); border-color: var(--border-strong); }\n" +
             ".recommend-good { background: rgba(39,174,96,0.12); color: #1f6f46; border-color: rgba(39,174,96,0.28); }\n" +
             ".recommend-warn { background: rgba(243,156,18,0.14); color: #995f00; border-color: rgba(243,156,18,0.34); }\n" +
             ".recommend-bad { background: rgba(231,76,60,0.12); color: #a03022; border-color: rgba(231,76,60,0.3); }\n" +
             ".metric-item { display: inline-flex; align-items: center; gap: 6px; min-height: 24px; }\n" +
-            ".metric-label { color: #7a7f8e; font-size: 12px; font-weight: 600; }\n" +
-            ".metric-value { color: #212736; font-size: 12px; font-weight: 700; }\n" +
+            ".metric-label { color: var(--muted); font-size: 12px; font-weight: 600; }\n" +
+            ".metric-value { color: var(--text); font-size: 12px; font-weight: 700; }\n" +
             ".metric-value-strong { font-size: 13px; }\n" +
-            ".metric-separator { color: #9aa1af; font-size: 12px; font-weight: 700; }\n" +
+            ".metric-separator { color: var(--muted); opacity: .8; font-size: 12px; font-weight: 700; }\n" +
             ".capsule-strip { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; }\n" +
-            ".section { background: #fff; border-radius: 12px; padding: 20px 24px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }\n" +
-            ".section h2 { font-size: 15px; font-weight: 600; margin-bottom: 14px; color: #333; }\n" +
-            ".total { margin-bottom: 10px; color: #555; }\n" +
+            ".section { background: var(--surface); border-radius: 12px; padding: 20px 24px; margin-bottom: 16px; box-shadow: var(--shadow); transition: background-color .2s ease, box-shadow .2s ease; }\n" +
+            ".section h2 { font-size: 15px; font-weight: 600; margin-bottom: 14px; color: var(--text); }\n" +
+            ".total { margin-bottom: 10px; color: var(--text-soft); }\n" +
             "table { border-collapse: collapse; width: 100%; }\n" +
-            "th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid #f0f0f0; }\n" +
-            "th { font-weight: 600; color: #666; font-size: 12px; }\n" +
+            "th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--table-border); }\n" +
+            "th { font-weight: 600; color: var(--muted); font-size: 12px; }\n" +
+            ".summary-layout { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }\n" +
+            ".summary-donut-wrap { flex: 0 0 168px; display: flex; justify-content: center; }\n" +
+            ".summary-donut { width: 168px; height: 168px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }\n" +
+            ".summary-donut-hole { width: 102px; height: 102px; border-radius: 50%; background: var(--hole); display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: inset 0 0 0 1px var(--border); transition: background-color .2s ease, box-shadow .2s ease; }\n" +
+            ".summary-donut-total { font-size: 26px; font-weight: 800; color: var(--text); line-height: 1; }\n" +
+            ".summary-donut-label { margin-top: 4px; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }\n" +
+            ".summary-legend { flex: 1 1 320px; display: grid; gap: 10px; }\n" +
+            ".summary-row { display: flex; align-items: center; gap: 12px; }\n" +
+            ".summary-badge { display: inline-flex !important; align-items: center; justify-content: center; text-align: center; min-width: 180px; min-height: 30px; padding: 0 12px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: none; letter-spacing: 0; line-height: 1.2; }\n" +
+            ".summary-metrics { display: inline-flex; align-items: baseline; gap: 8px; font-size: 14px; color: var(--text); }\n" +
+            ".summary-pct { font-size: 12px; font-weight: 700; color: var(--muted); }\n" +
+            ".history-filter-group { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }\n" +
+            ".history-filter-chip { appearance: none; border: 1px solid var(--border); background: transparent; color: var(--muted); border-radius: 999px; padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; transition: background-color .15s ease, border-color .15s ease, color .15s ease; }\n" +
+            ".history-filter-chip:hover { background: var(--surface-muted); color: var(--text); }\n" +
+            ".history-filter-chip-active { background: var(--surface-muted-hover); border-color: var(--border-strong); color: var(--text); }\n" +
+            ".history-empty-filtered { font-size: 12px; color: var(--muted); margin-bottom: 12px; }\n" +
+            ".history-table.history-has-ordinal td:first-child, .history-table.history-has-ordinal th:first-child { width: 52px; text-align: center; }\n" +
+            ".history-link-col { width: 46px; min-width: 46px; text-align: center; }\n" +
+            ".history-task-link { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 6px; color: var(--text-soft); text-decoration: none; font-size: 12px; line-height: 1; transition: background-color .15s ease, color .15s ease; }\n" +
+            ".history-task-link:hover { background: var(--surface-muted-hover); color: var(--text); }\n" +
+            ".history-table td:last-child, .history-table th:last-child { white-space: nowrap; width: 148px; }\n" +
             ".trend { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 6px; }\n" +
             ".capsule { display: inline-flex; align-items: center; justify-content: center; height: 30px; border-radius: 999px; font-size: 12px; font-weight: 800; color: #fff; }\n" +
             ".capsule-wide { padding: 0 16px; min-width: 60px; }\n" +
@@ -311,7 +391,7 @@ public final class HtmlReportExporter {
             ".cap-bugs { background: #f39c12; }\n" +
             ".cap-failed { background: #e74c3c; }\n" +
             ".cap-unknown { background: #999; }\n" +
-            ".muted { font-size: 11px; color: #aaa; }\n" +
+            ".muted { font-size: 11px; color: var(--muted); }\n" +
             ".badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }\n" +
             ".status-passed { background: #d4f7dc; color: #1a7a35; }\n" +
             ".status-bugs { background: #fff3cd; color: #856404; }\n" +
@@ -320,7 +400,54 @@ public final class HtmlReportExporter {
             ".status-skipped { background: #e2e3e5; color: #495057; }\n" +
             ".status-progress { background: #cce5ff; color: #004085; }\n" +
             ".status-unknown { background: #f0f0f0; color: #888; }\n" +
-            "footer { text-align: center; font-size: 11px; color: #bbb; margin-top: 24px; padding-top: 12px; }\n";
+            "footer { text-align: center; font-size: 11px; color: var(--muted); margin-top: 24px; padding-top: 12px; }\n" +
+            "@media (max-width: 840px) { .top-meta-recommend { margin-left: 0; } .theme-toggle { margin-left: 0; } .summary-badge { min-width: 148px; } .summary-layout { gap: 16px; } }\n";
+
+    private static final String JS =
+            "(function(){\n" +
+            "  var storageKey = 'testory-report-theme';\n" +
+            "  var body = document.body;\n" +
+            "  var toggle = document.querySelector('[data-theme-toggle]');\n" +
+            "  function setTheme(theme){\n" +
+            "    var next = theme === 'dark' ? 'dark' : 'light';\n" +
+            "    body.setAttribute('data-theme', next);\n" +
+            "    if (toggle) toggle.setAttribute('aria-pressed', String(next === 'dark'));\n" +
+            "    try { localStorage.setItem(storageKey, next); } catch (e) {}\n" +
+            "  }\n" +
+            "  var savedTheme = null;\n" +
+            "  try { savedTheme = localStorage.getItem(storageKey); } catch (e) {}\n" +
+            "  if (!savedTheme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {\n" +
+            "    savedTheme = 'dark';\n" +
+            "  }\n" +
+            "  setTheme(savedTheme || 'light');\n" +
+            "  if (toggle) {\n" +
+            "    toggle.addEventListener('click', function(){\n" +
+            "      setTheme(body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');\n" +
+            "    });\n" +
+            "  }\n" +
+            "})();\n" +
+            "document.querySelectorAll('[data-history-section]').forEach(function(section){\n" +
+            "  var buttons = section.querySelectorAll('[data-history-filter]');\n" +
+            "  var rows = section.querySelectorAll('[data-history-row]');\n" +
+            "  var empty = section.querySelector('.history-empty-filtered');\n" +
+            "  function apply(filter){\n" +
+            "    var visible = 0;\n" +
+            "    rows.forEach(function(row){\n" +
+            "      var status = row.getAttribute('data-status') || '';\n" +
+            "      var match = filter === '__ALL__' || (filter === '__NOT_STARTED__' ? status === '' : status === filter);\n" +
+            "      row.hidden = !match;\n" +
+            "      if (match) visible++;\n" +
+            "    });\n" +
+            "    if (empty) empty.hidden = visible !== 0;\n" +
+            "    buttons.forEach(function(btn){\n" +
+            "      btn.classList.toggle('history-filter-chip-active', btn.getAttribute('data-history-filter') === filter);\n" +
+            "    });\n" +
+            "  }\n" +
+            "  buttons.forEach(function(btn){\n" +
+            "    btn.addEventListener('click', function(){ apply(btn.getAttribute('data-history-filter') || '__ALL__'); });\n" +
+            "  });\n" +
+            "  apply('__ALL__');\n" +
+            "});\n";
 
     private record HtmlMetric(String label, String value, boolean strongValue, String tooltipText) {
         boolean isEmpty() {

@@ -2,11 +2,6 @@ package app.domain.reports.model;
 
 import java.util.List;
 
-/**
- * Детальная история прохождений.
- * Для кейса — список его прохождений по циклам.
- * Для цикла — список кейсов с их статусами в последнем (или выбранном) прохождении.
- */
 public record HistorySection(
         List<HistoryRow> rows
 ) implements ReportSection {
@@ -18,11 +13,12 @@ public record HistorySection(
 
     public record HistoryRow(
             int ordinal,
-            String entityId,     // caseId или cycleId
-            String title,        // название кейса или цикла
+            String entityId,
+            String title,
             String status,
             String comment,
             String dateLabel,
-            String contextLabel  // цикл (для кейса) или пусто (для цикла)
+            String contextLabel,
+            String taskUrl
     ) {}
 }

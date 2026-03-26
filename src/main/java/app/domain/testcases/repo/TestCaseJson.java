@@ -38,6 +38,8 @@ public final class TestCaseJson {
         sb.append("  \"number\": ").append(q(d.number)).append(",").append(NL);
         sb.append("  \"title\": ").append(q(d.title)).append(",").append(NL);
         sb.append("  \"description\": ").append(q(d.description)).append(",").append(NL);
+        sb.append("  \"taskLinkTitle\": ").append(q(d.taskLinkTitle)).append(",").append(NL);
+        sb.append("  \"taskLinkUrl\": ").append(q(d.taskLinkUrl)).append(",").append(NL);
 
         sb.append("  \"labels\": ").append(arr(d.labels)).append(",").append(NL);
         sb.append("  \"tags\": ").append(arr(d.tags)).append(",").append(NL);
