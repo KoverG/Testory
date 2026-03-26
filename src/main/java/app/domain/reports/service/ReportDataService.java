@@ -1,6 +1,7 @@
 package app.domain.reports.service;
 
 import app.core.I18n;
+import app.domain.cycles.CaseStatusRegistry;
 import app.domain.cycles.repo.CaseHistoryIndexStore;
 import app.domain.cycles.repo.CycleCardJsonReader;
 import app.domain.cycles.usecase.CycleCaseRef;
@@ -26,9 +27,6 @@ public final class ReportDataService {
 
     private static final Path CASES_ROOT = Path.of("test_resources", "test_cases");
     private static final DateTimeFormatter DISP_FMT = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
-    private static final List<String> FINAL_CASE_STATUSES = List.of(
-            "PASSED", "PASSED_WITH_BUGS", "FAILED", "CRITICAL_FAILED", "SKIPPED"
-    );
 
     private final List<ReportSectionProvider> providers;
     private final CaseHistoryIndexStore historyStore = new CaseHistoryIndexStore();
@@ -127,7 +125,7 @@ public final class ReportDataService {
         int completedCases = 0;
         for (CycleCaseRef ref : safeCases(draft)) {
             totalCases++;
-            if (FINAL_CASE_STATUSES.contains(ref.safeStatus())) {
+            if (CaseStatusRegistry.isCompleted(ref.safeStatus())) {
                 completedCases++;
             }
         }

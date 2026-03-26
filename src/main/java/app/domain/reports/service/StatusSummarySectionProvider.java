@@ -1,5 +1,7 @@
 package app.domain.reports.service;
 
+import app.domain.cycles.CaseStatusDefinition;
+import app.domain.cycles.CaseStatusRegistry;
 import app.domain.cycles.repo.CaseHistoryIndexStore;
 import app.domain.cycles.repo.CycleCardJsonReader;
 import app.domain.cycles.usecase.CycleCaseRef;
@@ -20,9 +22,6 @@ import java.util.Optional;
  */
 public final class StatusSummarySectionProvider implements ReportSectionProvider {
 
-    private static final List<String> STATUS_ORDER = List.of(
-            "PASSED", "PASSED_WITH_BUGS", "FAILED", "CRITICAL_FAILED", "IN_PROGRESS", "SKIPPED"
-    );
 
     private final CaseHistoryIndexStore historyStore;
 
@@ -44,16 +43,16 @@ public final class StatusSummarySectionProvider implements ReportSectionProvider
         List<CaseHistoryIndexStore.CycleHistoryEntry> entries = historyStore.read(target.id());
         if (entries.isEmpty()) return Optional.empty();
 
-        Map<String, Integer> counts = initCounts();
+        Map<String, Integer> counts = new LinkedHashMap<>();
         for (var entry : entries) {
             String status = entry.status();
             if (status != null && !status.isBlank()) {
-                counts.merge(status, 1, Integer::sum);
+                counts.merge(status.trim().toUpperCase(), 1, Integer::sum);
             }
         }
 
         int total = entries.size();
-        return Optional.of(new StatusSummarySection(total, counts));
+        return Optional.of(new StatusSummarySection(total, orderedCounts(counts)));
     }
 
     private Optional<ReportSection> buildForCycle(ReportTarget target) {
@@ -62,24 +61,29 @@ public final class StatusSummarySectionProvider implements ReportSectionProvider
         CycleDraft draft = CycleCardJsonReader.readDraft(target.file());
         if (draft == null || draft.cases == null || draft.cases.isEmpty()) return Optional.empty();
 
-        Map<String, Integer> counts = initCounts();
+        Map<String, Integer> counts = new LinkedHashMap<>();
         int total = 0;
         for (CycleCaseRef ref : draft.cases) {
             if (ref == null) continue;
             total++;
             String status = ref.safeStatus();
             if (!status.isBlank()) {
-                counts.merge(status, 1, Integer::sum);
+                counts.merge(status.trim().toUpperCase(), 1, Integer::sum);
             }
         }
 
         if (total == 0) return Optional.empty();
-        return Optional.of(new StatusSummarySection(total, counts));
+        return Optional.of(new StatusSummarySection(total, orderedCounts(counts)));
     }
 
-    private static Map<String, Integer> initCounts() {
-        Map<String, Integer> m = new LinkedHashMap<>();
-        for (String s : STATUS_ORDER) m.put(s, 0);
-        return m;
+    private static Map<String, Integer> orderedCounts(Map<String, Integer> counts) {
+        Map<String, Integer> ordered = new LinkedHashMap<>();
+        for (CaseStatusDefinition definition : CaseStatusRegistry.orderedWith(counts)) {
+            ordered.put(definition.code(), counts.getOrDefault(definition.code(), 0));
+        }
+        for (Map.Entry<String, Integer> entry : counts.entrySet()) {
+            ordered.putIfAbsent(entry.getKey(), entry.getValue());
+        }
+        return ordered;
     }
 }

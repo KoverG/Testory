@@ -1,5 +1,6 @@
 package app.domain.reports.export;
 
+import app.domain.cycles.CaseStatusRegistry;
 import app.domain.reports.model.ReportSection;
 import app.domain.reports.model.StatusSummarySection;
 
@@ -25,10 +26,10 @@ public final class StatusSummaryRenderer implements SectionRenderer {
             int count = entry.getValue();
             if (count == 0) continue;
             double pct = s.total() > 0 ? (count * 100.0 / s.total()) : 0;
-            String cssClass = statusCss(entry.getKey());
+            String inlineStyle = CaseStatusRegistry.htmlBadgeStyle(entry.getKey());
             out.append("    <tr>\n");
-            out.append("      <td><span class=\"badge ").append(cssClass).append("\">")
-               .append(htmlEscape(entry.getKey())).append("</span></td>\n");
+            out.append("      <td><span class=\"badge\" style=\"").append(htmlEscape(inlineStyle)).append("\">")
+               .append(htmlEscape(CaseStatusRegistry.displayLabel(entry.getKey()))).append("</span></td>\n");
             out.append("      <td>").append(count).append("</td>\n");
             out.append("      <td>").append(String.format("%.0f%%", pct)).append("</td>\n");
             out.append("    </tr>\n");
@@ -37,19 +38,6 @@ public final class StatusSummaryRenderer implements SectionRenderer {
         out.append("    </tbody>\n");
         out.append("  </table>\n");
         out.append("</section>\n");
-    }
-
-    static String statusCss(String status) {
-        if (status == null) return "status-unknown";
-        return switch (status) {
-            case "PASSED"           -> "status-passed";
-            case "PASSED_WITH_BUGS" -> "status-bugs";
-            case "FAILED"           -> "status-failed";
-            case "CRITICAL_FAILED"  -> "status-critical";
-            case "SKIPPED"          -> "status-skipped";
-            case "IN_PROGRESS"      -> "status-progress";
-            default                 -> "status-unknown";
-        };
     }
 
     static String htmlEscape(String s) {

@@ -1,5 +1,6 @@
 package app.domain.reports.service;
 
+import app.domain.cycles.CaseStatusRegistry;
 import app.domain.cycles.repo.CaseHistoryIndexStore;
 import app.domain.cycles.repo.CycleCardJsonReader;
 import app.domain.cycles.usecase.CycleCaseRef;
@@ -31,15 +32,14 @@ public final class TrendSectionProvider implements ReportSectionProvider {
 
     @Override
     public Optional<ReportSection> provide(ReportTarget target) {
-        int passed = 0, bugs = 0, failed = 0;
+        java.util.Map<String, Integer> counts = new java.util.LinkedHashMap<>();
 
         if (target.type() == ReportTargetType.TEST_CASE) {
             List<CaseHistoryIndexStore.CycleHistoryEntry> entries = historyStore.read(target.id());
             for (var e : entries) {
-                switch (e.status()) {
-                    case "PASSED"           -> passed++;
-                    case "PASSED_WITH_BUGS" -> bugs++;
-                    case "FAILED", "CRITICAL_FAILED" -> failed++;
+                String colorKey = CaseStatusRegistry.trendColorKey(e.status());
+                if (!"unknown".equals(colorKey) && !"progress".equals(colorKey) && !"skipped".equals(colorKey)) {
+                    counts.merge(colorKey, 1, Integer::sum);
                 }
             }
         } else if (target.type() == ReportTargetType.CYCLE) {
@@ -48,32 +48,29 @@ public final class TrendSectionProvider implements ReportSectionProvider {
             if (draft == null || draft.cases == null) return Optional.empty();
             for (CycleCaseRef ref : draft.cases) {
                 if (ref == null) continue;
-                switch (ref.safeStatus()) {
-                    case "PASSED"           -> passed++;
-                    case "PASSED_WITH_BUGS" -> bugs++;
-                    case "FAILED", "CRITICAL_FAILED" -> failed++;
+                String colorKey = CaseStatusRegistry.trendColorKey(ref.safeStatus());
+                if (!"unknown".equals(colorKey) && !"progress".equals(colorKey) && !"skipped".equals(colorKey)) {
+                    counts.merge(colorKey, 1, Integer::sum);
                 }
             }
         }
 
-        List<TrendCapsule> capsules = buildCapsules(passed, bugs, failed);
+        List<TrendCapsule> capsules = buildCapsules(counts);
         if (capsules.isEmpty()) return Optional.empty();
         return Optional.of(new TrendSection(capsules));
     }
 
-    private static List<TrendCapsule> buildCapsules(int passed, int bugs, int failed) {
-        // собираем только ненулевые группы
+    private static List<TrendCapsule> buildCapsules(java.util.Map<String, Integer> counts) {
         record Group(String key, int count) {}
         List<Group> groups = new ArrayList<>();
-        if (passed > 0) groups.add(new Group("passed", passed));
-        if (bugs   > 0) groups.add(new Group("bugs",   bugs));
-        if (failed > 0) groups.add(new Group("failed", failed));
+        for (String key : List.of("passed", "bugs", "failed")) {
+            int count = counts.getOrDefault(key, 0);
+            if (count > 0) groups.add(new Group(key, count));
+        }
 
         if (groups.isEmpty()) return List.of();
 
         int max = groups.stream().mapToInt(Group::count).max().orElse(0);
-
-        // wide только если у группы строго уникальный максимум (одна группа с max > всех остальных)
         long topCount = groups.stream().filter(g -> g.count() == max).count();
         boolean uniqueTop = topCount == 1;
 

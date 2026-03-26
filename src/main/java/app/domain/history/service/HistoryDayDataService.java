@@ -1,5 +1,6 @@
 package app.domain.history.service;
 
+import app.domain.cycles.CaseStatusRegistry;
 import app.domain.cycles.repo.CycleCardJsonReader;
 import app.domain.cycles.repo.FileCycleRepository;
 import app.domain.cycles.usecase.CycleCaseRef;
@@ -240,7 +241,7 @@ public final class HistoryDayDataService {
             return "Есть проблемы";
         }
         if (counters.passedWithBugsCount > 0) {
-            return "Pass with bugs";
+            return CaseStatusRegistry.displayLabel(CaseStatusRegistry.PASSED_WITH_BUGS);
         }
         if (counters.totalCases > 0) {
             return "Успешно";

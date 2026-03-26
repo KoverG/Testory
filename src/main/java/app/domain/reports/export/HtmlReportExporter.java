@@ -1,5 +1,6 @@
 package app.domain.reports.export;
 
+import app.domain.cycles.CaseStatusRegistry;
 import app.domain.reports.model.HistorySection;
 import app.domain.reports.model.ReportData;
 import app.domain.reports.model.ReportMetaSummary;
@@ -226,9 +227,9 @@ public final class HtmlReportExporter {
 
     private static String capsuleLabel(String colorKey) {
         return switch (colorKey == null ? "" : colorKey) {
-            case "passed" -> "Passed";
-            case "bugs" -> "With bugs";
-            case "failed" -> "Failed";
+            case "passed" -> CaseStatusRegistry.displayLabel(CaseStatusRegistry.PASSED);
+            case "bugs" -> CaseStatusRegistry.displayLabel(CaseStatusRegistry.PASSED_WITH_BUGS);
+            case "failed" -> CaseStatusRegistry.displayLabel(CaseStatusRegistry.FAILED);
             default -> colorKey;
         };
     }

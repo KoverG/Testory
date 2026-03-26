@@ -1,6 +1,7 @@
 package app.domain.cycles.ui.overlay;
 
 import app.core.I18n;
+import app.domain.cycles.CaseStatusRegistry;
 import app.domain.cycles.usecase.CycleRunState;
 import app.ui.UiBlur;
 import app.ui.UiScroll;
@@ -151,15 +152,6 @@ public final class FilterSheet {
     private static final String PROGRESS_51_90 = "51_90";
     private static final String PROGRESS_91_99 = "91_99";
     private static final String PROGRESS_100 = "100";
-
-    private static final List<String> CYCLE_CASE_STATUS_OPTIONS = List.of(
-            "PASSED",
-            "PASSED_WITH_BUGS",
-            "FAILED",
-            "CRITICAL_FAILED",
-            "IN_PROGRESS",
-            "SKIPPED"
-    );
 
     private final StackPane leftStack;
     private final StackPane filterSheet;
@@ -571,7 +563,7 @@ public final class FilterSheet {
                 I18n.t("cy.filter.caseStatuses"),
                 true,
                 false,
-                buildMultiSelectChips(toOptions(CYCLE_CASE_STATUS_OPTIONS), draftCycle.caseStatuses)
+                buildMultiSelectChips(toStatusOptions(), draftCycle.caseStatuses)
         ));
     }
 
@@ -839,6 +831,13 @@ public final class FilterSheet {
         to.tags.addAll(from.tags);
     }
 
+    private static List<ChipOption> toStatusOptions() {
+        List<ChipOption> out = new ArrayList<>();
+        for (String code : CaseStatusRegistry.orderedCodes()) {
+            out.add(new ChipOption(code, CaseStatusRegistry.displayLabel(code)));
+        }
+        return out;
+    }
     private static List<ChipOption> toOptions(List<String> values) {
         List<ChipOption> out = new ArrayList<>();
         if (values == null) return out;

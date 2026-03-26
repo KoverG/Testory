@@ -3,6 +3,7 @@ package app.domain.cycles.ui.left;
 
 import app.core.I18n;
 import app.core.PrivateRootConfig;
+import app.domain.cycles.CaseStatusRegistry;
 import app.domain.cycles.CycleCategoryStore;
 import app.domain.cycles.query.CycleListSorter;
 import app.domain.cycles.repo.CaseHistoryIndexStore;
@@ -1640,7 +1641,7 @@ public final class LeftPaneCoordinator {
                 if (ref == null) continue;
                 String status = safeTrim(ref.safeStatus()).toUpperCase();
                 if (status.isEmpty()) continue;
-                if (!"IN_PROGRESS".equals(status)) completed++;
+                if (CaseStatusRegistry.isCompleted(status)) completed++;
             }
         }
 
@@ -1673,7 +1674,7 @@ public final class LeftPaneCoordinator {
         for (CycleCaseRef ref : draft.cases) {
             if (ref == null) continue;
             String status = safeTrim(ref.safeStatus()).toUpperCase();
-            if ("FAILED".equals(status) || "CRITICAL_FAILED".equals(status)) count++;
+            if (CaseStatusRegistry.isFailedLike(status)) count++;
         }
         return count;
     }
@@ -1712,7 +1713,7 @@ public final class LeftPaneCoordinator {
                     String status = safeTrim(ref.safeStatus()).toUpperCase();
                     if (status.isEmpty()) continue;
                     statuses.add(status);
-                    if (!"IN_PROGRESS".equals(status)) completed++;
+                    if (CaseStatusRegistry.isCompleted(status)) completed++;
                 }
             }
 

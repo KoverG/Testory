@@ -3,6 +3,8 @@ package app.domain.reports.ui;
 import app.core.CardNavigationBridge;
 import app.core.I18n;
 import app.core.Router;
+import app.domain.cycles.CaseStatusDefinition;
+import app.domain.cycles.CaseStatusRegistry;
 import app.domain.reports.ReportsScreen;
 import app.domain.reports.export.HtmlReportExporter;
 import app.domain.cycles.ui.right.CaseCommentModal;
@@ -45,9 +47,6 @@ public final class ReportCardView {
     private static final String HISTORY_FILTER_ALL = "__ALL__";
     private static final String HISTORY_FILTER_NOT_STARTED = "__NOT_STARTED__";
     private static final int COMMENT_PREVIEW_LIMIT = 30;
-    private static final List<String> STATUS_ORDER = List.of(
-            "PASSED", "PASSED_WITH_BUGS", "FAILED", "CRITICAL_FAILED", "IN_PROGRESS", "SKIPPED"
-    );
     private final ReportDataService dataService = new ReportDataService();
     private final HtmlReportExporter exporter = new HtmlReportExporter();
     private final Runnable onClose;
@@ -585,7 +584,7 @@ public final class ReportCardView {
 
         DonutChart donut = new DonutChart();
         List<DonutChart.Slice> slices = new ArrayList<>();
-        for (String status : STATUS_ORDER) {
+        for (String status : orderedStatuses(section.countsByStatus())) {
             int count = section.countsByStatus().getOrDefault(status, 0);
             if (count > 0) {
                 slices.add(new DonutChart.Slice(statusToColorKey(status), count));
@@ -594,7 +593,7 @@ public final class ReportCardView {
         donut.draw(slices, section.total());
 
         VBox legend = new VBox(0);
-        for (String status : STATUS_ORDER) {
+        for (String status : orderedStatuses(section.countsByStatus())) {
             int count = section.countsByStatus().getOrDefault(status, 0);
             if (count == 0) continue;
 
@@ -651,7 +650,7 @@ public final class ReportCardView {
         FlowPane filters = new FlowPane(8, 8);
         filters.getStyleClass().add("rp-history-filters");
         filters.getChildren().add(buildHistoryFilterChip(tr("rp.history.filter.all", "Все"), HISTORY_FILTER_ALL));
-        for (String status : STATUS_ORDER) {
+        for (String status : orderedStatuses(historyStatusCounts(section))) {
             if (historyHasStatus(section, status)) {
                 filters.getChildren().add(buildHistoryFilterChip(statusLabel(status), status));
             }
@@ -849,30 +848,41 @@ public final class ReportCardView {
         boolean blank = status == null || status.isBlank();
         String label = blank ? tr("rp.status.notStarted", "Не начат") : statusLabel(status);
         Label badge = new Label(label);
-        badge.getStyleClass().addAll("rp-badge", badgeCssClass(status));
+        badge.getStyleClass().add("rp-badge");
+        if (blank) {
+            badge.getStyleClass().add("rp-badge-none");
+        } else {
+            badge.setStyle(CaseStatusRegistry.reportBadgeStyle(status));
+        }
         return badge;
     }
 
-    private static String badgeCssClass(String status) {
-        if (status == null || status.isBlank()) return "rp-badge-none";
-        return switch (status) {
-            case "PASSED" -> "rp-badge-passed";
-            case "PASSED_WITH_BUGS" -> "rp-badge-bugs";
-            case "FAILED" -> "rp-badge-failed";
-            case "CRITICAL_FAILED" -> "rp-badge-critical";
-            case "SKIPPED" -> "rp-badge-skipped";
-            case "IN_PROGRESS" -> "rp-badge-progress";
-            default -> "rp-badge-unknown";
-        };
+    private static List<String> orderedStatuses(Map<String, Integer> countsByStatus) {
+        List<String> ordered = new ArrayList<>();
+        for (CaseStatusDefinition definition : CaseStatusRegistry.orderedWith(countsByStatus)) {
+            ordered.add(definition.code());
+        }
+        return ordered;
     }
 
+    private static Map<String, Integer> historyStatusCounts(HistorySection section) {
+        Map<String, Integer> counts = new java.util.LinkedHashMap<>();
+        if (section == null) {
+            return counts;
+        }
+        for (HistorySection.HistoryRow row : section.rows()) {
+            String status = row.status();
+            if (status == null || status.isBlank()) {
+                continue;
+            }
+            counts.merge(status.trim().toUpperCase(), 1, Integer::sum);
+        }
+        return counts;
+    }
+
+
     private static String statusToColorKey(String status) {
-        return switch (status == null ? "" : status) {
-            case "PASSED" -> "passed";
-            case "PASSED_WITH_BUGS" -> "bugs";
-            case "FAILED", "CRITICAL_FAILED" -> "failed";
-            default -> "unknown";
-        };
+        return CaseStatusRegistry.trendColorKey(status);
     }
 
     private static String capsuleColorClass(String colorKey) {
@@ -886,9 +896,9 @@ public final class ReportCardView {
 
     private static String capsuleLabel(String colorKey) {
         return switch (colorKey == null ? "" : colorKey) {
-            case "passed" -> tr("rp.capsule.passed", "Passed");
-            case "bugs" -> tr("rp.capsule.bugs", "With bugs");
-            case "failed" -> tr("rp.capsule.failed", "Failed");
+            case "passed" -> CaseStatusRegistry.displayLabel(CaseStatusRegistry.PASSED);
+            case "bugs" -> CaseStatusRegistry.displayLabel(CaseStatusRegistry.PASSED_WITH_BUGS);
+            case "failed" -> CaseStatusRegistry.displayLabel(CaseStatusRegistry.FAILED);
             default -> colorKey;
         };
     }
@@ -971,15 +981,7 @@ public final class ReportCardView {
         if (status == null || status.isBlank()) {
             return tr("rp.status.notStarted", "Не начат");
         }
-        return switch (status) {
-            case "PASSED" -> tr("rp.status.passed", "Passed");
-            case "PASSED_WITH_BUGS" -> tr("rp.status.passedWithBugs", "Passed with bugs");
-            case "FAILED" -> tr("rp.status.failed", "Failed");
-            case "CRITICAL_FAILED" -> tr("rp.status.criticalFailed", "Critical failed");
-            case "IN_PROGRESS" -> tr("rp.status.inProgress", "In progress");
-            case "SKIPPED" -> tr("rp.status.skipped", "Skipped");
-            default -> status;
-        };
+        return CaseStatusRegistry.displayLabel(status);
     }
 
     private static String tr(String key, String fallback) {

@@ -1,5 +1,6 @@
 package app.domain.history.service;
 
+import app.domain.cycles.CaseStatusRegistry;
 import app.domain.cycles.repo.CycleCardJsonReader;
 import app.domain.cycles.usecase.CycleCaseRef;
 import app.domain.cycles.usecase.CycleDraft;
@@ -140,7 +141,7 @@ public final class HistoryMonthDataService {
 
         for (CycleCaseRef ref : draft.cases) {
             if (ref == null) continue;
-            if ("IN_PROGRESS".equalsIgnoreCase(safe(ref.safeStatus()))) {
+            if (CaseStatusRegistry.isInProgress(ref.safeStatus())) {
                 return true;
             }
         }

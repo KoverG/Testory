@@ -2,6 +2,7 @@ package app.domain.testcases.ui;
 
 import app.core.AppSettings;
 import app.core.I18n;
+import app.domain.cycles.CaseStatusRegistry;
 import app.domain.cycles.repo.CaseHistoryIndexStore;
 import app.domain.cycles.ui.right.CaseCommentModal;
 import app.domain.cycles.ui.right.CaseStatusComboSupport;
@@ -738,7 +739,7 @@ public final class TestCaseCyclesAccessory {
 
     private static String formatStatusText(String status) {
         String safeStatus = safe(status);
-        if (!safeStatus.isBlank()) return safeStatus;
+        if (!safeStatus.isBlank()) return CaseStatusRegistry.displayLabel(safeStatus);
 
         String placeholder = I18n.t("cy.case.status.placeholder");
         return placeholder == null ? "" : placeholder;

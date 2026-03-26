@@ -1,5 +1,7 @@
 package app.domain.reports.export;
 
+import app.domain.cycles.CaseStatusRegistry;
+
 import app.domain.reports.model.ReportSection;
 import app.domain.reports.model.TrendSection;
 import app.domain.reports.model.TrendSection.TrendCapsule;
@@ -42,9 +44,9 @@ public final class TrendRenderer implements SectionRenderer {
 
     private static String capsuleLabel(String colorKey) {
         return switch (colorKey == null ? "" : colorKey) {
-            case "passed" -> "Passed";
-            case "bugs"   -> "Passed with bugs";
-            case "failed" -> "Failed";
+            case "passed" -> CaseStatusRegistry.displayLabel(CaseStatusRegistry.PASSED);
+            case "bugs"   -> CaseStatusRegistry.displayLabel(CaseStatusRegistry.PASSED_WITH_BUGS);
+            case "failed" -> CaseStatusRegistry.displayLabel(CaseStatusRegistry.FAILED);
             default       -> colorKey;
         };
     }

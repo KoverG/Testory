@@ -3,6 +3,7 @@ package app.domain.history.ui;
 import app.core.AppSettings;
 import app.core.CardNavigationBridge;
 import app.core.Router;
+import app.domain.cycles.CaseStatusRegistry;
 import app.domain.history.model.HistoryCalendarDayModel;
 import app.domain.history.model.HistoryDayDataModel;
 import app.domain.history.model.HistoryDaySummaryModel;
@@ -954,12 +955,12 @@ public final class HistoryScreen {
     }
 
     private void appendStatusChips(FlowPane chips, HistoryTimelineItemModel item) {
-        addStatusChip(chips, "Passed", item.passedCount());
-        addStatusChip(chips, "Failed", item.failedCount());
-        addStatusChip(chips, "Critical", item.criticalFailedCount());
-        addStatusChip(chips, "With bugs", item.passedWithBugsCount());
-        addStatusChip(chips, "Skipped", item.skippedCount());
-        addStatusChip(chips, "In progress", item.inProgressCount());
+        addStatusChip(chips, CaseStatusRegistry.displayLabel(CaseStatusRegistry.PASSED), item.passedCount());
+        addStatusChip(chips, CaseStatusRegistry.displayLabel(CaseStatusRegistry.FAILED), item.failedCount());
+        addStatusChip(chips, CaseStatusRegistry.displayLabel(CaseStatusRegistry.CRITICAL_FAILED), item.criticalFailedCount());
+        addStatusChip(chips, CaseStatusRegistry.displayLabel(CaseStatusRegistry.PASSED_WITH_BUGS), item.passedWithBugsCount());
+        addStatusChip(chips, CaseStatusRegistry.displayLabel(CaseStatusRegistry.SKIPPED), item.skippedCount());
+        addStatusChip(chips, CaseStatusRegistry.displayLabel(CaseStatusRegistry.IN_PROGRESS), item.inProgressCount());
     }
 
     private void addStatusChip(FlowPane chips, String label, int count) {

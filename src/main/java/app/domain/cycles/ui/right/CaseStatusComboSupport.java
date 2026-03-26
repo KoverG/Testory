@@ -1,7 +1,7 @@
 package app.domain.cycles.ui.right;
 
 import app.core.I18n;
-import app.domain.cycles.CyclePrivateConfig;
+import app.domain.cycles.CaseStatusRegistry;
 import app.ui.UiComboBox;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
@@ -11,9 +11,7 @@ import javafx.scene.control.ListCell;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -78,7 +76,7 @@ public final class CaseStatusComboSupport {
                     return;
                 }
 
-                setText(CLEAR_SENTINEL.equals(item) ? clearLabel : item);
+                setText(CLEAR_SENTINEL.equals(item) ? clearLabel : CaseStatusRegistry.displayLabel(item));
                 setOpacity(1.0);
                 setStyle("-fx-text-fill: " + popupTextColor(cb) + ";");
             }
@@ -97,7 +95,7 @@ public final class CaseStatusComboSupport {
                     return;
                 }
 
-                setText(item);
+                setText(CaseStatusRegistry.displayLabel(item));
                 setOpacity(1.0);
                 setStyle("-fx-text-fill: " + activeComboTextColor(cb) + ";");
             }
@@ -186,16 +184,12 @@ public final class CaseStatusComboSupport {
     }
 
     public static Map<String, String> statusEntries() {
-        Map<String, String> fromCfg = CyclePrivateConfig.caseComboColors();
+        Map<String, String> fromCfg = CaseStatusRegistry.comboColors();
         if (fromCfg != null && !fromCfg.isEmpty()) {
             return fromCfg;
         }
 
-        Map<String, String> def = new LinkedHashMap<>();
-        def.put("Option A", "");
-        def.put("Option B", "");
-        def.put("Option C", "");
-        return def;
+        return Map.of();
     }
 
     public static String resolveBackgroundWeb(Node node, String status) {
@@ -294,16 +288,7 @@ public final class CaseStatusComboSupport {
     }
 
     private static Color resolveStatusColor(String statusRaw, String fallbackCssColor, boolean lightTheme) {
-        String status = safe(statusRaw).toUpperCase(Locale.ROOT);
-        return switch (status) {
-            case "PASSED" -> Color.web(lightTheme ? "#7FE28F" : "#58C46B");
-            case "PASSED_WITH_BUGS" -> Color.web(lightTheme ? "#FFC94D" : "#FFD24A");
-            case "FAILED" -> Color.web(lightTheme ? "#FF8E84" : "#FF7A70");
-            case "CRITICAL_FAILED" -> Color.web(lightTheme ? "#FF5F66" : "#FF5257");
-            case "IN_PROGRESS" -> Color.web(lightTheme ? "#6FC2FF" : "#5CB8F6");
-            case "SKIPPED" -> Color.web(lightTheme ? "#C3CCD8" : "#AAB2BD");
-            default -> parseColor(fallbackCssColor);
-        };
+        return parseColor(fallbackCssColor);
     }
 
     private static Color parseColor(String cssColor) {

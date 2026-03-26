@@ -1,5 +1,6 @@
 package app.domain.reports.export;
 
+import app.domain.cycles.CaseStatusRegistry;
 import app.domain.reports.model.HistorySection;
 import app.domain.reports.model.ReportSection;
 
@@ -22,13 +23,13 @@ public final class HistoryRenderer implements SectionRenderer {
         out.append("    <tbody>\n");
 
         for (var row : s.rows()) {
-            String css = StatusSummaryRenderer.statusCss(row.status());
+            String inlineStyle = CaseStatusRegistry.htmlBadgeStyle(row.status());
             String title = row.title().isBlank() ? row.contextLabel() : row.title();
             String context = row.title().isBlank() ? "" : row.contextLabel();
 
             out.append("    <tr>\n");
-            out.append("      <td><span class=\"badge ").append(css).append("\">")
-               .append(StatusSummaryRenderer.htmlEscape(row.status())).append("</span></td>\n");
+            out.append("      <td><span class=\"badge\" style=\"").append(StatusSummaryRenderer.htmlEscape(inlineStyle)).append("\">")
+               .append(StatusSummaryRenderer.htmlEscape(CaseStatusRegistry.displayLabel(row.status()))).append("</span></td>\n");
             out.append("      <td>").append(StatusSummaryRenderer.htmlEscape(title));
             if (!context.isBlank()) {
                 out.append("<br><span class=\"muted\">").append(StatusSummaryRenderer.htmlEscape(context)).append("</span>");
