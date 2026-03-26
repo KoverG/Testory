@@ -44,6 +44,7 @@ public final class HistorySectionProvider implements ReportSectionProvider {
         List<HistoryRow> rows = new ArrayList<>();
         for (var e : entries) {
             rows.add(new HistoryRow(
+                    0,
                     e.cycleId(),
                     "",
                     e.status(),
@@ -61,11 +62,13 @@ public final class HistorySectionProvider implements ReportSectionProvider {
         String fallbackDisplay = formatIso(draft.savedAtIso);
         if (fallbackDisplay.isBlank()) fallbackDisplay = draft.createdAtUi != null ? draft.createdAtUi : "";
         List<HistoryRow> rows = new ArrayList<>();
+        int ordinal = 1;
         for (CycleCaseRef ref : draft.cases) {
             String title = ref.safeTitleSnapshot().isBlank() ? ref.safeId() : ref.safeTitleSnapshot();
             String changedAtDisplay = formatIso(ref.safeStatusChangedAtIso());
             if (changedAtDisplay.isBlank()) changedAtDisplay = fallbackDisplay;
             rows.add(new HistoryRow(
+                    ordinal++,
                     ref.safeId(),
                     title,
                     ref.safeStatus(),

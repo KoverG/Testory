@@ -4,6 +4,7 @@ import app.core.CardNavigationBridge;
 import app.core.Router;
 import app.domain.reports.ReportsScreen;
 import app.domain.reports.export.HtmlReportExporter;
+import app.domain.cycles.ui.right.CaseCommentModal;
 import app.domain.reports.model.HistorySection;
 import app.domain.reports.model.ReportData;
 import app.domain.reports.model.ReportMetaSummary;
@@ -24,7 +25,6 @@ import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -40,6 +40,9 @@ import java.util.Map;
 
 public final class ReportCardView {
 
+    private static final String HISTORY_FILTER_ALL = "__ALL__";
+    private static final String HISTORY_FILTER_NOT_STARTED = "__NOT_STARTED__";
+    private static final int COMMENT_PREVIEW_LIMIT = 30;
     private static final List<String> STATUS_ORDER = List.of(
             "PASSED", "PASSED_WITH_BUGS", "FAILED", "CRITICAL_FAILED", "IN_PROGRESS", "SKIPPED"
     );
@@ -72,6 +75,7 @@ public final class ReportCardView {
 
     private ReportData currentData;
     private String currentRecommendation = "";
+    private String currentHistoryFilter = HISTORY_FILTER_ALL;
 
     public ReportCardView(Runnable onClose) {
         this.onClose = onClose;
@@ -184,6 +188,7 @@ public final class ReportCardView {
 
     public void load(ReportTarget target) {
         currentRecommendation = "";
+        currentHistoryFilter = HISTORY_FILTER_ALL;
         scrollContent.getChildren().clear();
         stickyMetaBox.getChildren().clear();
         stickyRecommendationBox.getChildren().clear();
@@ -272,6 +277,13 @@ public final class ReportCardView {
                 .ifPresent(s -> scrollContent.getChildren().add(buildHistorySection(s)));
 
         scrollContent.getChildren().add(bottomSpacer);
+    }
+
+    private void rebuildScrollContent() {
+        scrollContent.getChildren().clear();
+        if (currentData != null) {
+            buildScrollContent(currentData);
+        }
     }
 
     private Node buildStickyMetaBlock(ReportData data) {
@@ -458,10 +470,10 @@ public final class ReportCardView {
 
             HBox row = new HBox(6);
             row.setAlignment(Pos.CENTER_LEFT);
-            row.setPadding(new Insets(5, 0, 5, 0));
+            row.setPadding(new Insets(3, 0, 3, 0));
 
             Label badge = statusBadge(status);
-            badge.setMinWidth(108);
+            badge.setMinWidth(96);
 
             HBox metrics = new HBox(8);
             metrics.getStyleClass().add("rp-legend-metrics");
@@ -486,7 +498,7 @@ public final class ReportCardView {
             legend.getChildren().add(row);
         }
 
-        HBox inner = new HBox(16, donut, legend);
+        HBox inner = new HBox(12, donut, legend);
         inner.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(legend, Priority.ALWAYS);
 
@@ -497,8 +509,38 @@ public final class ReportCardView {
     private Node buildHistorySection(HistorySection section) {
         if (section.rows().isEmpty()) return new Region();
 
-        VBox box = sectionBox("История");
-        for (HistorySection.HistoryRow row : section.rows()) {
+        VBox box = new VBox(8);
+        box.getStyleClass().add("rp-section");
+
+        Label lbl = new Label("История".toUpperCase());
+        lbl.getStyleClass().add("rp-section-title");
+        box.getChildren().add(lbl);
+
+        FlowPane filters = new FlowPane(8, 8);
+        filters.getStyleClass().add("rp-history-filters");
+        filters.getChildren().add(buildHistoryFilterChip("Все", HISTORY_FILTER_ALL));
+        for (String status : STATUS_ORDER) {
+            if (historyHasStatus(section, status)) {
+                filters.getChildren().add(buildHistoryFilterChip(STATUS_LABELS.getOrDefault(status, status), status));
+            }
+        }
+        if (historyHasNotStarted(section)) {
+            filters.getChildren().add(buildHistoryFilterChip("Не начат", HISTORY_FILTER_NOT_STARTED));
+        }
+        box.getChildren().add(filters);
+
+        List<HistorySection.HistoryRow> filteredRows = section.rows().stream()
+                .filter(this::historyFilterMatches)
+                .toList();
+
+        if (filteredRows.isEmpty()) {
+            Label empty = new Label("Нет кейсов по выбранному статусу");
+            empty.getStyleClass().add("rp-history-empty");
+            box.getChildren().add(empty);
+            return box;
+        }
+
+        for (HistorySection.HistoryRow row : filteredRows) {
             box.getChildren().add(buildHistoryRow(row));
         }
         return box;
@@ -508,6 +550,15 @@ public final class ReportCardView {
         VBox box = new VBox(3);
         box.getStyleClass().add("rp-history-row");
 
+        Label ordinal = null;
+        if (row.ordinal() > 0) {
+            ordinal = new Label(String.valueOf(row.ordinal()));
+            ordinal.getStyleClass().add("rp-history-ordinal");
+            if (row.ordinal() >= 1000) {
+                ordinal.getStyleClass().add("rp-history-ordinal-compact");
+            }
+        }
+
         Label badge = statusBadge(row.status());
 
         String titleText = row.title().isBlank() ? row.contextLabel() : row.title();
@@ -515,20 +566,31 @@ public final class ReportCardView {
         title.getStyleClass().add("rp-history-title");
         title.setTextOverrun(OverrunStyle.ELLIPSIS);
         title.setMinWidth(0);
+        HBox.setHgrow(title, Priority.ALWAYS);
+
+        Node commentNode = buildHistoryCommentNode(row);
 
         Label date = new Label(row.dateLabel());
         date.getStyleClass().add("rp-history-context");
+        date.getStyleClass().add("rp-history-date");
         date.setMinWidth(Region.USE_PREF_SIZE);
         date.setAlignment(Pos.CENTER_RIGHT);
 
-        BorderPane top = new BorderPane();
-        top.setLeft(badge);
-        top.setCenter(title);
-        top.setRight(date);
-        BorderPane.setAlignment(badge, Pos.CENTER_LEFT);
-        BorderPane.setAlignment(title, Pos.CENTER_LEFT);
-        BorderPane.setAlignment(date, Pos.CENTER_RIGHT);
-        BorderPane.setMargin(title, new Insets(0, 8, 0, 8));
+        HBox top = new HBox(8);
+        top.setAlignment(Pos.TOP_LEFT);
+        if (ordinal != null) {
+            top.getChildren().add(ordinal);
+        }
+        top.getChildren().addAll(badge, title);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        top.getChildren().add(spacer);
+        HBox trailingBox = new HBox(8);
+        trailingBox.setAlignment(Pos.CENTER_RIGHT);
+        trailingBox.getStyleClass().add("rp-history-trailing");
+        trailingBox.getChildren().add(commentNode);
+        trailingBox.getChildren().add(date);
+        top.getChildren().add(trailingBox);
 
         box.getChildren().add(top);
 
@@ -539,13 +601,77 @@ public final class ReportCardView {
             box.getChildren().add(ctx);
         }
 
-        if (!row.comment().isBlank()) {
-            Label comment = new Label(row.comment());
-            comment.getStyleClass().add("rp-history-comment");
-            box.getChildren().add(comment);
+        return box;
+    }
+
+    private Button buildHistoryFilterChip(String label, String filterValue) {
+        Button btn = new Button(label);
+        btn.setFocusTraversable(false);
+        btn.getStyleClass().add("rp-history-filter-chip");
+        if (filterValue.equals(currentHistoryFilter)) {
+            btn.getStyleClass().add("rp-history-filter-chip-active");
+        }
+        btn.setOnAction(e -> {
+            currentHistoryFilter = filterValue;
+            rebuildScrollContent();
+        });
+        return btn;
+    }
+
+    private boolean historyFilterMatches(HistorySection.HistoryRow row) {
+        if (HISTORY_FILTER_ALL.equals(currentHistoryFilter)) {
+            return true;
+        }
+        if (HISTORY_FILTER_NOT_STARTED.equals(currentHistoryFilter)) {
+            return row.status() == null || row.status().isBlank();
+        }
+        return currentHistoryFilter.equals(row.status());
+    }
+
+    private static boolean historyHasStatus(HistorySection section, String status) {
+        return section.rows().stream().anyMatch(row -> status.equals(row.status()));
+    }
+
+    private static boolean historyHasNotStarted(HistorySection section) {
+        return section.rows().stream().anyMatch(row -> row.status() == null || row.status().isBlank());
+    }
+
+    private Node buildHistoryCommentNode(HistorySection.HistoryRow row) {
+        if (row.comment().isBlank()) {
+            Region empty = new Region();
+            empty.getStyleClass().add("rp-history-comment-slot");
+            return empty;
         }
 
-        return box;
+        Button comment = new Button(previewComment(row.comment()));
+        comment.setFocusTraversable(false);
+        comment.getStyleClass().addAll("rp-history-comment-btn", "rp-history-comment-slot");
+        comment.setTooltip(new Tooltip(row.comment()));
+        comment.setOnAction(e -> {
+            CaseCommentModal modal = (CaseCommentModal) comment.getProperties().get("rp.history.comment.modal");
+            if (modal == null) {
+                modal = new CaseCommentModal(comment);
+                modal.install(root);
+                comment.getProperties().put("rp.history.comment.modal", modal);
+            }
+
+            modal.setCurrentValueSupplier(row::comment);
+            modal.setEditableSupplier(() -> false);
+            modal.setOnSaved(v -> {});
+            modal.toggle();
+        });
+        return comment;
+    }
+
+    private static String previewComment(String comment) {
+        if (comment == null) {
+            return "";
+        }
+        String trimmed = comment.trim();
+        if (trimmed.length() <= COMMENT_PREVIEW_LIMIT) {
+            return trimmed;
+        }
+        return trimmed.substring(0, COMMENT_PREVIEW_LIMIT) + "...";
     }
 
     private static VBox sectionBox(String sectionTitle) {
@@ -618,7 +744,11 @@ public final class ReportCardView {
     }
 
     private Node buildRecommendationSection() {
-        VBox box = sectionBox("Решение");
+        VBox box = new VBox(8);
+        box.getStyleClass().add("rp-section");
+
+        Label lbl = new Label("Решение".toUpperCase());
+        lbl.getStyleClass().add("rp-section-title");
 
         List<RecommendationChip> chips = List.of(
                 new RecommendationChip("none", "Без решения", "rp-recommend-chip-none-active"),
@@ -628,6 +758,7 @@ public final class ReportCardView {
         );
 
         FlowPane chipsPane = new FlowPane(8, 8);
+        chipsPane.getStyleClass().add("rp-recommend-row");
         for (RecommendationChip chip : chips) {
             Button btn = new Button(chip.label());
             btn.setFocusTraversable(false);
@@ -641,7 +772,11 @@ public final class ReportCardView {
             chipsPane.getChildren().add(btn);
         }
 
-        box.getChildren().add(chipsPane);
+        HBox headerRow = new HBox(12, lbl, chipsPane);
+        headerRow.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(chipsPane, Priority.ALWAYS);
+
+        box.getChildren().add(headerRow);
         return box;
     }
 

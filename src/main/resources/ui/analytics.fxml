@@ -7,6 +7,6 @@
       xmlns:fx="http://javafx.com/fxml/1"
       spacing="10" styleClass="page-root">
     <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
-    <Label text="Analytics" styleClass="h1"/>
-    <Label text="Экран-заглушка. Аналитика строится только по истории." styleClass="muted"/>
+    <Label text="%view.analytics" styleClass="h1"/>
+    <Label text="%analytics.comingSoon" styleClass="muted"/>
 </VBox>

@@ -18,11 +18,13 @@
                 <Label text="%home.chooseSection" styleClass="hero-subtitle"/>
 
                 <VBox spacing="12" alignment="CENTER" styleClass="product-nav">
-                    <Button text="%view.testCases"  onAction="#openTestCases"  prefWidth="320" prefHeight="56" styleClass="product-button"/>
-                    <Button text="%view.cycles"      onAction="#openCycles"     prefWidth="320" prefHeight="56" styleClass="product-button"/>
-                    <Button text="%view.history"     onAction="#openHistory"    prefWidth="320" prefHeight="56" styleClass="product-button"/>
-                    <Button text="%view.analytics"   onAction="#openAnalytics"  prefWidth="320" prefHeight="56" styleClass="product-button"/>
-                    <Button text="%view.reports"     onAction="#openReports"    prefWidth="320" prefHeight="56" styleClass="product-button"/>
+                    <Button fx:id="btnTestCases"  text="%view.testCases"  onAction="#openTestCases"  prefWidth="320" prefHeight="56" styleClass="product-button"/>
+                    <Button fx:id="btnCycles"     text="%view.cycles"     onAction="#openCycles"     prefWidth="320" prefHeight="56" styleClass="product-button"/>
+                    <Button fx:id="btnHistory"    text="%view.history"    onAction="#openHistory"    prefWidth="320" prefHeight="56" styleClass="product-button"/>
+                    <Button fx:id="btnReports"    text="%view.reports"    onAction="#openReports"    prefWidth="320" prefHeight="56" styleClass="product-button"/>
+                    <StackPane fx:id="analyticsButtonHost" prefWidth="320" maxWidth="320">
+                        <Button fx:id="btnAnalytics"  text="%view.analytics"  onAction="#openAnalytics"  prefWidth="320" prefHeight="56" maxWidth="320" styleClass="product-button"/>
+                    </StackPane>
                 </VBox>
             </VBox>
         </StackPane>
