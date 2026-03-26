@@ -1,5 +1,6 @@
 package app.domain.reports.service;
 
+import app.core.I18n;
 import app.domain.cycles.repo.CaseHistoryIndexStore;
 import app.domain.cycles.repo.CycleCardJsonReader;
 import app.domain.cycles.usecase.CycleCaseRef;
@@ -43,6 +44,8 @@ public final class ReportDataService {
     public ReportData build(ReportTarget target) {
         String title = resolveTitle(target);
         String subtitle = resolveSubtitle(target);
+        String caseLabelsText = resolveCaseLabelsText(target);
+        String caseTagsText = resolveCaseTagsText(target);
         String startedAt = resolveStartedAt(target);
         String finishedAt = resolveFinishedAt(target);
         String lastDate = resolveLastDate(target);
@@ -54,13 +57,13 @@ public final class ReportDataService {
             section.ifPresent(sections::add);
         }
 
-        return new ReportData(target, title, subtitle, startedAt, finishedAt, lastDate, metaSummary, sections);
+        return new ReportData(target, title, subtitle, caseLabelsText, caseTagsText, startedAt, finishedAt, lastDate, metaSummary, sections);
     }
 
     private String resolveTitle(ReportTarget target) {
         if (target.type() == ReportTargetType.TEST_CASE) {
             TestCase tc = readCase(target.id());
-            return tc != null && tc.getTitle() != null ? tc.getTitle() : target.id();
+            return buildCaseDisplayTitle(tc, target.id());
         }
 
         CycleDraft draft = readCycle(target);
@@ -68,18 +71,23 @@ public final class ReportDataService {
     }
 
     private String resolveSubtitle(ReportTarget target) {
+        return "";
+    }
+
+    private String resolveCaseLabelsText(ReportTarget target) {
         if (target.type() != ReportTargetType.TEST_CASE) {
             return "";
         }
-
         TestCase tc = readCase(target.id());
-        if (tc == null) return "";
+        return tc == null ? "" : safe(tc.labelsText());
+    }
 
-        String tags = tc.tagsText();
-        String labels = tc.labelsText();
-        if (!labels.isBlank() && !tags.isBlank()) return labels + "  |  " + tags;
-        if (!labels.isBlank()) return labels;
-        return tags;
+    private String resolveCaseTagsText(ReportTarget target) {
+        if (target.type() != ReportTargetType.TEST_CASE) {
+            return "";
+        }
+        TestCase tc = readCase(target.id());
+        return tc == null ? "" : safe(tc.tagsText());
     }
 
     private String resolveStartedAt(ReportTarget target) {
@@ -132,6 +140,7 @@ public final class ReportDataService {
         return new ReportMetaSummary(
                 safe(draft.category),
                 environmentLabel(draft.envType),
+                safe(draft.qaResponsible),
                 resolveTaskLabel(draft),
                 safe(draft.taskLinkUrl),
                 formatIso(draft.createdAtIso),
@@ -168,17 +177,17 @@ public final class ReportDataService {
 
     private static String lifecycleLabel(String runState) {
         return switch (CycleRunState.normalize(runState)) {
-            case CycleRunState.RUNNING -> "В работе";
-            case CycleRunState.PAUSED -> "На паузе";
-            case CycleRunState.FINISHED -> "Завершен";
-            default -> "Обновлен";
+            case CycleRunState.RUNNING -> tr("rp.meta.lifecycle.running", "В работе");
+            case CycleRunState.PAUSED -> tr("rp.meta.lifecycle.paused", "На паузе");
+            case CycleRunState.FINISHED -> tr("rp.meta.lifecycle.finished", "Завершен");
+            default -> tr("rp.meta.lifecycle.updated", "Обновлен");
         };
     }
 
     private static String environmentLabel(String raw) {
         return switch (safe(raw).toLowerCase()) {
-            case "mobile" -> "Mobile";
-            case "desktop" -> "Desktop";
+            case "mobile" -> tr("rp.meta.environment.mobile", "Mobile");
+            case "desktop" -> tr("rp.meta.environment.desktop", "Desktop");
             default -> safe(raw);
         };
     }
@@ -223,5 +232,43 @@ public final class ReportDataService {
 
     private static String safe(String value) {
         return value == null ? "" : value.trim();
+    }
+
+    private static String tr(String key, String fallback) {
+        String value = I18n.t(key);
+        if (value == null || value.isBlank() || value.equals("!" + key + "!")) {
+            return fallback;
+        }
+        return value;
+    }
+
+    private static String buildCaseDisplayTitle(TestCase tc, String fallbackId) {
+        if (tc == null) {
+            return safe(fallbackId);
+        }
+
+        String code = safe(tc.getCode());
+        String number = safe(tc.getNumber());
+        String title = safe(tc.getTitle());
+
+        String head;
+        if (!code.isEmpty() && !number.isEmpty()) {
+            head = code + "-" + number;
+        } else if (!code.isEmpty()) {
+            head = code;
+        } else {
+            head = safe(tc.getId());
+            if (head.isEmpty()) {
+                head = safe(fallbackId);
+            }
+        }
+
+        if (title.isEmpty()) {
+            return head;
+        }
+        if (head.isEmpty()) {
+            return title;
+        }
+        return head + " " + title;
     }
 }

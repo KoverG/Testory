@@ -16,6 +16,7 @@
 }
 .rp-sticky-block {
     -fx-max-width: Infinity;
+    -fx-min-width: 0;
 }
 .rp-sticky-scroll-gap {
     -fx-min-width: 0;
@@ -24,6 +25,8 @@
 }
 .rp-meta-block {
     -fx-spacing: 8;
+    -fx-max-width: Infinity;
+    -fx-min-width: 0;
 }
 .rp-meta-subtitle {
     -fx-font-weight: 700;
@@ -54,7 +57,7 @@
 }
 
 .rp-meta-surface {
-    -fx-spacing: 3;
+    -fx-spacing: 6;
     -fx-padding: 9 12 9 12;
     -fx-background-color: rgba(255,255,255,0.05);
     -fx-background-radius: 14;
@@ -126,10 +129,33 @@
     -fx-font-size: 12px;
     -fx-font-weight: 700;
     -fx-text-fill: -fx-muted-color;
+    -fx-opacity: 0.65;
 }
 .rp-meta-capsules {
     -fx-spacing: 6;
     -fx-alignment: center-right;
+}
+
+.rp-case-meta-line {
+    -fx-alignment: center-left;
+    -fx-max-width: Infinity;
+}
+.rp-case-meta-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -fx-muted-color;
+}
+.rp-case-meta-value {
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-text-fill: -fx-text-color;
+    -fx-max-width: Infinity;
+}
+.rp-case-meta-empty {
+    -fx-font-size: 12px;
+    -fx-font-style: italic;
+    -fx-text-fill: -fx-muted-color;
+    -fx-max-width: Infinity;
 }
 
 /* ---- Даты ---- */
@@ -356,7 +382,21 @@
     -fx-font-size: 12px;
     -fx-font-weight: 600;
     -fx-text-fill: -fx-text-color;
-    -fx-wrap-text: true;
+    -fx-wrap-text: false;
+}
+.rp-history-link {
+    -fx-padding: 0 0 0 0;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+    -fx-alignment: center-left;
+    -fx-content-display: text-only;
+    -fx-underline: false;
+}
+.rp-history-link:hover {
+    -fx-text-fill: -fx-text-color;
+    -fx-opacity: 0.82;
+    -fx-underline: true;
 }
 .rp-history-ordinal {
     -fx-font-size: 12px;

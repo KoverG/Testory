@@ -56,10 +56,13 @@ public final class ReportsScreen implements CyclesLeftHost {
 
         if (rightRoot != null) {
             anim = new RightPaneAnimator(rightRoot);
+            rightRoot.setMinWidth(0);
         }
 
         if (rightPlaceholder != null) {
             rightPlaceholder.setSpacing(0);
+            rightPlaceholder.setMinWidth(0);
+            rightPlaceholder.setMaxWidth(Double.MAX_VALUE);
             cardView = new ReportCardView(this::closeRight);
             VBox.setVgrow(cardView.view(), Priority.ALWAYS);
             rightPlaceholder.getChildren().add(cardView.view());
