@@ -6,6 +6,7 @@ package app.domain.reports.model;
 public record ReportMetaSummary(
         String category,
         String environment,
+        String qaResponsible,
         String taskLabel,
         String taskUrl,
         String startedAt,
@@ -20,6 +21,7 @@ public record ReportMetaSummary(
     public boolean hasContext() {
         return !safe(category).isBlank()
                 || !safe(environment).isBlank()
+                || !safe(qaResponsible).isBlank()
                 || !safe(taskLabel).isBlank();
     }
 

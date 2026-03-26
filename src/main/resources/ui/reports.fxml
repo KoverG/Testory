@@ -23,7 +23,7 @@
             <HBox spacing="14">
 
                 <!-- Левая зона — идентична cycles.fxml, режим настраивается через LeftZoneMode.REPORTS -->
-                <VBox spacing="10" prefWidth="390" styleClass="cy-left">
+                <VBox spacing="10" minWidth="390" prefWidth="390" maxWidth="390" styleClass="cy-left">
 
                     <StackPane fx:id="leftStack"
                                VBox.vgrow="ALWAYS"
@@ -132,12 +132,14 @@
                            visible="false"
                            managed="false"
                            HBox.hgrow="ALWAYS"
+                           minWidth="0"
                            maxWidth="Infinity"
                            maxHeight="Infinity"
                            styleClass="cy-right-root">
 
                     <VBox fx:id="rightPlaceholder"
                           spacing="0"
+                          minWidth="0"
                           maxWidth="Infinity"
                           maxHeight="Infinity"
                           styleClass="cy-right-placeholder">

@@ -1,6 +1,7 @@
 package app.domain.reports.ui;
 
 import app.core.CardNavigationBridge;
+import app.core.I18n;
 import app.core.Router;
 import app.domain.reports.ReportsScreen;
 import app.domain.reports.export.HtmlReportExporter;
@@ -31,6 +32,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
 import java.awt.Desktop;
 import java.net.URI;
@@ -46,15 +48,6 @@ public final class ReportCardView {
     private static final List<String> STATUS_ORDER = List.of(
             "PASSED", "PASSED_WITH_BUGS", "FAILED", "CRITICAL_FAILED", "IN_PROGRESS", "SKIPPED"
     );
-    private static final Map<String, String> STATUS_LABELS = Map.of(
-            "PASSED", "Passed",
-            "PASSED_WITH_BUGS", "Passed with bugs",
-            "FAILED", "Failed",
-            "CRITICAL_FAILED", "Critical failed",
-            "IN_PROGRESS", "In progress",
-            "SKIPPED", "Skipped"
-    );
-
     private final ReportDataService dataService = new ReportDataService();
     private final HtmlReportExporter exporter = new HtmlReportExporter();
     private final Runnable onClose;
@@ -100,34 +93,44 @@ public final class ReportCardView {
         HBox.setHgrow(badgeSpacer, Priority.ALWAYS);
         HBox badgeRow = new HBox(8, lblTypeBadge, badgeSpacer, btnClose);
         badgeRow.setAlignment(Pos.CENTER_LEFT);
+        badgeRow.setMinWidth(0);
 
         HBox.setHgrow(lblTitle, Priority.ALWAYS);
         HBox titleRow = new HBox(8, btnNavigate, lblTitle);
         titleRow.setAlignment(Pos.CENTER_LEFT);
+        titleRow.setMinWidth(0);
 
         VBox header = new VBox(4, badgeRow, titleRow);
         header.getStyleClass().add("rp-header");
         header.setPadding(new Insets(0, 0, 4, 0));
+        header.setMinWidth(0);
 
         stickyMetaBox.getStyleClass().add("rp-sticky-block");
         stickyRecommendationBox.getStyleClass().add("rp-sticky-block");
+        stickyMetaBox.setMinWidth(0);
+        stickyRecommendationBox.setMinWidth(0);
         stickyMetaScrollbarGap.getStyleClass().add("rp-sticky-scroll-gap");
         stickyRecommendationScrollbarGap.getStyleClass().add("rp-sticky-scroll-gap");
 
         HBox stickyMetaRow = new HBox(stickyMetaBox, stickyMetaScrollbarGap);
         stickyMetaRow.setAlignment(Pos.TOP_LEFT);
+        stickyMetaRow.setMinWidth(0);
         HBox.setHgrow(stickyMetaBox, Priority.ALWAYS);
 
         HBox stickyRecommendationRow = new HBox(stickyRecommendationBox, stickyRecommendationScrollbarGap);
         stickyRecommendationRow.setAlignment(Pos.TOP_LEFT);
+        stickyRecommendationRow.setMinWidth(0);
         HBox.setHgrow(stickyRecommendationBox, Priority.ALWAYS);
 
         VBox stickyTopGroup = new VBox(6, header, stickyMetaRow);
+        stickyTopGroup.setMinWidth(0);
         VBox stickyHeader = new VBox(12, stickyTopGroup, stickyRecommendationRow);
         stickyHeader.getStyleClass().add("rp-sticky-header");
         stickyHeader.setFillWidth(true);
+        stickyHeader.setMinWidth(0);
 
         scrollContent.setPadding(new Insets(12, 0, 8, 0));
+        scrollContent.setMinWidth(0);
 
         bottomSpacer = new Region();
         bottomSpacer.setMinHeight(80);
@@ -143,10 +146,11 @@ public final class ReportCardView {
         VBox.setVgrow(scroll, Priority.ALWAYS);
 
         VBox contentBox = new VBox(0, stickyHeader, scroll);
+        contentBox.setMinWidth(0);
         contentBox.setMaxWidth(Double.MAX_VALUE);
         contentBox.setMaxHeight(Double.MAX_VALUE);
 
-        btnReport = new Button("Отчёт");
+        btnReport = new Button(tr("cy.menu.report", "Отчёт"));
         btnReport.getStyleClass().addAll("tc-filter-apply", "tc-save-btn", "tc-disabled-base");
         btnReport.setPrefWidth(250);
         btnReport.setFocusTraversable(false);
@@ -174,6 +178,7 @@ public final class ReportCardView {
         overlay.setPickOnBounds(false);
 
         root = new StackPane(contentBox, overlay);
+        root.setMinWidth(0);
         root.setMaxWidth(Double.MAX_VALUE);
         root.setMaxHeight(Double.MAX_VALUE);
 
@@ -225,7 +230,9 @@ public final class ReportCardView {
     }
 
     private void applyHeader(ReportData data) {
-        String typeText = data.target().type() == ReportTargetType.TEST_CASE ? "КЕЙС" : "ЦИКЛ";
+        String typeText = data.target().type() == ReportTargetType.TEST_CASE
+                ? tr("rp.type.case", "Кейс").toUpperCase()
+                : tr("rp.type.cycle", "Цикл").toUpperCase();
         lblTypeBadge.setText(typeText);
         lblTitle.setText(data.title().isBlank() ? data.target().id() : data.title());
         buildStickySections(data);
@@ -304,26 +311,33 @@ public final class ReportCardView {
             chipsRow.getStyleClass().add("rp-meta-chip-row");
             addChipIfPresent(chipsRow, meta.category(), null);
             addChipIfPresent(chipsRow, meta.environment(), null);
-            addTaskChipIfPresent(chipsRow, "Задача: " + meta.taskLabel(), meta.taskUrl());
+            if (meta.qaResponsible() != null && !meta.qaResponsible().isBlank()) {
+                addChipIfPresent(chipsRow, "QA: " + meta.qaResponsible(), null);
+            }
+            if (meta.taskLabel() != null && !meta.taskLabel().isBlank()) {
+                addTaskChipIfPresent(chipsRow, tr("rp.meta.task", "Задача") + ": " + meta.taskLabel(), meta.taskUrl());
+            }
             if (!chipsRow.getChildren().isEmpty()) {
                 box.getChildren().add(chipsRow);
             }
         }
 
         HBox timingRow = buildMetricRow(
-                new MetaMetric("Начат", meta.startedAt(), false, ""),
+                new MetaMetric(tr("rp.meta.started", "Начат"), meta.startedAt(), false, ""),
                 new MetaMetric(meta.lifecycleLabel(), meta.lifecycleValue(), false, ""),
-                new MetaMetric("Длительность", meta.duration(), true, meta.durationFull())
+                new MetaMetric(tr("rp.meta.duration", "Длительность"), meta.duration(), true, meta.durationFull())
         );
         if (!timingRow.getChildren().isEmpty()) {
             box.getChildren().add(timingRow);
         }
 
         HBox progressRow = buildMetricRow(
-                new MetaMetric("Всего кейсов", String.valueOf(meta.totalCases()), true, ""),
-                new MetaMetric("Пройдено кейсов", String.valueOf(meta.completedCases()), true, ""),
-                new MetaMetric("Прогресс", meta.completionPercent() + "%", true, "")
+                new MetaMetric(tr("rp.meta.totalCases", "Всего кейсов"), String.valueOf(meta.totalCases()), true, ""),
+                new MetaMetric(tr("rp.meta.completedCases", "Пройдено кейсов"), String.valueOf(meta.completedCases()), true, ""),
+                new MetaMetric(tr("rp.meta.progress", "Прогресс"), meta.completionPercent() + "%", true, "")
         );
+        progressRow.setMinHeight(24);
+        progressRow.setPrefHeight(24);
         if (trend != null && !trend.capsules().isEmpty()) {
             Region spacer = new Region();
             HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -353,8 +367,11 @@ public final class ReportCardView {
             box.getChildren().add(sub);
         }
 
+        box.getChildren().add(buildCaseMetaLine(tr("rp.case.labels", "Метки") + ":", data.caseLabelsText(), tr("rp.case.empty", "Нет данных")));
+        box.getChildren().add(buildCaseMetaLine(tr("rp.case.tags", "Теги") + ":", data.caseTagsText(), tr("rp.case.empty", "Нет данных")));
+
         if (!data.lastRunDate().isBlank()) {
-            HBox lastRunRow = buildMetricRow(new MetaMetric("Последнее прохождение", data.lastRunDate(), false, ""));
+            HBox lastRunRow = buildMetricRow(new MetaMetric(tr("rp.case.lastRun", "Последнее прохождение"), data.lastRunDate(), false, ""));
             box.getChildren().add(lastRunRow);
         }
 
@@ -382,6 +399,121 @@ public final class ReportCardView {
         Label sep = new Label("|");
         sep.getStyleClass().add("rp-meta-separator");
         return sep;
+    }
+
+    private Node buildCaseMetaLine(String headerText, String valueText, String emptyText) {
+        HBox row = new HBox(6);
+        row.setAlignment(Pos.CENTER_LEFT);
+        row.getStyleClass().add("rp-case-meta-line");
+        row.setMinWidth(0);
+        row.setMaxWidth(Double.MAX_VALUE);
+
+        Label header = new Label(headerText);
+        header.getStyleClass().add("rp-case-meta-label");
+        header.setMinWidth(Region.USE_PREF_SIZE);
+
+        boolean empty = valueText == null || valueText.isBlank();
+        Label value = new Label(empty ? emptyText : valueText);
+        value.setWrapText(false);
+        value.setMinWidth(0);
+        value.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(value, Priority.ALWAYS);
+        value.getStyleClass().add(empty ? "rp-case-meta-empty" : "rp-case-meta-value");
+
+        if (!empty) {
+            Tooltip.install(value, new Tooltip(valueText));
+            installFittedCaseMetaText(value, valueText);
+        }
+
+        row.getChildren().addAll(header, value);
+        return row;
+    }
+
+    private void installFittedCaseMetaText(Label label, String fullText) {
+        Runnable apply = () -> {
+            double width = label.getWidth();
+            if (width <= 0) {
+                width = label.prefWidth(-1);
+            }
+            if (width <= 0) {
+                return;
+            }
+            label.setText(fitMetaText(fullText, width, label));
+        };
+
+        label.widthProperty().addListener((obs, oldV, newV) -> apply.run());
+        label.fontProperty().addListener((obs, oldV, newV) -> apply.run());
+        label.sceneProperty().addListener((obs, oldV, newV) -> Platform.runLater(apply));
+        Platform.runLater(apply);
+    }
+
+    private static String fitMetaText(String fullText, double maxWidth, Label label) {
+        if (fullText == null || fullText.isBlank()) {
+            return "";
+        }
+        if (textWidth(fullText, label) <= maxWidth) {
+            return fullText;
+        }
+
+        List<String> parts = splitMetaValues(fullText);
+        if (parts.isEmpty()) {
+            return fitSingleToken(fullText, maxWidth, label);
+        }
+
+        String ellipsis = "...";
+        StringBuilder shown = new StringBuilder();
+        for (int i = 0; i < parts.size(); i++) {
+            String candidate = shown.isEmpty() ? parts.get(i) : shown + ", " + parts.get(i);
+            String candidateWithEllipsis = i < parts.size() - 1 ? candidate + ellipsis : candidate;
+            if (textWidth(candidateWithEllipsis, label) > maxWidth) {
+                if (shown.isEmpty()) {
+                    return fitSingleToken(parts.get(i) + ellipsis, maxWidth, label);
+                }
+                return shown + ellipsis;
+            }
+            shown.setLength(0);
+            shown.append(candidate);
+        }
+        return shown.toString();
+    }
+
+    private static List<String> splitMetaValues(String fullText) {
+        List<String> result = new ArrayList<>();
+        for (String part : fullText.split(",")) {
+            String trimmed = part == null ? "" : part.trim();
+            if (!trimmed.isEmpty()) {
+                result.add(trimmed);
+            }
+        }
+        return result;
+    }
+
+    private static String fitSingleToken(String text, double maxWidth, Label label) {
+        if (textWidth(text, label) <= maxWidth) {
+            return text;
+        }
+
+        String ellipsis = "...";
+        String clean = text == null ? "" : text.trim();
+        if (clean.isEmpty()) {
+            return "";
+        }
+
+        StringBuilder out = new StringBuilder();
+        for (int i = 0; i < clean.length(); i++) {
+            String candidate = out.toString() + clean.charAt(i) + ellipsis;
+            if (textWidth(candidate, label) > maxWidth) {
+                return out.isEmpty() ? ellipsis : out + ellipsis;
+            }
+            out.append(clean.charAt(i));
+        }
+        return out.toString();
+    }
+
+    private static double textWidth(String text, Label label) {
+        Text helper = new Text(text == null ? "" : text);
+        helper.setFont(label.getFont());
+        return helper.getLayoutBounds().getWidth();
     }
 
     private static void addChipIfPresent(HBox row, String text, String tooltipText) {
@@ -449,7 +581,7 @@ public final class ReportCardView {
     }
 
     private Node buildSummarySection(StatusSummarySection section) {
-        VBox box = sectionBox("Сводка");
+        VBox box = sectionBox(tr("rp.section.summary", "Сводка"));
 
         DonutChart donut = new DonutChart();
         List<DonutChart.Slice> slices = new ArrayList<>();
@@ -512,20 +644,20 @@ public final class ReportCardView {
         VBox box = new VBox(8);
         box.getStyleClass().add("rp-section");
 
-        Label lbl = new Label("История".toUpperCase());
+        Label lbl = new Label(tr("rp.section.history", "История").toUpperCase());
         lbl.getStyleClass().add("rp-section-title");
         box.getChildren().add(lbl);
 
         FlowPane filters = new FlowPane(8, 8);
         filters.getStyleClass().add("rp-history-filters");
-        filters.getChildren().add(buildHistoryFilterChip("Все", HISTORY_FILTER_ALL));
+        filters.getChildren().add(buildHistoryFilterChip(tr("rp.history.filter.all", "Все"), HISTORY_FILTER_ALL));
         for (String status : STATUS_ORDER) {
             if (historyHasStatus(section, status)) {
-                filters.getChildren().add(buildHistoryFilterChip(STATUS_LABELS.getOrDefault(status, status), status));
+                filters.getChildren().add(buildHistoryFilterChip(statusLabel(status), status));
             }
         }
         if (historyHasNotStarted(section)) {
-            filters.getChildren().add(buildHistoryFilterChip("Не начат", HISTORY_FILTER_NOT_STARTED));
+            filters.getChildren().add(buildHistoryFilterChip(tr("rp.status.notStarted", "Не начат"), HISTORY_FILTER_NOT_STARTED));
         }
         box.getChildren().add(filters);
 
@@ -534,7 +666,7 @@ public final class ReportCardView {
                 .toList();
 
         if (filteredRows.isEmpty()) {
-            Label empty = new Label("Нет кейсов по выбранному статусу");
+            Label empty = new Label(tr("rp.history.emptyFiltered", "Нет кейсов по выбранному статусу"));
             empty.getStyleClass().add("rp-history-empty");
             box.getChildren().add(empty);
             return box;
@@ -560,12 +692,11 @@ public final class ReportCardView {
         }
 
         Label badge = statusBadge(row.status());
+        badge.setMinWidth(Region.USE_PREF_SIZE);
+        badge.setPrefWidth(Region.USE_COMPUTED_SIZE);
+        badge.setMaxWidth(Region.USE_PREF_SIZE);
 
-        String titleText = row.title().isBlank() ? row.contextLabel() : row.title();
-        Label title = new Label(titleText);
-        title.getStyleClass().add("rp-history-title");
-        title.setTextOverrun(OverrunStyle.ELLIPSIS);
-        title.setMinWidth(0);
+        Node title = buildHistoryTitleNode(row);
         HBox.setHgrow(title, Priority.ALWAYS);
 
         Node commentNode = buildHistoryCommentNode(row);
@@ -674,6 +805,35 @@ public final class ReportCardView {
         return trimmed.substring(0, COMMENT_PREVIEW_LIMIT) + "...";
     }
 
+    private Node buildHistoryTitleNode(HistorySection.HistoryRow row) {
+        String titleText = row.title().isBlank() ? row.contextLabel() : row.title();
+        if (currentData != null
+                && currentData.target().type() == ReportTargetType.TEST_CASE
+                && row.title().isBlank()
+                && row.entityId() != null
+                && !row.entityId().isBlank()) {
+            Button button = new Button(titleText);
+            button.setFocusTraversable(false);
+            button.getStyleClass().addAll("rp-history-title", "rp-history-link");
+            button.setTextOverrun(OverrunStyle.ELLIPSIS);
+            button.setMinWidth(0);
+            button.setMaxWidth(Double.MAX_VALUE);
+            button.setOnAction(e -> {
+                ReportsScreen.setPendingRestore(currentData.target());
+                CardNavigationBridge.requestCycleHistoryNavigation(row.entityId(), currentData.target().id());
+                Router.get().cycles();
+            });
+            return button;
+        }
+
+        Label title = new Label(titleText);
+        title.getStyleClass().add("rp-history-title");
+        title.setTextOverrun(OverrunStyle.ELLIPSIS);
+        title.setMinWidth(0);
+        title.setMaxWidth(Double.MAX_VALUE);
+        return title;
+    }
+
     private static VBox sectionBox(String sectionTitle) {
         VBox box = new VBox(8);
         box.getStyleClass().add("rp-section");
@@ -687,7 +847,7 @@ public final class ReportCardView {
 
     private static Label statusBadge(String status) {
         boolean blank = status == null || status.isBlank();
-        String label = blank ? "Не начат" : STATUS_LABELS.getOrDefault(status, status);
+        String label = blank ? tr("rp.status.notStarted", "Не начат") : statusLabel(status);
         Label badge = new Label(label);
         badge.getStyleClass().addAll("rp-badge", badgeCssClass(status));
         return badge;
@@ -726,9 +886,9 @@ public final class ReportCardView {
 
     private static String capsuleLabel(String colorKey) {
         return switch (colorKey == null ? "" : colorKey) {
-            case "passed" -> "Passed";
-            case "bugs" -> "With bugs";
-            case "failed" -> "Failed";
+            case "passed" -> tr("rp.capsule.passed", "Passed");
+            case "bugs" -> tr("rp.capsule.bugs", "With bugs");
+            case "failed" -> tr("rp.capsule.failed", "Failed");
             default -> colorKey;
         };
     }
@@ -738,7 +898,7 @@ public final class ReportCardView {
             hintReport.setText(" ");
             hintReport.setOpacity(0.0);
         } else {
-            hintReport.setText("Выберите решение для создания отчёта");
+            hintReport.setText(tr("rp.report.hint.selectRecommendation", "Выберите решение для создания отчёта"));
             hintReport.setOpacity(1.0);
         }
     }
@@ -747,14 +907,14 @@ public final class ReportCardView {
         VBox box = new VBox(8);
         box.getStyleClass().add("rp-section");
 
-        Label lbl = new Label("Решение".toUpperCase());
+        Label lbl = new Label(tr("rp.section.recommendation", "Решение").toUpperCase());
         lbl.getStyleClass().add("rp-section-title");
 
         List<RecommendationChip> chips = List.of(
-                new RecommendationChip("none", "Без решения", "rp-recommend-chip-none-active"),
-                new RecommendationChip("recommended", "Рекомендован", "rp-recommend-chip-recommended"),
-                new RecommendationChip("needs_work", "Требует доработки", "rp-recommend-chip-needs-work"),
-                new RecommendationChip("not_recommended", "Не рекомендован", "rp-recommend-chip-not-recommended")
+                new RecommendationChip("none", tr("rp.recommend.none", "Без решения"), "rp-recommend-chip-none-active"),
+                new RecommendationChip("recommended", tr("rp.recommend.recommended", "Рекомендован"), "rp-recommend-chip-recommended"),
+                new RecommendationChip("needs_work", tr("rp.recommend.needsWork", "Требует доработки"), "rp-recommend-chip-needs-work"),
+                new RecommendationChip("not_recommended", tr("rp.recommend.notRecommended", "Не рекомендован"), "rp-recommend-chip-not-recommended")
         );
 
         FlowPane chipsPane = new FlowPane(8, 8);
@@ -805,6 +965,29 @@ public final class ReportCardView {
             Desktop.getDesktop().browse(URI.create(url));
         } catch (Exception ignore) {
         }
+    }
+
+    private static String statusLabel(String status) {
+        if (status == null || status.isBlank()) {
+            return tr("rp.status.notStarted", "Не начат");
+        }
+        return switch (status) {
+            case "PASSED" -> tr("rp.status.passed", "Passed");
+            case "PASSED_WITH_BUGS" -> tr("rp.status.passedWithBugs", "Passed with bugs");
+            case "FAILED" -> tr("rp.status.failed", "Failed");
+            case "CRITICAL_FAILED" -> tr("rp.status.criticalFailed", "Critical failed");
+            case "IN_PROGRESS" -> tr("rp.status.inProgress", "In progress");
+            case "SKIPPED" -> tr("rp.status.skipped", "Skipped");
+            default -> status;
+        };
+    }
+
+    private static String tr(String key, String fallback) {
+        String value = I18n.t(key);
+        if (value == null || value.isBlank() || value.equals("!" + key + "!")) {
+            return fallback;
+        }
+        return value;
     }
 
     private record RecommendationChip(String value, String label, String activeClass) {}

@@ -10,6 +10,8 @@ public record ReportData(
         ReportTarget target,
         String title,
         String subtitle,
+        String caseLabelsText,
+        String caseTagsText,
         String startedAt,
         String finishedAt,
         String lastRunDate,
