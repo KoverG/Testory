@@ -36,6 +36,13 @@
         "createdAtUi": "19.03.2026",
         "status": "",
         "comment": ""
+      },
+      {
+        "cycleId": "cy_20260325214231585_445",
+        "cycleTitle": "Тест цикла с категорией и задачей",
+        "createdAtUi": "25.03.2026",
+        "status": "PASSED_WITH_BUGS",
+        "comment": ""
       }
     ],
     "tc_20260206003835923_696": [
@@ -89,6 +96,13 @@
         "comment": ""
       },
       {
+        "cycleId": "cy_20260315221506182_630",
+        "cycleTitle": "Тест в процессе 2",
+        "createdAtUi": "15.03.2026",
+        "status": "FAILED",
+        "comment": ""
+      },
+      {
         "cycleId": "cy_20260319095733871_341",
         "cycleTitle": "Цикл pass with bugs",
         "createdAtUi": "19.03.2026",
@@ -114,6 +128,13 @@
         "cycleTitle": "Цест цикла в ВС",
         "createdAtUi": "22.03.2026",
         "status": "FAILED",
+        "comment": ""
+      },
+      {
+        "cycleId": "cy_20260325214231585_445",
+        "cycleTitle": "Тест цикла с категорией и задачей",
+        "createdAtUi": "25.03.2026",
+        "status": "PASSED",
         "comment": ""
       }
     ],
@@ -143,7 +164,7 @@
         "cycleId": "cy_20260315221506182_630",
         "cycleTitle": "Тест в процессе 2",
         "createdAtUi": "15.03.2026",
-        "status": "CRITICAL_FAILED",
+        "status": "FAILED",
         "comment": ""
       }
     ],
@@ -196,6 +217,13 @@
         "createdAtUi": "22.03.2026",
         "status": "PASSED",
         "comment": ""
+      },
+      {
+        "cycleId": "cy_20260325214231585_445",
+        "cycleTitle": "Тест цикла с категорией и задачей",
+        "createdAtUi": "25.03.2026",
+        "status": "PASSED",
+        "comment": "комент с сылкой https://www.youtube.com/watch"
       }
     ],
     "tc_20251231111400242_330": [
@@ -350,9 +378,23 @@
         "createdAtUi": "22.03.2026",
         "status": "CRITICAL_FAILED",
         "comment": ""
+      },
+      {
+        "cycleId": "cy_20260325214231585_445",
+        "cycleTitle": "Тест цикла с категорией и задачей",
+        "createdAtUi": "25.03.2026",
+        "status": "CRITICAL_FAILED",
+        "comment": ""
       }
     ],
     "tc_20260113104800609_759": [
+      {
+        "cycleId": "cy_20260315221506182_630",
+        "cycleTitle": "Тест в процессе 2",
+        "createdAtUi": "15.03.2026",
+        "status": "",
+        "comment": ""
+      },
       {
         "cycleId": "cy_20260319095733871_341",
         "cycleTitle": "Цикл pass with bugs",
@@ -365,6 +407,13 @@
         "cycleTitle": "Тест старта цикла",
         "createdAtUi": "19.03.2026",
         "status": "",
+        "comment": ""
+      },
+      {
+        "cycleId": "cy_20260325214231585_445",
+        "cycleTitle": "Тест цикла с категорией и задачей",
+        "createdAtUi": "25.03.2026",
+        "status": "PASSED",
         "comment": ""
       }
     ],
@@ -382,6 +431,13 @@
         "createdAtUi": "19.03.2026",
         "status": "",
         "comment": ""
+      },
+      {
+        "cycleId": "cy_20260325214231585_445",
+        "cycleTitle": "Тест цикла с категорией и задачей",
+        "createdAtUi": "25.03.2026",
+        "status": "PASSED",
+        "comment": ""
       }
     ],
     "tc_20260106140730186_659": [
@@ -398,15 +454,36 @@
         "createdAtUi": "19.03.2026",
         "status": "",
         "comment": ""
+      },
+      {
+        "cycleId": "cy_20260325214231585_445",
+        "cycleTitle": "Тест цикла с категорией и задачей",
+        "createdAtUi": "25.03.2026",
+        "status": "PASSED",
+        "comment": "очень длинный комента с продолжением"
       }
     ],
     "tc_20260106232004582_190": [
+      {
+        "cycleId": "cy_20260315221506182_630",
+        "cycleTitle": "Тест в процессе 2",
+        "createdAtUi": "15.03.2026",
+        "status": "PASSED",
+        "comment": ""
+      },
       {
         "cycleId": "cy_20260319104638603_289",
         "cycleTitle": "Тест старта цикла",
         "createdAtUi": "19.03.2026",
         "status": "",
         "comment": ""
+      },
+      {
+        "cycleId": "cy_20260325214231585_445",
+        "cycleTitle": "Тест цикла с категорией и задачей",
+        "createdAtUi": "25.03.2026",
+        "status": "PASSED",
+        "comment": "короткий комент"
       }
     ],
     "tc_20260104001322398_575": [
@@ -430,7 +507,7 @@
         "cycleId": "cy_20260315221506182_630",
         "cycleTitle": "Тест в процессе 2",
         "createdAtUi": "15.03.2026",
-        "status": "",
+        "status": "IN_PROGRESS",
         "comment": ""
       },
       {
@@ -443,6 +520,13 @@
     ],
     "tc_20260104001322782_660": [
       {
+        "cycleId": "cy_20260315221506182_630",
+        "cycleTitle": "Тест в процессе 2",
+        "createdAtUi": "15.03.2026",
+        "status": "PASSED",
+        "comment": ""
+      },
+      {
         "cycleId": "cy_20260319104638603_289",
         "cycleTitle": "Тест старта цикла",
         "createdAtUi": "19.03.2026",
@@ -451,6 +535,13 @@
       }
     ],
     "tc_20260104001311114_661": [
+      {
+        "cycleId": "cy_20260315221506182_630",
+        "cycleTitle": "Тест в процессе 2",
+        "createdAtUi": "15.03.2026",
+        "status": "PASSED",
+        "comment": ""
+      },
       {
         "cycleId": "cy_20260319104638603_289",
         "cycleTitle": "Тест старта цикла",
@@ -505,6 +596,24 @@
       }
     ],
     "tc_20260104001311575_576": [
+      {
+        "cycleId": "cy_20260315221506182_630",
+        "cycleTitle": "Тест в процессе 2",
+        "createdAtUi": "15.03.2026",
+        "status": "",
+        "comment": ""
+      }
+    ],
+    "tc_20260104001310627_454": [
+      {
+        "cycleId": "cy_20260315221506182_630",
+        "cycleTitle": "Тест в процессе 2",
+        "createdAtUi": "15.03.2026",
+        "status": "",
+        "comment": ""
+      }
+    ],
+    "tc_20260104000512206_418": [
       {
         "cycleId": "cy_20260315221506182_630",
         "cycleTitle": "Тест в процессе 2",

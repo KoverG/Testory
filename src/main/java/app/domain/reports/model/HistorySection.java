@@ -17,6 +17,7 @@ public record HistorySection(
     public String sectionType() { return TYPE; }
 
     public record HistoryRow(
+            int ordinal,
             String entityId,     // caseId или cycleId
             String title,        // название кейса или цикла
             String status,
