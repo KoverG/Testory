@@ -76,10 +76,15 @@ public final class HtmlReportExporter {
         sb.append("  <div class=\"header-topline\">\n");
         appendTopMeta(sb, "Сгенерировано", genDate);
         appendTopMeta(sb, "Тип", typeLabel);
-        appendRecommendationMeta(sb, recommendation);
+        if (data.target().type() == app.domain.reports.model.ReportTargetType.CYCLE) {
+            appendRecommendationMeta(sb, recommendation);
+        }
         sb.append("    <button type=\"button\" class=\"theme-toggle\" data-theme-toggle aria-label=\"Переключить тему\"><span class=\"theme-toggle-light\">Светлая</span><span class=\"theme-toggle-divider\">/</span><span class=\"theme-toggle-dark\">Темная</span></button>\n");
         sb.append("  </div>\n");
-        sb.append("  <h1>").append(esc(data.title())).append("</h1>\n");
+        sb.append("  <div class=\"header-title-row\">");
+        appendIconLink(sb, data.caseTaskUrl(), "Открыть задачу", "header-task-link");
+        sb.append("<h1>").append(esc(data.title())).append("</h1>");
+        sb.append("</div>\n");
 
         if (data.metaSummary() != null) {
             renderMetaSummary(data.metaSummary(), data.<TrendSection>section(TrendSection.TYPE).orElse(null), recommendation, sb);
@@ -190,6 +195,19 @@ public final class HtmlReportExporter {
                 .append("\" target=\"_blank\" rel=\"noopener noreferrer\">")
                 .append(esc(text))
                 .append("</a>\n");
+    }
+
+    static void appendIconLink(StringBuilder sb, String url, String ariaLabel, String cssClass) {
+        if (url == null || url.isBlank()) return;
+        sb.append("<a class=\"")
+                .append(cssClass)
+                .append("\" href=\"")
+                .append(esc(url))
+                .append("\" title=\"")
+                .append(esc(url))
+                .append("\" aria-label=\"")
+                .append(esc(ariaLabel))
+                .append("\" target=\"_blank\" rel=\"noopener noreferrer\">&#128279;</a>");
     }
 
     private static void appendMetric(StringBuilder sb, String label, String value, boolean strongValue, String tooltipText) {
@@ -314,7 +332,10 @@ public final class HtmlReportExporter {
             ".theme-toggle-light, .theme-toggle-dark { opacity: .55; }\n" +
             "body[data-theme='light'] .theme-toggle-light, body[data-theme='dark'] .theme-toggle-dark { opacity: 1; color: var(--text); }\n" +
             ".theme-toggle-divider { color: var(--muted); }\n" +
-            "h1 { font-size: 22px; font-weight: 700; margin-bottom: 8px; color: var(--text); }\n" +
+            ".header-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }\n" +
+            "h1 { font-size: 22px; font-weight: 700; margin: 0; color: var(--text); }\n" +
+            ".header-task-link { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-muted); color: var(--text-soft); text-decoration: none; font-size: 15px; line-height: 1; transition: background-color .2s ease, border-color .2s ease, color .2s ease; }\n" +
+            ".header-task-link:hover { background: var(--surface-muted-hover); color: var(--text); }\n" +
             ".subtitle { color: var(--text-soft); margin-bottom: 4px; }\n" +
             ".meta-line { font-size: 12px; color: var(--muted); margin-top: 6px; }\n" +
             ".meta-surface { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface-soft); transition: background .2s ease, border-color .2s ease; }\n" +
@@ -349,7 +370,7 @@ public final class HtmlReportExporter {
             ".summary-donut-label { margin-top: 4px; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }\n" +
             ".summary-legend { flex: 1 1 320px; display: grid; gap: 10px; }\n" +
             ".summary-row { display: flex; align-items: center; gap: 12px; }\n" +
-            ".summary-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 180px; min-height: 30px; padding: 0 12px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: none; letter-spacing: 0; }\n" +
+            ".summary-badge { display: inline-flex !important; align-items: center; justify-content: center; text-align: center; min-width: 180px; min-height: 30px; padding: 0 12px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: none; letter-spacing: 0; line-height: 1.2; }\n" +
             ".summary-metrics { display: inline-flex; align-items: baseline; gap: 8px; font-size: 14px; color: var(--text); }\n" +
             ".summary-pct { font-size: 12px; font-weight: 700; color: var(--muted); }\n" +
             ".history-filter-group { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }\n" +
@@ -357,7 +378,10 @@ public final class HtmlReportExporter {
             ".history-filter-chip:hover { background: var(--surface-muted); color: var(--text); }\n" +
             ".history-filter-chip-active { background: var(--surface-muted-hover); border-color: var(--border-strong); color: var(--text); }\n" +
             ".history-empty-filtered { font-size: 12px; color: var(--muted); margin-bottom: 12px; }\n" +
-            ".history-table td:first-child, .history-table th:first-child { width: 52px; text-align: center; }\n" +
+            ".history-table.history-has-ordinal td:first-child, .history-table.history-has-ordinal th:first-child { width: 52px; text-align: center; }\n" +
+            ".history-link-col { width: 46px; min-width: 46px; text-align: center; }\n" +
+            ".history-task-link { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 6px; color: var(--text-soft); text-decoration: none; font-size: 12px; line-height: 1; transition: background-color .15s ease, color .15s ease; }\n" +
+            ".history-task-link:hover { background: var(--surface-muted-hover); color: var(--text); }\n" +
             ".history-table td:last-child, .history-table th:last-child { white-space: nowrap; width: 148px; }\n" +
             ".trend { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 6px; }\n" +
             ".capsule { display: inline-flex; align-items: center; justify-content: center; height: 30px; border-radius: 999px; font-size: 12px; font-weight: 800; color: #fff; }\n" +

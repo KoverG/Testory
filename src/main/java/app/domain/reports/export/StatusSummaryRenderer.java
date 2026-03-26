@@ -33,10 +33,22 @@ public final class StatusSummaryRenderer implements SectionRenderer {
             int count = entry.getValue();
             if (count == 0) continue;
             double pct = s.total() > 0 ? (count * 100.0 / s.total()) : 0;
-            String inlineStyle = CaseStatusRegistry.htmlBadgeStyle(entry.getKey());
+            String status = entry.getKey();
+            boolean blank = status == null || status.isBlank();
+            String inlineStyle = blank ? "" : CaseStatusRegistry.htmlBadgeStyle(status);
+
             out.append("      <div class=\"summary-row\">\n");
-            out.append("        <span class=\"badge summary-badge\" style=\"").append(htmlEscape(inlineStyle)).append("\">")
-                    .append(htmlEscape(CaseStatusRegistry.displayLabel(entry.getKey()))).append("</span>\n");
+            out.append("        <span class=\"badge summary-badge");
+            if (blank) {
+                out.append(" status-unknown");
+            }
+            out.append("\"");
+            if (!blank) {
+                out.append(" style=\"").append(htmlEscape(inlineStyle)).append("\"");
+            }
+            out.append(">")
+                    .append(htmlEscape(blank ? "Не начат" : CaseStatusRegistry.displayLabel(status)))
+                    .append("</span>\n");
             out.append("        <span class=\"summary-metrics\"><strong>").append(count).append("</strong><span class=\"summary-pct\">")
                     .append(String.format(Locale.US, "%.0f%%", pct)).append("</span></span>\n");
             out.append("      </div>\n");
@@ -63,7 +75,7 @@ public final class StatusSummaryRenderer implements SectionRenderer {
             if (!first) {
                 gradient.append(", ");
             }
-            gradient.append(CaseStatusRegistry.color(entry.getKey()))
+            gradient.append(colorForStatus(entry.getKey()))
                     .append(" ")
                     .append(String.format(Locale.US, "%.2fdeg %.2fdeg", start, end));
             start = end;
@@ -78,6 +90,13 @@ public final class StatusSummaryRenderer implements SectionRenderer {
         }
         gradient.append(");");
         return gradient.toString();
+    }
+
+    private static String colorForStatus(String status) {
+        if (status == null || status.isBlank()) {
+            return "#d0d7de";
+        }
+        return CaseStatusRegistry.color(status);
     }
 
     static String htmlEscape(String s) {

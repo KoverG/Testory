@@ -45,7 +45,7 @@ public final class TaskLinkChip extends HBox {
 
     private String url = "";
     private String title = "";
-
+    private boolean editable = true;
     // notify coordinator that chip data changed (so save-gate can react)
     private Runnable onTaskLinkChanged;
 
@@ -127,7 +127,17 @@ public final class TaskLinkChip extends HBox {
     public void setTaskLink(String title, String url) {
         this.title = safe(title);
         this.url = safe(url);
+        refreshView();
+    }
 
+    public void setEditable(boolean editable) {
+        this.editable = editable;
+        refreshView();
+    }
+
+    public boolean isEditable() { return editable; }
+
+    private void refreshView() {
         boolean filled = !this.url.isBlank();
 
         // важно: не накапливать обработчики
@@ -153,20 +163,22 @@ public final class TaskLinkChip extends HBox {
 
             uninstallTooltip();
 
-            iconBtn.setOnAction(e -> {
-                beforeOpen.run();
-                if (modal.consumeSuppressNextOpenClick()) return;
-                modal.toggle(true);
-            });
-
-            setOnMouseClicked(e -> {
-                if (e.getButton() == MouseButton.PRIMARY) {
-                    e.consume();
+            if (editable) {
+                iconBtn.setOnAction(e -> {
                     beforeOpen.run();
                     if (modal.consumeSuppressNextOpenClick()) return;
                     modal.toggle(true);
-                }
-            });
+                });
+
+                setOnMouseClicked(e -> {
+                    if (e.getButton() == MouseButton.PRIMARY) {
+                        e.consume();
+                        beforeOpen.run();
+                        if (modal.consumeSuppressNextOpenClick()) return;
+                        modal.toggle(true);
+                    }
+                });
+            }
 
         } else {
             UiSvg.setButtonSvg(iconBtn, ICON_OPEN, 12);
@@ -184,29 +196,31 @@ public final class TaskLinkChip extends HBox {
             iconBtn.setOnAction(e -> openUrlSafe(this.url));
 
             // click chip/text => edit modal
-            EventHandler<MouseEvent> openEdit = e -> {
-                if (e.getButton() != MouseButton.PRIMARY) return;
-                e.consume();
-                beforeOpen.run();
-                if (modal.consumeSuppressNextOpenClick()) return;
-                modal.toggle(false);
-            };
+            if (editable) {
+                EventHandler<MouseEvent> openEdit = e -> {
+                    if (e.getButton() != MouseButton.PRIMARY) return;
+                    e.consume();
+                    beforeOpen.run();
+                    if (modal.consumeSuppressNextOpenClick()) return;
+                    modal.toggle(false);
+                };
 
-            text.setOnMouseClicked(openEdit);
-            spacer.setOnMouseClicked(openEdit);
+                text.setOnMouseClicked(openEdit);
+                spacer.setOnMouseClicked(openEdit);
 
-            setOnMouseClicked(e -> {
-                if (e.getButton() != MouseButton.PRIMARY) return;
+                setOnMouseClicked(e -> {
+                    if (e.getButton() != MouseButton.PRIMARY) return;
 
-                Object t = e.getTarget();
-                if (t instanceof Node node) {
-                    if (isDescendantOf(node, iconBtn)) return; // icon has its own action
-                }
-                e.consume();
-                beforeOpen.run();
-                if (modal.consumeSuppressNextOpenClick()) return;
-                modal.toggle(false);
-            });
+                    Object t = e.getTarget();
+                    if (t instanceof Node node) {
+                        if (isDescendantOf(node, iconBtn)) return; // icon has its own action
+                    }
+                    e.consume();
+                    beforeOpen.run();
+                    if (modal.consumeSuppressNextOpenClick()) return;
+                    modal.toggle(false);
+                });
+            }
         }
     }
 

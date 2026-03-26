@@ -45,6 +45,8 @@ public final class TestCaseCardJsonReader {
 
         tc.setTitle(readString(json, "title"));
         tc.setDescription(readString(json, "description"));
+        tc.setTaskLinkTitle(readString(json, "taskLinkTitle"));
+        tc.setTaskLinkUrl(readString(json, "taskLinkUrl"));
         tc.setLabels(readStringArray(json, "labels"));
         tc.setTags(readStringArray(json, "tags"));
 
@@ -72,6 +74,8 @@ public final class TestCaseCardJsonReader {
         d.number = readString(json, "number");
         d.title = readString(json, "title");
         d.description = readString(json, "description");
+        d.taskLinkTitle = readString(json, "taskLinkTitle");
+        d.taskLinkUrl = readString(json, "taskLinkUrl");
 
         d.labels = readStringArray(json, "labels");
         d.tags = readStringArray(json, "tags");

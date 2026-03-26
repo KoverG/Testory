@@ -19,6 +19,8 @@ public final class TestCaseDraft {
 
     public String title = "";
     public String description = "";
+    public String taskLinkTitle = "";
+    public String taskLinkUrl = "";
 
     public List<String> labels = new ArrayList<>();
     public List<String> tags = new ArrayList<>();

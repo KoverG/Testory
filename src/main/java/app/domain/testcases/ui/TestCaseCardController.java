@@ -34,6 +34,7 @@ public class TestCaseCardController {
     // Top row
     @FXML private HBox rightTopRow;
 
+    @FXML private HBox taskLinkHost;
     @FXML private TextField tfPrivTop;
     @FXML private Button btnEditPriv;
 
@@ -136,6 +137,7 @@ public class TestCaseCardController {
     public VBox rightCard() { return rightCard; }
     public HBox rightTopRow() { return rightTopRow; }
 
+    public HBox taskLinkHost() { return taskLinkHost; }
     public TextField tfPrivTop() { return tfPrivTop; }
     public Button btnEditPriv() { return btnEditPriv; }
     public TextField tfTop2() { return tfTop2; }

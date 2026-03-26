@@ -46,9 +46,8 @@ public final class StatusSummarySectionProvider implements ReportSectionProvider
         Map<String, Integer> counts = new LinkedHashMap<>();
         for (var entry : entries) {
             String status = entry.status();
-            if (status != null && !status.isBlank()) {
-                counts.merge(status.trim().toUpperCase(), 1, Integer::sum);
-            }
+            String normalized = status == null ? "" : status.trim().toUpperCase();
+            counts.merge(normalized, 1, Integer::sum);
         }
 
         int total = entries.size();
@@ -67,9 +66,8 @@ public final class StatusSummarySectionProvider implements ReportSectionProvider
             if (ref == null) continue;
             total++;
             String status = ref.safeStatus();
-            if (!status.isBlank()) {
-                counts.merge(status.trim().toUpperCase(), 1, Integer::sum);
-            }
+            String normalized = status == null ? "" : status.trim().toUpperCase();
+            counts.merge(normalized, 1, Integer::sum);
         }
 
         if (total == 0) return Optional.empty();

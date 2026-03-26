@@ -23,6 +23,7 @@ public final class HistoryRenderer implements SectionRenderer {
         HistorySection s = (HistorySection) section;
         if (s.rows().isEmpty()) return;
 
+        boolean showOrdinalColumn = s.rows().stream().anyMatch(row -> row.ordinal() > 0);
         String filterId = "history-filter-" + Integer.toHexString(System.identityHashCode(s));
         out.append("<section class=\"section history-section\" data-history-section>\n");
         out.append("  <h2>История прохождений</h2>\n");
@@ -38,23 +39,45 @@ public final class HistoryRenderer implements SectionRenderer {
         }
         out.append("  </div>\n");
         out.append("  <p class=\"history-empty-filtered\" hidden>Нет кейсов по выбранному статусу</p>\n");
-        out.append("  <table class=\"history-table\">\n");
+        out.append("  <table class=\"history-table");
+        if (showOrdinalColumn) {
+            out.append(" history-has-ordinal");
+        }
+        out.append("\">\n");
         out.append("    <thead><tr>\n");
-        out.append("      <th>№</th><th>Статус</th><th>Имя кейса</th><th>Комментарий</th><th>Дата</th>\n");
+        if (showOrdinalColumn) {
+            out.append("      <th>№</th>");
+        }
+        out.append("<th>Статус</th><th class=\"history-link-col\"></th><th>Имя кейса</th><th>Комментарий</th><th>Дата</th>\n");
         out.append("    </tr></thead>\n");
         out.append("    <tbody>\n");
 
         for (var row : s.rows()) {
-            String inlineStyle = CaseStatusRegistry.htmlBadgeStyle(row.status());
             String title = row.title().isBlank() ? row.contextLabel() : row.title();
             String status = normalizedStatus(row.status());
+            boolean blank = status.isBlank();
+            String inlineStyle = blank ? "" : CaseStatusRegistry.htmlBadgeStyle(status);
 
             out.append("    <tr class=\"history-row\" data-history-row data-status=\"")
                     .append(StatusSummaryRenderer.htmlEscape(status))
                     .append("\">\n");
-            out.append("      <td>").append(formatOrdinal(row.ordinal())).append("</td>\n");
-            out.append("      <td><span class=\"badge\" style=\"").append(StatusSummaryRenderer.htmlEscape(inlineStyle)).append("\">")
-                    .append(StatusSummaryRenderer.htmlEscape(CaseStatusRegistry.displayLabel(row.status()))).append("</span></td>\n");
+            if (showOrdinalColumn) {
+                out.append("      <td>").append(formatOrdinal(row.ordinal())).append("</td>\n");
+            }
+            out.append("      <td><span class=\"badge");
+            if (blank) {
+                out.append(" status-unknown");
+            }
+            out.append("\"");
+            if (!blank) {
+                out.append(" style=\"").append(StatusSummaryRenderer.htmlEscape(inlineStyle)).append("\"");
+            }
+            out.append(">")
+                    .append(StatusSummaryRenderer.htmlEscape(blank ? "Не начат" : CaseStatusRegistry.displayLabel(status)))
+                    .append("</span></td>\n");
+            out.append("      <td class=\"history-link-col\">");
+            HtmlReportExporter.appendIconLink(out, row.taskUrl(), "Открыть задачу кейса", "history-task-link");
+            out.append("</td>\n");
             out.append("      <td>").append(StatusSummaryRenderer.htmlEscape(title)).append("</td>\n");
             out.append("      <td>").append(StatusSummaryRenderer.htmlEscape(row.comment())).append("</td>\n");
             out.append("      <td>").append(StatusSummaryRenderer.htmlEscape(row.dateLabel())).append("</td>\n");
@@ -109,6 +132,6 @@ public final class HistoryRenderer implements SectionRenderer {
     }
 
     private static String formatOrdinal(int ordinal) {
-        return ordinal > 0 ? Integer.toString(ordinal) : "—";
+        return ordinal > 0 ? Integer.toString(ordinal) : "";
     }
 }

@@ -3,6 +3,7 @@ package app.domain.testcases;
 
 import app.core.CardNavigationBridge;
 import app.core.I18n;
+import app.domain.cycles.ui.right.TaskLinkChip;
 import app.domain.testcases.repo.TestCaseCardStore;
 import app.domain.testcases.repo.TestCaseIndexStore;
 import app.domain.testcases.ui.LeftDeleteConfirm;
@@ -155,8 +156,11 @@ public class TestCasesController {
 
     @FXML private VBox rightPane;
     @FXML private VBox rightCard;
+    @FXML private StackPane rightRootStack;
 
     @FXML private HBox rightTopRow;
+    private HBox taskLinkHost;
+    private TaskLinkChip taskLinkChip;
 
     @FXML private Button btnEdit;      // global edit button
 
@@ -258,6 +262,7 @@ public class TestCasesController {
             // take node references from fragment controller
             rightCard = testcaseCardController.rightCard();
             rightTopRow = testcaseCardController.rightTopRow();
+            taskLinkHost = testcaseCardController.taskLinkHost();
 
             tfPrivTop = testcaseCardController.tfPrivTop();
             btnEditPriv = testcaseCardController.btnEditPriv();
@@ -344,6 +349,13 @@ public class TestCasesController {
 
         chipFactory = new RightChipFactory(spRight, ICON_CLOSE);
 
+        if (taskLinkHost != null) {
+            taskLinkChip = new TaskLinkChip();
+            taskLinkChip.install(rightRootStack);
+            taskLinkChip.setOnTaskLinkChanged(() -> Platform.runLater(this::updateSaveGateUi));
+            taskLinkHost.getChildren().setAll(taskLinkChip);
+        }
+
         rightPaneCtl = new TestCaseRightPane(
                 rightPane,
                 rightCard,
@@ -387,6 +399,7 @@ public class TestCasesController {
                 ICON_GRIP
         );
 
+        rightPaneCtl.setTaskLinkChip(taskLinkChip);
         rightPaneCtl.init();
         rightPaneCtl.setOnSaved(this::reloadFromDisk);
 
@@ -1218,9 +1231,10 @@ public class TestCasesController {
             return false;
         }
 
-        // 2) если нельзя редактировать => Save disabled, причина "locked"
+        // 2) если нельзя редактировать, но менялась только ссылка задачи, Save все равно разрешаем
         boolean allowEdit = tfTop2 != null && tfTop2.isEditable();
-        if (!allowEdit) {
+        boolean allowTaskLinkOnlySave = rightPaneCtl != null && rightPaneCtl.isTaskLinkDirty();
+        if (!allowEdit && !allowTaskLinkOnlySave) {
             setSaveEnabled(false);
             clearInvalidGlow();
             if (rightPaneCtl != null) rightPaneCtl.setLastSaveBlockMessage("locked");

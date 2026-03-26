@@ -44,6 +44,7 @@ public final class ReportDataService {
         String subtitle = resolveSubtitle(target);
         String caseLabelsText = resolveCaseLabelsText(target);
         String caseTagsText = resolveCaseTagsText(target);
+        String caseTaskUrl = resolveCaseTaskUrl(target);
         String startedAt = resolveStartedAt(target);
         String finishedAt = resolveFinishedAt(target);
         String lastDate = resolveLastDate(target);
@@ -55,7 +56,7 @@ public final class ReportDataService {
             section.ifPresent(sections::add);
         }
 
-        return new ReportData(target, title, subtitle, caseLabelsText, caseTagsText, startedAt, finishedAt, lastDate, metaSummary, sections);
+        return new ReportData(target, title, subtitle, caseLabelsText, caseTagsText, caseTaskUrl, startedAt, finishedAt, lastDate, metaSummary, sections);
     }
 
     private String resolveTitle(ReportTarget target) {
@@ -86,6 +87,14 @@ public final class ReportDataService {
         }
         TestCase tc = readCase(target.id());
         return tc == null ? "" : safe(tc.tagsText());
+    }
+
+    private String resolveCaseTaskUrl(ReportTarget target) {
+        if (target.type() != ReportTargetType.TEST_CASE) {
+            return "";
+        }
+        TestCase tc = readCase(target.id());
+        return tc == null ? "" : safe(tc.getTaskLinkUrl());
     }
 
     private String resolveStartedAt(ReportTarget target) {

@@ -1,6 +1,7 @@
 package app.domain.testcases.ui;
 
 import app.core.I18n;
+import app.domain.cycles.ui.right.TaskLinkChip;
 import app.domain.testcases.TestCase;
 import app.domain.testcases.repo.TestCaseCardStore;
 import app.ui.UiSvg;
@@ -67,6 +68,7 @@ public final class TestCaseOverlayHost {
 
     private final VBox rightCard;
     private final HBox rightTopRow;
+    private final HBox taskLinkHost;
     private final TextField tfPrivTop;
     private final Button btnEditPriv;
     private final TextField tfTop2;
@@ -104,6 +106,7 @@ public final class TestCaseOverlayHost {
     private final TestCaseRightPane rightPaneCtl;
     private final RightDeleteConfirm deleteConfirm;
     private final PauseTransition closeTransition = new PauseTransition(Duration.millis(RightPaneAnimator.DEFAULT_MS));
+    private final TaskLinkChip taskLinkChip;
 
     private final List<TestCase> all = new ArrayList<>();
 
@@ -141,6 +144,7 @@ public final class TestCaseOverlayHost {
 
         this.rightCard = testcaseCardController.rightCard();
         this.rightTopRow = testcaseCardController.rightTopRow();
+        this.taskLinkHost = testcaseCardController.taskLinkHost();
         this.tfPrivTop = testcaseCardController.tfPrivTop();
         this.btnEditPriv = testcaseCardController.btnEditPriv();
         this.tfTop2 = testcaseCardController.tfTop2();
@@ -187,6 +191,14 @@ public final class TestCaseOverlayHost {
         testcaseCardController.setOnAddStep(this::onAddStep);
 
         chipFactory = new RightChipFactory(spRight, ICON_CLOSE);
+        if (taskLinkHost != null) {
+            taskLinkChip = new TaskLinkChip();
+            taskLinkChip.install(rightRootStack);
+            taskLinkChip.setOnTaskLinkChanged(() -> Platform.runLater(this::updateSaveGateUi));
+            taskLinkHost.getChildren().setAll(taskLinkChip);
+        } else {
+            taskLinkChip = null;
+        }
         rightPaneCtl = new TestCaseRightPane(
                 rightPane,
                 rightCard,
@@ -219,6 +231,7 @@ public final class TestCaseOverlayHost {
                 ICON_GRIP
         );
         rightPaneCtl.init();
+        rightPaneCtl.setTaskLinkChip(taskLinkChip);
         rightPaneCtl.setOnUserChanged(() -> Platform.runLater(this::updateSaveGateUi));
         rightPaneCtl.setOnSaved(this::handleSaved);
 
@@ -687,7 +700,8 @@ public final class TestCaseOverlayHost {
         }
 
         boolean allowEdit = tfTop2 != null && tfTop2.isEditable();
-        if (!allowEdit) {
+        boolean allowTaskLinkOnlySave = rightPaneCtl != null && rightPaneCtl.isTaskLinkDirty();
+        if (!allowEdit && !allowTaskLinkOnlySave) {
             clearInvalidGlow();
             rightPaneCtl.setLastSaveBlockMessage("locked");
             return false;
