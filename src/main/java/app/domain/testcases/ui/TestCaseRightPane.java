@@ -408,6 +408,14 @@ public final class TestCaseRightPane {
         return !existingCard || editEnabled;
     }
 
+    public boolean isExistingCard() {
+        return existingCard;
+    }
+
+    public TestCaseDraft snapshotDraft() {
+        return buildDraftFromUi();
+    }
+
     public void openNew() {
         boolean wasOpen = open;
 
@@ -1039,17 +1047,9 @@ public final class TestCaseRightPane {
 
     private void applyEditModeUi() {
         if (btnEdit != null) {
-            boolean show = existingCard;
-            btnEdit.setVisible(show);
-            btnEdit.setManaged(show);
-
-            if (show && editEnabled) {
-                if (!btnEdit.getStyleClass().contains(EDIT_ACTIVE_CLASS)) {
-                    btnEdit.getStyleClass().add(EDIT_ACTIVE_CLASS);
-                }
-            } else {
-                btnEdit.getStyleClass().remove(EDIT_ACTIVE_CLASS);
-            }
+            btnEdit.setVisible(false);
+            btnEdit.setManaged(false);
+            btnEdit.getStyleClass().remove(EDIT_ACTIVE_CLASS);
         }
     }
 

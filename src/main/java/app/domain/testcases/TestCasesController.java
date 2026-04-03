@@ -6,16 +6,23 @@ import app.core.I18n;
 import app.domain.cycles.ui.right.TaskLinkChip;
 import app.domain.testcases.repo.TestCaseCardStore;
 import app.domain.testcases.repo.TestCaseIndexStore;
+import app.domain.testcases.repo.TestCaseJson;
 import app.domain.testcases.ui.LeftDeleteConfirm;
 import app.domain.testcases.ui.RightChipFactory;
 import app.domain.testcases.ui.RightDeleteConfirm;
 import app.domain.testcases.ui.SmoothScrollSupport;
 import app.domain.testcases.ui.TestCaseCardController;
+import app.domain.testcases.ui.TestCaseCardMenuButton;
+import app.domain.testcases.ui.TestCaseListMenuButton;
 import app.domain.testcases.ui.TestCaseCyclesAccessory;
 import app.domain.testcases.ui.TestCaseRightPane;
 import app.domain.testcases.ui.TestCasesSheets;
 import app.domain.testcases.ui.TestCasesTrashOverlay;
+import app.domain.testcases.repo.FileTestCaseRepository;
+import app.domain.testcases.usecase.CreateTestCaseUseCase;
+import app.domain.testcases.usecase.TestCaseDraft;
 import app.ui.UiSvg;
+import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -30,6 +37,7 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -54,9 +62,13 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
 
 import java.awt.Desktop;
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -68,7 +80,13 @@ import java.util.Map;
 
 public class TestCasesController {
 
+    private enum LeftListActionMode {
+        DELETE,
+        EXPORT
+    }
+
     private static final double CASES_SHEET_RADIUS = 18.0;
+    private static final Path TEST_CASE_EXPORT_DIR = Path.of("test_resources", "test_cases", "_export");
 
     private static final double RIGHT_SCROLL_RESERVE_PX = 10.0;
 
@@ -216,6 +234,16 @@ public class TestCasesController {
 
     private TestCasesSheets sheets;
     private TestCaseRightPane rightPaneCtl;
+    private TestCaseCardMenuButton caseMenuButton;
+    private TestCaseListMenuButton leftListMenuButton;
+    private StackPane importDuplicateToastRoot;
+    private Label importDuplicateToastTitle;
+    private VBox importDuplicateToastSummary;
+    private VBox importDuplicateToastList;
+    private VBox importDuplicateToastListBox;
+    private FadeTransition importDuplicateToastFadeIn;
+    private FadeTransition importDuplicateToastFadeOut;
+    private PauseTransition importDuplicateToastHold;
     private RightChipFactory chipFactory;
     private TestCaseCyclesAccessory cyclesAccessory;
 
@@ -244,6 +272,10 @@ public class TestCasesController {
     private final PauseTransition searchIdleTimer = new PauseTransition();
     private boolean searchProgrammaticChange = false;
     // =====================================================
+
+    private final FileTestCaseRepository repo = new FileTestCaseRepository();
+    private final CreateTestCaseUseCase createUseCase = new CreateTestCaseUseCase(repo);
+    private LeftListActionMode leftListActionMode = LeftListActionMode.DELETE;
 
     @FXML
     private void initialize() {
@@ -328,9 +360,7 @@ public class TestCasesController {
         if (btnDeleteRight != null) {
             UiSvg.setButtonSvg(btnDeleteRight, ICON_TRASH, getIconSizeFromFxml(btnDeleteRight, 14));
         }
-        if (btnTrash != null) {
-            UiSvg.setButtonSvg(btnTrash, ICON_TRASH, getIconSizeFromFxml(btnTrash, 14));
-        }
+        installLeftListMenuButton();
 
         // ✅ Поиск: Enter + idle debounce (+ управление видимостью close-кнопки)
         installSearchBehavior();
@@ -355,6 +385,8 @@ public class TestCasesController {
             taskLinkChip.setOnTaskLinkChanged(() -> Platform.runLater(this::updateSaveGateUi));
             taskLinkHost.getChildren().setAll(taskLinkChip);
         }
+
+        installCaseMenuButton();
 
         rightPaneCtl = new TestCaseRightPane(
                 rightPane,
@@ -412,10 +444,10 @@ public class TestCasesController {
         }
         cyclesAccessory.clear();
 
-        // TRASH overlay
+        // LEFT action overlay
         trashOverlay = new TestCasesTrashOverlay(leftStack);
         trashOverlay.setAnchor(casesSheet);
-        trashOverlay.init(btnTrash);
+        trashOverlay.init(null);
         trashOverlay.setOnSpacerChanged(() -> Platform.runLater(this::applyFiltersToList));
         trashOverlay.setOnOpenChanged(on -> {
             setTrashModeAnimated(on);
@@ -445,16 +477,17 @@ public class TestCasesController {
 
         // ✅ открываем только когда trash-mode активен И есть выбранные чекбоксы
         leftDeleteConfirm.setCanOpenSupplier(() ->
+                leftListActionMode == LeftListActionMode.DELETE
+                        &&
                 trashOverlay != null
                         && trashOverlay.isOpen()
                         && hasAnyTrashChecked()
         );
 
         // ✅ кнопка "Удалить" в overlay -> открываем confirm
-        trashOverlay.setOnDelete(() -> {
-            // откроется только если canOpenSupplier true
-            leftDeleteConfirm.open();
-        });
+        trashOverlay.setOnDelete(this::handleLeftOverlayPrimaryAction);
+
+        installImportDuplicateToast();
 
         // ✅ клики внутри самого trash overlay не считаются "outside" (для filter/sort это полезно)
         if (trashOverlay != null) {
@@ -664,9 +697,13 @@ public class TestCasesController {
         boolean anyChecked = hasAnyTrashChecked();
 
         if (trashOverlay != null) {
+            trashOverlay.setButtonText(leftListActionMode == LeftListActionMode.EXPORT
+                    ? I18n.t("tc.menu.export")
+                    : I18n.t("tc.trash.delete"));
             // ✅ disabled, если ничего не выбрано
             trashOverlay.setDeleteEnabled(anyChecked);
         }
+        refreshCaseMenuButton();
     }
 
     // ===================== SEARCH =====================
@@ -992,6 +1029,158 @@ public class TestCasesController {
         refreshDeleteAvailability();
     }
 
+    private void installCaseMenuButton() {
+        if (taskLinkHost == null || rightRootStack == null) return;
+        if (!(taskLinkHost.getParent() instanceof HBox topActions)) return;
+
+        caseMenuButton = new TestCaseCardMenuButton();
+        UiSvg.setButtonSvg(caseMenuButton, TestCaseCardMenuButton.SVG_NAME, 14);
+        caseMenuButton.install(rightRootStack, this::refreshCaseMenuButton);
+        caseMenuButton.setOnEditAction(() -> onEdit(new ActionEvent(caseMenuButton, caseMenuButton)));
+        caseMenuButton.setOnCopyAction(this::copyCurrentCase);
+
+        int taskLinkIndex = topActions.getChildren().indexOf(taskLinkHost);
+        if (taskLinkIndex < 0) taskLinkIndex = 0;
+        topActions.getChildren().add(taskLinkIndex, caseMenuButton);
+
+        refreshCaseMenuButton();
+    }
+
+    private void installLeftListMenuButton() {
+        if (btnTrash == null || leftStack == null) return;
+
+        UiSvg.setButtonSvg(btnTrash, TestCaseListMenuButton.SVG_NAME, getIconSizeFromFxml(btnTrash, 14));
+
+        leftListMenuButton = new TestCaseListMenuButton();
+        leftListMenuButton.getStyleClass().setAll(btnTrash.getStyleClass());
+        leftListMenuButton.setUserData(btnTrash.getUserData());
+        UiSvg.setButtonSvg(leftListMenuButton, TestCaseListMenuButton.SVG_NAME, getIconSizeFromFxml(btnTrash, 14));
+        leftListMenuButton.install(leftStack, this::beforeOpenLeftListMenu);
+        leftListMenuButton.setOnImportAction(this::openImportChooser);
+        leftListMenuButton.setOnExportAction(this::openLeftOverlayExportMode);
+        leftListMenuButton.setOnDeleteAction(this::openLeftOverlayDeleteMode);
+
+        if (btnTrash.getParent() instanceof HBox row) {
+            int index = row.getChildren().indexOf(btnTrash);
+            if (index >= 0) {
+                row.getChildren().set(index, leftListMenuButton);
+                btnTrash = leftListMenuButton;
+            }
+        }
+    }
+
+    private void refreshCaseMenuButton() {
+        if (caseMenuButton == null) return;
+        boolean show =
+                rightPaneCtl != null
+                        && rightPaneCtl.isOpen()
+                        && rightPaneCtl.isExistingCard()
+                        && !rightNewOpen
+                        && rightOpenCaseId != null
+                        && !rightOpenCaseId.isBlank();
+        caseMenuButton.setVisible(show);
+        caseMenuButton.setManaged(show);
+        if (!show) caseMenuButton.closeMenu();
+    }
+
+    private void refreshLeftListMenuButton() {
+        if (leftListMenuButton == null) return;
+        leftListMenuButton.setVisible(true);
+        leftListMenuButton.setManaged(true);
+    }
+
+    private void beforeOpenLeftListMenu() {
+        if (trashOverlay != null && trashOverlay.isOpen()) {
+            trashOverlay.close();
+        }
+        refreshLeftListMenuButton();
+    }
+
+    private void installImportDuplicateToast() {
+        if (leftStack == null || importDuplicateToastRoot != null) return;
+
+        importDuplicateToastTitle = new Label();
+        importDuplicateToastTitle.getStyleClass().add("tc-import-toast-title");
+
+        Button closeButton = new Button("\u00D7");
+        closeButton.setFocusTraversable(false);
+        closeButton.getStyleClass().add("tc-import-toast-close");
+        closeButton.setOnAction(e -> hideImportDuplicateToast());
+
+        Region headerSpacer = new Region();
+        HBox.setHgrow(headerSpacer, Priority.ALWAYS);
+
+        HBox header = new HBox(10, importDuplicateToastTitle, headerSpacer, closeButton);
+        header.setAlignment(Pos.TOP_LEFT);
+
+        importDuplicateToastSummary = new VBox(4);
+        importDuplicateToastSummary.getStyleClass().add("tc-import-toast-summary");
+        importDuplicateToastSummary.setMaxWidth(Double.MAX_VALUE);
+
+        importDuplicateToastList = new VBox(4);
+        importDuplicateToastList.getStyleClass().add("tc-import-toast-list");
+        importDuplicateToastList.setMaxWidth(Double.MAX_VALUE);
+
+        importDuplicateToastListBox = new VBox(importDuplicateToastList);
+        importDuplicateToastListBox.getStyleClass().add("tc-import-toast-list-box");
+        importDuplicateToastListBox.setMaxWidth(Double.MAX_VALUE);
+        importDuplicateToastListBox.setVisible(false);
+        importDuplicateToastListBox.setManaged(false);
+
+        VBox content = new VBox(10, header, importDuplicateToastSummary, importDuplicateToastListBox);
+        content.getStyleClass().addAll("tc-trash-glass", "tc-import-toast");
+        content.setMaxWidth(Double.MAX_VALUE);
+        content.setMaxHeight(Region.USE_PREF_SIZE);
+
+        importDuplicateToastRoot = new StackPane(content);
+        importDuplicateToastRoot.setVisible(false);
+        importDuplicateToastRoot.setManaged(false);
+        importDuplicateToastRoot.setOpacity(0.0);
+        importDuplicateToastRoot.setPickOnBounds(true);
+        importDuplicateToastRoot.setMaxHeight(Region.USE_PREF_SIZE);
+        StackPane.setAlignment(importDuplicateToastRoot, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(importDuplicateToastRoot, new Insets(0, 12, 12, 12));
+
+        leftStack.getChildren().add(importDuplicateToastRoot);
+        leftStack.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+            if (!isImportDuplicateToastVisible()) return;
+            if (e.getTarget() instanceof Node node && isDescendantOf(node, importDuplicateToastRoot)) return;
+            hideImportDuplicateToast();
+        });
+        leftStack.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (oldScene != null) {
+                oldScene.removeEventFilter(MouseEvent.MOUSE_PRESSED, this::handleImportDuplicateToastOutsideClick);
+            }
+            if (newScene != null) {
+                newScene.addEventFilter(MouseEvent.MOUSE_PRESSED, this::handleImportDuplicateToastOutsideClick);
+            }
+        });
+        if (leftStack.getScene() != null) {
+            leftStack.getScene().addEventFilter(MouseEvent.MOUSE_PRESSED, this::handleImportDuplicateToastOutsideClick);
+        }
+
+        if (casesSheet != null) {
+            casesSheet.widthProperty().addListener((obs, oldValue, newValue) -> updateImportDuplicateToastSize());
+            casesSheet.heightProperty().addListener((obs, oldValue, newValue) -> updateImportDuplicateToastSize());
+        }
+
+        importDuplicateToastFadeIn = new FadeTransition(Duration.millis(220), importDuplicateToastRoot);
+        importDuplicateToastFadeIn.setFromValue(0.0);
+        importDuplicateToastFadeIn.setToValue(1.0);
+
+        importDuplicateToastHold = new PauseTransition(Duration.seconds(10));
+        importDuplicateToastHold.setOnFinished(e -> hideImportDuplicateToast());
+
+        importDuplicateToastFadeOut = new FadeTransition(Duration.millis(260), importDuplicateToastRoot);
+        importDuplicateToastFadeOut.setFromValue(1.0);
+        importDuplicateToastFadeOut.setToValue(0.0);
+        importDuplicateToastFadeOut.setOnFinished(e -> {
+            if (importDuplicateToastRoot == null) return;
+            importDuplicateToastRoot.setVisible(false);
+            importDuplicateToastRoot.setManaged(false);
+        });
+    }
+
     private void restorePendingCaseNavigation() {
         CardNavigationBridge.PendingCaseRestore restore = CardNavigationBridge.consumePendingCaseRestore();
         if (restore == null) return;
@@ -1033,6 +1222,422 @@ public class TestCasesController {
 
         updateSaveGateUi();
         refreshDeleteAvailability();
+    }
+
+    private void copyCurrentCase() {
+        if (rightPaneCtl == null || !rightPaneCtl.isOpen() || !rightPaneCtl.isExistingCard()) return;
+
+        TestCaseDraft source = rightPaneCtl.snapshotDraft();
+        if (source == null) return;
+
+        TestCaseDraft copy = new TestCaseDraft();
+        copy.code = safeTrim(source.code);
+        copy.number = nextCaseNumberForCode(copy.code);
+
+        String title = safeTrim(source.title);
+        String copySuffix = safeTrim(I18n.t("tc.copy.suffix"));
+        copy.title = title.isBlank() ? copySuffix : title + copySuffix;
+        copy.description = safeTrim(source.description);
+        copy.taskLinkTitle = safeTrim(source.taskLinkTitle);
+        copy.taskLinkUrl = safeTrim(source.taskLinkUrl);
+        copy.labels = source.labels == null ? new ArrayList<>() : new ArrayList<>(source.labels);
+        copy.tags = source.tags == null ? new ArrayList<>() : new ArrayList<>(source.tags);
+
+        if (source.steps != null) {
+            for (TestCaseDraft.StepDraft step : source.steps) {
+                if (step == null) {
+                    copy.steps.add(new TestCaseDraft.StepDraft());
+                } else {
+                    copy.steps.add(new TestCaseDraft.StepDraft(step.step, step.data, step.expected));
+                }
+            }
+        }
+
+        Path saved = createUseCase.create(copy);
+        reloadFromDisk();
+        openExistingCaseCard(copy.id);
+
+        System.out.println("[TestCase] copied: " + saved.toAbsolutePath());
+    }
+
+    private String nextCaseNumberForCode(String code) {
+        String normalizedCode = safeTrim(code);
+        long max = 0L;
+
+        for (TestCase testCase : all) {
+            if (testCase == null) continue;
+            if (!normalizedCode.equals(safeTrim(testCase.getCode()))) continue;
+
+            String number = safeTrim(testCase.getNumber());
+            if (number.isBlank()) continue;
+
+            try {
+                max = Math.max(max, Long.parseLong(number));
+            } catch (NumberFormatException ignore) {
+            }
+        }
+
+        return String.valueOf(max + 1L);
+    }
+
+    private void openLeftOverlayDeleteMode() {
+        leftListActionMode = LeftListActionMode.DELETE;
+        if (trashOverlay != null) {
+            trashOverlay.setButtonText(I18n.t("tc.trash.delete"));
+            trashOverlay.open();
+        }
+        refreshDeleteAvailability();
+    }
+
+    private void openLeftOverlayExportMode() {
+        leftListActionMode = LeftListActionMode.EXPORT;
+        if (trashOverlay != null) {
+            trashOverlay.setButtonText(I18n.t("tc.menu.export"));
+            trashOverlay.open();
+        }
+        refreshDeleteAvailability();
+    }
+
+    private void handleLeftOverlayPrimaryAction() {
+        if (leftListActionMode == LeftListActionMode.EXPORT) {
+            exportSelectedTrashChecked();
+            return;
+        }
+        leftDeleteConfirm.open();
+    }
+
+    private void openImportChooser() {
+        Window window = btnTrash == null || btnTrash.getScene() == null ? null : btnTrash.getScene().getWindow();
+
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle(I18n.t("tc.menu.import"));
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON", "*.json"));
+
+        try {
+            Files.createDirectories(TEST_CASE_EXPORT_DIR);
+            File dir = TEST_CASE_EXPORT_DIR.toFile();
+            if (dir.isDirectory()) chooser.setInitialDirectory(dir);
+        } catch (IOException ignore) {
+        }
+
+        List<File> files = chooser.showOpenMultipleDialog(window);
+        if (files == null || files.isEmpty()) return;
+
+        List<String> duplicateTitles = new ArrayList<>();
+        int importedCount = 0;
+        java.util.HashSet<String> knownPairs = new java.util.HashSet<>();
+        java.util.HashSet<String> knownIds = new java.util.HashSet<>();
+        for (TestCase testCase : all) {
+            if (testCase == null) continue;
+            knownPairs.add(importDuplicateKey(testCase.getCode(), testCase.getTitle()));
+            String existingId = safeTrim(testCase.getId());
+            if (!existingId.isBlank()) knownIds.add(existingId);
+        }
+
+        for (File file : files) {
+            if (file == null) continue;
+
+            try {
+                TestCaseDraft imported = repo.readDraft(file.toPath());
+                if (imported == null) continue;
+
+                TestCaseDraft draft = new TestCaseDraft();
+                String importedId = safeTrim(imported.id);
+                if (!importedId.isBlank() && knownIds.contains(importedId)) {
+                    duplicateTitles.add(importDuplicateTitle(imported.title));
+                    continue;
+                }
+                if (!importedId.isBlank()) {
+                    draft.id = importedId;
+                    draft.createdAt = safeTrim(imported.createdAt);
+                    draft.savedAt = safeTrim(imported.savedAt);
+                }
+                draft.code = normalizeImportedCode(imported.code);
+                String duplicateKey = importDuplicateKey(draft.code, imported.title);
+                if (knownPairs.contains(duplicateKey)) {
+                    duplicateTitles.add(importDuplicateTitle(imported.title));
+                    continue;
+                }
+
+                draft.number = nextCaseNumberForCode(draft.code);
+                draft.title = safeTrim(imported.title);
+                draft.description = safeTrim(imported.description);
+                draft.taskLinkTitle = safeTrim(imported.taskLinkTitle);
+                draft.taskLinkUrl = safeTrim(imported.taskLinkUrl);
+                draft.labels = imported.labels == null ? new ArrayList<>() : new ArrayList<>(imported.labels);
+                draft.tags = imported.tags == null ? new ArrayList<>() : new ArrayList<>(imported.tags);
+
+                if (imported.steps != null) {
+                    for (TestCaseDraft.StepDraft step : imported.steps) {
+                        if (step == null) {
+                            draft.steps.add(new TestCaseDraft.StepDraft());
+                        } else {
+                            draft.steps.add(new TestCaseDraft.StepDraft(step.step, step.data, step.expected));
+                        }
+                    }
+                }
+
+                createUseCase.create(draft);
+                importedCount++;
+                String actualId = safeTrim(draft.id);
+                if (!actualId.isBlank()) knownIds.add(actualId);
+                knownPairs.add(importDuplicateKey(draft.code, draft.title));
+                all.add(toTestCase(draft));
+            } catch (Exception ex) {
+                System.out.println("[TestCase] import skipped: " + file.getAbsolutePath() + " -> " + ex.getMessage());
+            }
+        }
+
+        int skippedCount = duplicateTitles.size();
+        showImportDuplicateToast(importedCount, skippedCount, duplicateTitles);
+        if (importedCount > 0) reloadFromDisk();
+    }
+
+    private String normalizeImportedCode(String code) {
+        String normalized = safeTrim(code);
+        return normalized.isBlank() ? "case" : normalized;
+    }
+
+    private String importDuplicateKey(String code, String title) {
+        return safeTrim(code).toLowerCase() + "\n" + safeTrim(title).toLowerCase();
+    }
+
+    private String importDuplicateTitle(String title) {
+        String normalized = safeTrim(title);
+        if (!normalized.isBlank()) return normalized;
+        String lang = I18n.lang();
+        boolean ru = lang == null || lang.isBlank() || lang.toLowerCase().startsWith("ru");
+        return ru ? "Без названия" : "Untitled";
+    }
+
+    private String buildExportFileName(TestCaseDraft draft) {
+        String code = sanitizeFileNamePart(safeTrim(draft == null ? "" : draft.code));
+        String title = sanitizeFileNamePart(safeTrim(draft == null ? "" : draft.title));
+
+        if (code.isBlank()) code = "case";
+        if (title.isBlank()) title = "untitled";
+
+        return code + "__" + title + ".json";
+    }
+
+    private Path uniqueExportPath(Path target) {
+        if (target == null) return TEST_CASE_EXPORT_DIR.resolve("case__untitled.json");
+        if (!Files.exists(target)) return target;
+
+        String fileName = target.getFileName() == null ? "case__untitled.json" : target.getFileName().toString();
+        int dot = fileName.lastIndexOf('.');
+        String base = dot >= 0 ? fileName.substring(0, dot) : fileName;
+        String ext = dot >= 0 ? fileName.substring(dot) : "";
+
+        int index = 2;
+        Path parent = target.getParent() == null ? TEST_CASE_EXPORT_DIR : target.getParent();
+        Path candidate = target;
+        while (Files.exists(candidate)) {
+            candidate = parent.resolve(base + "_" + index + ext);
+            index++;
+        }
+        return candidate;
+    }
+
+    private String sanitizeFileNamePart(String value) {
+        String text = safeTrim(value);
+        if (text.isBlank()) return "";
+
+        StringBuilder out = new StringBuilder(text.length());
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (c < 32 || c == '<' || c == '>' || c == ':' || c == '"' || c == '/' || c == '\\' || c == '|' || c == '?' || c == '*') {
+                out.append('_');
+            } else {
+                out.append(c);
+            }
+        }
+
+        String normalized = out.toString().trim().replaceAll("\\s+", " ");
+        while (normalized.endsWith(".") || normalized.endsWith(" ")) {
+            normalized = normalized.substring(0, normalized.length() - 1);
+        }
+        return normalized;
+    }
+
+    private void exportSelectedTrashChecked() {
+        List<String> ids = collectSelectedTrashIds();
+        if (ids.isEmpty()) return;
+
+        for (String id : ids) {
+            try {
+                TestCaseDraft draft = repo.readDraft(TestCaseCardStore.fileOf(id));
+                if (draft == null) continue;
+
+                Files.createDirectories(TEST_CASE_EXPORT_DIR);
+                String exportFileName = buildExportFileName(draft);
+                Path exportFile = uniqueExportPath(TEST_CASE_EXPORT_DIR.resolve(exportFileName));
+                Files.writeString(exportFile, TestCaseJson.toJson(draft), StandardCharsets.UTF_8);
+                System.out.println("[TestCase] exported: " + exportFile.toAbsolutePath());
+            } catch (Exception ex) {
+                System.out.println("[TestCase] export failed: " + id + " -> " + ex.getMessage());
+            }
+        }
+
+        clearSelectedTrashChecks();
+        if (trashOverlay != null) trashOverlay.close();
+        refreshDeleteAvailability();
+    }
+
+    private List<String> collectSelectedTrashIds() {
+        List<String> ids = new ArrayList<>();
+        for (Map.Entry<String, BooleanProperty> entry : trashChecks.entrySet()) {
+            if (entry.getValue() == null || !entry.getValue().get()) continue;
+            String id = safeTrim(entry.getKey());
+            if (!id.isBlank() && !TRASH_SPACER_ID.equals(id)) ids.add(id);
+        }
+        return ids;
+    }
+
+    private void clearSelectedTrashChecks() {
+        for (Map.Entry<String, BooleanProperty> entry : trashChecks.entrySet()) {
+            if (entry.getValue() != null) entry.getValue().set(false);
+        }
+        if (trashOverlay != null && trashOverlay.selectAllCheckBox() != null) {
+            trashOverlay.selectAllCheckBox().setSelected(false);
+        }
+    }
+
+    private void showImportDuplicateToast(int importedCount, int skippedCount, List<String> duplicateTitles) {
+        if (importedCount <= 0 && skippedCount <= 0) return;
+        if (importDuplicateToastRoot == null || importDuplicateToastTitle == null || importDuplicateToastSummary == null || importDuplicateToastList == null || importDuplicateToastListBox == null) return;
+
+        importDuplicateToastFadeIn.stop();
+        importDuplicateToastHold.stop();
+        importDuplicateToastFadeOut.stop();
+
+        importDuplicateToastTitle.setText(buildImportDuplicateToastTitle(importedCount, skippedCount));
+        importDuplicateToastSummary.getChildren().clear();
+        importDuplicateToastList.getChildren().clear();
+
+        if (importedCount > 0) {
+            importDuplicateToastSummary.getChildren().add(buildImportDuplicateToastMetaLine(importedCount, true));
+        }
+        if (skippedCount > 0) {
+            importDuplicateToastSummary.getChildren().add(buildImportDuplicateToastMetaLine(skippedCount, false));
+        }
+
+        List<String> titles = duplicateTitles == null ? List.of() : duplicateTitles;
+        int maxItems = resolveMaxToastItems(importDuplicateToastSummary.getChildren().size());
+        int visibleItems = Math.min(titles.size(), maxItems);
+        for (int i = 0; i < visibleItems; i++) {
+            Label row = new Label(i == maxItems - 1 && titles.size() > maxItems ? titles.get(i) + "..." : titles.get(i));
+            row.getStyleClass().add("tc-import-toast-item");
+            row.setMaxWidth(Double.MAX_VALUE);
+            row.setTextOverrun(javafx.scene.control.OverrunStyle.ELLIPSIS);
+            importDuplicateToastList.getChildren().add(row);
+        }
+        boolean hasList = skippedCount > 0 && !importDuplicateToastList.getChildren().isEmpty();
+        importDuplicateToastListBox.setManaged(hasList);
+        importDuplicateToastListBox.setVisible(hasList);
+
+        importDuplicateToastRoot.setVisible(true);
+        importDuplicateToastRoot.setManaged(true);
+        importDuplicateToastRoot.setOpacity(0.0);
+        updateImportDuplicateToastSize();
+
+        importDuplicateToastFadeIn.playFromStart();
+        importDuplicateToastHold.playFromStart();
+    }
+
+    private void hideImportDuplicateToast() {
+        if (importDuplicateToastRoot == null) return;
+        if (!importDuplicateToastRoot.isVisible() && importDuplicateToastRoot.getOpacity() <= 0.0) return;
+        importDuplicateToastFadeIn.stop();
+        importDuplicateToastHold.stop();
+        importDuplicateToastFadeOut.playFromStart();
+    }
+
+    private void updateImportDuplicateToastSize() {
+        if (importDuplicateToastRoot == null || casesSheet == null || importDuplicateToastListBox == null) return;
+        double width = casesSheet.getWidth();
+        if (width <= 0) width = casesSheet.prefWidth(-1);
+        if (width > 0) {
+            double contentWidth = Math.max(220.0, width - 24.0);
+            importDuplicateToastRoot.setMaxWidth(contentWidth);
+            importDuplicateToastRoot.setPrefWidth(contentWidth);
+        }
+
+        double maxHeight = casesSheet.getHeight() * 0.5;
+        if (maxHeight > 0) {
+            importDuplicateToastListBox.setMaxHeight(Math.max(0.0, maxHeight - 110.0));
+        }
+    }
+
+    private int resolveMaxToastItems(int summaryLines) {
+        if (casesSheet == null) return 6;
+        double halfHeight = casesSheet.getHeight() * 0.5;
+        if (halfHeight <= 0) return 6;
+        int rows = (int) Math.floor((halfHeight - 88.0 - (summaryLines * 18.0)) / 22.0);
+        return Math.max(1, rows);
+    }
+
+    private String buildImportDuplicateToastTitle(int importedCount, int skippedCount) {
+        String lang = I18n.lang();
+        boolean ru = lang == null || lang.isBlank() || lang.toLowerCase().startsWith("ru");
+        if (ru) {
+            if (importedCount > 0 && skippedCount == 0) return "Импорт выполнен";
+            if (importedCount > 0) return "Импорт выполнен частично";
+            return "Импорт не выполнен";
+        }
+        if (importedCount > 0 && skippedCount == 0) return "Import completed";
+        if (importedCount > 0) return "Import partially completed";
+        return "Import failed";
+    }
+
+    private Label buildImportDuplicateToastMetaLine(int count, boolean imported) {
+        String lang = I18n.lang();
+        boolean ru = lang == null || lang.isBlank() || lang.toLowerCase().startsWith("ru");
+        String text = ru
+                ? (imported ? "Импортировано кейсов: " + count : "Не импортировано кейсов: " + count)
+                : (imported ? "Imported cases: " + count : "Skipped cases: " + count);
+
+        Label label = new Label(text);
+        label.getStyleClass().add("tc-import-toast-meta");
+        label.setWrapText(true);
+        label.setMaxWidth(Double.MAX_VALUE);
+        return label;
+    }
+
+    private boolean isImportDuplicateToastVisible() {
+        return importDuplicateToastRoot != null && (importDuplicateToastRoot.isVisible() || importDuplicateToastRoot.getOpacity() > 0.0);
+    }
+
+    private void handleImportDuplicateToastOutsideClick(MouseEvent event) {
+        if (!isImportDuplicateToastVisible()) return;
+        if (!(event.getTarget() instanceof Node node)) return;
+        if (isDescendantOf(node, importDuplicateToastRoot)) return;
+        hideImportDuplicateToast();
+    }
+
+    private TestCase toTestCase(TestCaseDraft draft) {
+        TestCase testCase = new TestCase();
+        testCase.setId(safeTrim(draft.id));
+        testCase.setCreatedAt(safeTrim(draft.createdAt));
+        testCase.setSavedAt(safeTrim(draft.savedAt));
+        testCase.setCode(safeTrim(draft.code));
+        testCase.setNumber(safeTrim(draft.number));
+        testCase.setTitle(safeTrim(draft.title));
+        testCase.setDescription(safeTrim(draft.description));
+        testCase.setTaskLinkTitle(safeTrim(draft.taskLinkTitle));
+        testCase.setTaskLinkUrl(safeTrim(draft.taskLinkUrl));
+        testCase.setLabels(draft.labels == null ? new ArrayList<>() : new ArrayList<>(draft.labels));
+        testCase.setTags(draft.tags == null ? new ArrayList<>() : new ArrayList<>(draft.tags));
+
+        List<String> steps = new ArrayList<>();
+        if (draft.steps != null) {
+            for (TestCaseDraft.StepDraft step : draft.steps) {
+                if (step == null) continue;
+                steps.add(safeTrim(step.step));
+            }
+        }
+        testCase.setSteps(steps);
+        return testCase;
     }
 
 
@@ -1120,14 +1725,22 @@ public class TestCasesController {
     }
 
     private void attachCyclesStylesheet() {
-        if (rightPane == null) return;
-
         var url = getClass().getResource("/ui/cycles.css");
         if (url == null) return;
 
         String css = url.toExternalForm();
-        if (!rightPane.getStylesheets().contains(css)) {
+        if (rightPane != null && !rightPane.getStylesheets().contains(css)) {
             rightPane.getStylesheets().add(css);
+        }
+        if (leftStack != null && !leftStack.getStylesheets().contains(css)) {
+            leftStack.getStylesheets().add(css);
+        }
+
+        var toastUrl = getClass().getResource("/ui/testcases-import-toast.css");
+        if (toastUrl == null) return;
+        String toastCss = toastUrl.toExternalForm();
+        if (leftStack != null && !leftStack.getStylesheets().contains(toastCss)) {
+            leftStack.getStylesheets().add(toastCss);
         }
     }
 
@@ -1614,12 +2227,14 @@ public class TestCasesController {
     @FXML
     public void onFilter(ActionEvent e) {
         if (trashOverlay != null && trashOverlay.isOpen()) trashOverlay.close();
+        if (leftListMenuButton != null && leftListMenuButton.isMenuOpen()) leftListMenuButton.closeMenu();
         if (sheets != null) sheets.toggleFilter();
     }
 
     @FXML
     public void onSort(ActionEvent e) {
         if (trashOverlay != null && trashOverlay.isOpen()) trashOverlay.close();
+        if (leftListMenuButton != null && leftListMenuButton.isMenuOpen()) leftListMenuButton.closeMenu();
         if (sheets != null) sheets.toggleSort();
     }
 
