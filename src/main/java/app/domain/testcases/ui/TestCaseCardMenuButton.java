@@ -23,6 +23,8 @@ public final class TestCaseCardMenuButton extends Button {
     private Runnable onBeforeOpen = () -> {};
     private Runnable onEdit = () -> {};
     private Runnable onCopy = () -> {};
+    private Runnable onExport = () -> {};
+    private Runnable onDelete = () -> {};
 
     public TestCaseCardMenuButton() {
         setUserData(14);
@@ -51,6 +53,14 @@ public final class TestCaseCardMenuButton extends Button {
 
     public void setOnCopyAction(Runnable r) {
         this.onCopy = nz(r);
+    }
+
+    public void setOnExportAction(Runnable r) {
+        this.onExport = nz(r);
+    }
+
+    public void setOnDeleteAction(Runnable r) {
+        this.onDelete = nz(r);
     }
 
     public void closeMenu() {
@@ -82,7 +92,9 @@ public final class TestCaseCardMenuButton extends Button {
         buttonsBox.setAlignment(Pos.CENTER);
         buttonsBox.getChildren().addAll(
                 buildActionButton("cy.menu.edit", true, () -> onEdit),
-                buildActionButton("cy.menu.copy", true, () -> onCopy)
+                buildActionButton("cy.menu.copy", true, () -> onCopy),
+                buildActionButton("tc.menu.export", true, () -> onExport),
+                buildActionButton("tc.trash.delete", true, () -> onDelete)
         );
 
         Region topGap = fixedSpacer(20);

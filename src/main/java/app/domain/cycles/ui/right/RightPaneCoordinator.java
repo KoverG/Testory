@@ -286,6 +286,8 @@ public final class RightPaneCoordinator {
         });
         addedCasesList.setOnStatusChanged((ref, status) -> updateAddedCaseStatus(ref, status));
         addedCasesList.setOnCommentChanged((ref, comment) -> updateAddedCaseComment(ref, comment));
+        addedCasesList.setOnReorderCase(this::reorderAddedCases);
+        addedCasesList.setReorderEnabled(canReorderAddedCases());
         addedCasesList.setDeleteMode(false);
         syncEditModeUi();
 
@@ -1212,6 +1214,21 @@ public final class RightPaneCoordinator {
         updateSaveGateUi();
     }
 
+    private void reorderAddedCases(int from, int to) {
+        if (!canReorderAddedCases()) return;
+        if (from < 0 || to < 0 || from >= selectedCases.size() || to >= selectedCases.size() || from == to) return;
+
+        CycleCaseRef moving = selectedCases.remove(from);
+        selectedCases.add(to, moving);
+
+        syncAddedCasesUi();
+        updateSaveGateUi();
+    }
+
+    private boolean canReorderAddedCases() {
+        return open && editMode && selectedCases.size() > 1;
+    }
+
     //
     private void removeAddedCaseById(String idRaw) {
         String id = safe(idRaw);
@@ -1323,7 +1340,10 @@ public final class RightPaneCoordinator {
 
     private void resetCasesDeleteMode() {
         casesDeleteMode = false;
-        if (addedCasesList != null) addedCasesList.setDeleteMode(false);
+        if (addedCasesList != null) {
+            addedCasesList.setDeleteMode(false);
+            addedCasesList.setReorderEnabled(canReorderAddedCases());
+        }
     }
 
     private void syncAddedCasesUi() {
@@ -1338,6 +1358,7 @@ public final class RightPaneCoordinator {
 
         if (addedCasesList != null) {
             addedCasesList.showCases(selectedCases);
+            addedCasesList.setReorderEnabled(canReorderAddedCases());
             addedCasesList.setDeleteMode(casesDeleteMode);
             addedCasesList.setCaseEditAllowed(canEditAddedCaseDetails());
         }
@@ -1445,6 +1466,9 @@ public final class RightPaneCoordinator {
             v.tfCycleCategory.setEditable(editMode);
             v.tfCycleCategory.setFocusTraversable(editMode);
             v.tfCycleCategory.setMouseTransparent(!editMode);
+        }
+        if (addedCasesList != null) {
+            addedCasesList.setReorderEnabled(canReorderAddedCases());
         }
         if (categoryAutocomplete != null) {
             categoryAutocomplete.setEditable(editMode);

@@ -436,6 +436,24 @@
     -fx-alignment: CENTER_LEFT;
 }
 
+.cy-added-case-row.cy-added-case-drop-before {
+    -fx-border-color: rgba(255,255,255,0.32);
+    -fx-border-width: 2 0 0 0;
+}
+
+.cy-added-case-row.cy-added-case-drop-after {
+    -fx-border-color: rgba(255,255,255,0.32);
+    -fx-border-width: 0 0 2 0;
+}
+
+.root.theme-light .cy-added-case-row.cy-added-case-drop-before {
+    -fx-border-color: rgba(0,0,0,0.26);
+}
+
+.root.theme-light .cy-added-case-row.cy-added-case-drop-after {
+    -fx-border-color: rgba(0,0,0,0.26);
+}
+
 .cy-added-case-index {
     -fx-text-fill: -fx-muted-color;
     -fx-min-width: 36;

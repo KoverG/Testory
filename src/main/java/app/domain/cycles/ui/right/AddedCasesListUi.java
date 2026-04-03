@@ -5,16 +5,22 @@ import app.domain.cycles.ui.CyclesViewRefs;
 import app.domain.cycles.usecase.CycleCaseRef;
 import app.ui.UiSvg;
 import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.OverrunStyle;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.paint.Color;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -28,6 +34,8 @@ public final class AddedCasesListUi {
     private static final String ROW_DELETE_BTN_KEY = "cy.added.case.delete.btn";
     private static final String ROW_STATUS_COMBO_KEY = "cy.added.case.status.combo";
     private static final String ROW_COMMENT_BTN_KEY = "cy.added.case.comment.btn";
+    private static final String DROP_BEFORE_CLASS = "cy-added-case-drop-before";
+    private static final String DROP_AFTER_CLASS = "cy-added-case-drop-after";
     private static final double INDEX_COLUMN_WIDTH = 36.0;
     private static final double INDEX_TO_TITLE_GAP = 12.0;
     private static final double TITLE_TO_STATUS_GAP = 12.0;
@@ -36,10 +44,12 @@ public final class AddedCasesListUi {
 
     private boolean deleteMode = false;
     private boolean caseEditAllowed = false;
+    private boolean reorderEnabled = false;
     private Consumer<CycleCaseRef> onDeleteCase;
     private Consumer<CycleCaseRef> onOpenCase;
     private BiConsumer<CycleCaseRef, String> onStatusChanged;
     private BiConsumer<CycleCaseRef, String> onCommentChanged;
+    private BiConsumer<Integer, Integer> onReorderCase;
 
     public AddedCasesListUi(CyclesViewRefs v) {
         this.v = v;
@@ -65,6 +75,14 @@ public final class AddedCasesListUi {
 
     public void setOnCommentChanged(BiConsumer<CycleCaseRef, String> onCommentChanged) {
         this.onCommentChanged = onCommentChanged;
+    }
+
+    public void setOnReorderCase(BiConsumer<Integer, Integer> onReorderCase) {
+        this.onReorderCase = onReorderCase;
+    }
+
+    public void setReorderEnabled(boolean reorderEnabled) {
+        this.reorderEnabled = reorderEnabled;
     }
 
     public void setDeleteMode(boolean deleteMode) {
@@ -102,6 +120,7 @@ public final class AddedCasesListUi {
 
     public void showCases(List<CycleCaseRef> cases) {
         if (v.vbAddedCases == null) return;
+        clearDropPreview();
 
         v.vbAddedCases.getChildren().clear();
         if (cases == null || cases.isEmpty()) return;
@@ -225,10 +244,151 @@ public final class AddedCasesListUi {
             modal.toggle();
         });
 
+        installRowDragAndDrop(row, titleBox, lbTitle, cb, btnComment, btnTrash, btnKebab);
+
         row.getChildren().addAll(lbIndex, indexGap, titleBox, cb, btnComment);
         v.vbAddedCases.getChildren().add(row);
     }
 
+
+    private void installRowDragAndDrop(
+            HBox row,
+            HBox titleBox,
+            Label titleLabel,
+            ComboBox<String> statusCombo,
+            Button commentButton,
+            Button deleteButton,
+            Button handle
+    ) {
+        if (row == null || handle == null) return;
+
+        handle.setOnDragDetected(ev -> {
+            if (!canReorderRows()) return;
+
+            int from = rowIndex(row);
+            if (from < 0) return;
+
+            Dragboard db = handle.startDragAndDrop(TransferMode.MOVE);
+            ClipboardContent cc = new ClipboardContent();
+            cc.putString(String.valueOf(from));
+            db.setContent(cc);
+
+            SnapshotParameters sp = new SnapshotParameters();
+            sp.setFill(Color.TRANSPARENT);
+            Point2D dragPoint = row.sceneToLocal(ev.getSceneX(), ev.getSceneY());
+            db.setDragView(row.snapshot(sp, null), dragPoint.getX(), dragPoint.getY());
+
+            ev.consume();
+        });
+
+        java.util.function.Consumer<javafx.scene.input.DragEvent> onOver = ev -> {
+            if (!canReorderRows()) return;
+            if (ev.getDragboard() == null || !ev.getDragboard().hasString()) return;
+            int from = dragIndex(ev.getDragboard());
+            int to = rowIndex(row);
+            applyDropPreview(from, to);
+            ev.acceptTransferModes(TransferMode.MOVE);
+            ev.consume();
+        };
+
+        java.util.function.Consumer<javafx.scene.input.DragEvent> onDropped = ev -> {
+            if (!canReorderRows()) {
+                ev.setDropCompleted(false);
+                ev.consume();
+                return;
+            }
+            if (ev.getDragboard() == null || !ev.getDragboard().hasString()) {
+                ev.setDropCompleted(false);
+                ev.consume();
+                return;
+            }
+
+            int from;
+            try {
+                from = Integer.parseInt(ev.getDragboard().getString());
+            } catch (Exception ex) {
+                ev.setDropCompleted(false);
+                ev.consume();
+                return;
+            }
+
+            int to = rowIndex(row);
+            if (from < 0 || to < 0 || from == to) {
+                clearDropPreview();
+                ev.setDropCompleted(false);
+                ev.consume();
+                return;
+            }
+
+            if (onReorderCase != null) onReorderCase.accept(from, to);
+            clearDropPreview();
+            ev.setDropCompleted(true);
+            ev.consume();
+        };
+
+        attachDnD(row, onOver, onDropped);
+        attachDnD(titleBox, onOver, onDropped);
+        attachDnD(titleLabel, onOver, onDropped);
+        attachDnD(statusCombo, onOver, onDropped);
+        attachDnD(commentButton, onOver, onDropped);
+        attachDnD(deleteButton, onOver, onDropped);
+
+        row.setOnDragDone(ev -> { clearDropPreview(); ev.consume(); });
+    }
+
+    private boolean canReorderRows() {
+        return reorderEnabled && !deleteMode && v.vbAddedCases != null && v.vbAddedCases.getChildren().size() > 1;
+    }
+
+    private int rowIndex(HBox row) {
+        return v.vbAddedCases == null ? -1 : v.vbAddedCases.getChildren().indexOf(row);
+    }
+
+    private int dragIndex(Dragboard dragboard) {
+        if (dragboard == null || !dragboard.hasString()) return -1;
+        try {
+            return Integer.parseInt(dragboard.getString());
+        } catch (Exception ex) {
+            return -1;
+        }
+    }
+
+    private void applyDropPreview(int from, int to) {
+        clearDropPreview();
+        if (v.vbAddedCases == null) return;
+        if (from < 0 || to < 0 || from == to) return;
+
+        int previewIndex = to;
+        boolean before = to < from;
+        setRowPreview(previewIndex, before);
+    }
+
+    private void clearDropPreview() {
+        if (v.vbAddedCases == null) return;
+        for (javafx.scene.Node node : v.vbAddedCases.getChildren()) {
+            if (!(node instanceof HBox row)) continue;
+            row.getStyleClass().remove(DROP_BEFORE_CLASS);
+            row.getStyleClass().remove(DROP_AFTER_CLASS);
+        }
+    }
+
+    private void setRowPreview(int index, boolean before) {
+        if (v.vbAddedCases == null) return;
+        if (index < 0 || index >= v.vbAddedCases.getChildren().size()) return;
+
+        javafx.scene.Node node = v.vbAddedCases.getChildren().get(index);
+        if (!(node instanceof HBox row)) return;
+
+        row.getStyleClass().remove(DROP_BEFORE_CLASS);
+        row.getStyleClass().remove(DROP_AFTER_CLASS);
+        row.getStyleClass().add(before ? DROP_BEFORE_CLASS : DROP_AFTER_CLASS);
+    }
+
+    private static void attachDnD(javafx.scene.Node node, java.util.function.Consumer<javafx.scene.input.DragEvent> onOver, java.util.function.Consumer<javafx.scene.input.DragEvent> onDropped) {
+        if (node == null) return;
+        node.setOnDragOver(onOver::accept);
+        node.setOnDragDropped(onDropped::accept);
+    }
     private static String safe(String s) {
         return s == null ? "" : s.trim();
     }

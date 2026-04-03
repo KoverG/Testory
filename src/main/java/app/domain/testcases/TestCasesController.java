@@ -1038,6 +1038,8 @@ public class TestCasesController {
         caseMenuButton.install(rightRootStack, this::refreshCaseMenuButton);
         caseMenuButton.setOnEditAction(() -> onEdit(new ActionEvent(caseMenuButton, caseMenuButton)));
         caseMenuButton.setOnCopyAction(this::copyCurrentCase);
+        caseMenuButton.setOnExportAction(this::exportCurrentCase);
+        caseMenuButton.setOnDeleteAction(this::openCurrentCaseDeleteConfirm);
 
         int taskLinkIndex = topActions.getChildren().indexOf(taskLinkHost);
         if (taskLinkIndex < 0) taskLinkIndex = 0;
@@ -1260,6 +1262,17 @@ public class TestCasesController {
         System.out.println("[TestCase] copied: " + saved.toAbsolutePath());
     }
 
+    private void exportCurrentCase() {
+        String caseId = safeTrim(rightOpenCaseId);
+        if (caseId.isBlank()) return;
+        exportCasesByIds(List.of(caseId), false);
+    }
+
+    private void openCurrentCaseDeleteConfirm() {
+        if (deleteConfirm == null) return;
+        deleteConfirm.open();
+    }
+
     private String nextCaseNumberForCode(String code) {
         String normalizedCode = safeTrim(code);
         long max = 0L;
@@ -1463,25 +1476,41 @@ public class TestCasesController {
     private void exportSelectedTrashChecked() {
         List<String> ids = collectSelectedTrashIds();
         if (ids.isEmpty()) return;
+        exportCasesByIds(ids, true);
+    }
+
+    private void exportCasesByIds(List<String> ids, boolean closeTrashOverlayAfterExport) {
+        if (ids == null || ids.isEmpty()) return;
 
         for (String id : ids) {
             try {
-                TestCaseDraft draft = repo.readDraft(TestCaseCardStore.fileOf(id));
-                if (draft == null) continue;
-
-                Files.createDirectories(TEST_CASE_EXPORT_DIR);
-                String exportFileName = buildExportFileName(draft);
-                Path exportFile = uniqueExportPath(TEST_CASE_EXPORT_DIR.resolve(exportFileName));
-                Files.writeString(exportFile, TestCaseJson.toJson(draft), StandardCharsets.UTF_8);
+                Path exportFile = exportCaseById(id);
+                if (exportFile == null) continue;
                 System.out.println("[TestCase] exported: " + exportFile.toAbsolutePath());
             } catch (Exception ex) {
                 System.out.println("[TestCase] export failed: " + id + " -> " + ex.getMessage());
             }
         }
 
-        clearSelectedTrashChecks();
-        if (trashOverlay != null) trashOverlay.close();
+        if (closeTrashOverlayAfterExport) {
+            clearSelectedTrashChecks();
+            if (trashOverlay != null) trashOverlay.close();
+        }
         refreshDeleteAvailability();
+    }
+
+    private Path exportCaseById(String id) throws IOException {
+        Path sourceFile = TestCaseCardStore.fileOf(id);
+        if (sourceFile == null || !Files.exists(sourceFile)) return null;
+
+        TestCaseDraft draft = repo.readDraft(sourceFile);
+        if (draft == null) return null;
+
+        Files.createDirectories(TEST_CASE_EXPORT_DIR);
+        String exportFileName = buildExportFileName(draft);
+        Path exportFile = uniqueExportPath(TEST_CASE_EXPORT_DIR.resolve(exportFileName));
+        Files.writeString(exportFile, TestCaseJson.toJson(draft), StandardCharsets.UTF_8);
+        return exportFile;
     }
 
     private List<String> collectSelectedTrashIds() {
