@@ -1,0 +1,78 @@
+.tc-import-toast {
+    -fx-padding: 12 12 12 12;
+    -fx-spacing: 10;
+}
+
+.tc-import-toast-title {
+    -fx-text-fill: -fx-text-color;
+    -fx-font-size: 15px;
+    -fx-font-weight: 800;
+}
+
+.tc-import-toast-summary {
+    -fx-spacing: 4;
+}
+
+.tc-import-toast-meta {
+    -fx-text-fill: -fx-text-color;
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+}
+
+.tc-import-toast-list-box {
+    -fx-background-color: #393736;
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(255,255,255,0.14);
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-padding: 10 12 10 12;
+}
+
+.tc-import-toast-list {
+    -fx-spacing: 4;
+}
+
+.tc-import-toast-item {
+    -fx-text-fill: rgba(255, 255, 255, 0.92);
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+.tc-import-toast-close {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: rgba(255, 255, 255, 0.72);
+    -fx-font-size: 17px;
+    -fx-font-weight: 800;
+    -fx-padding: 0 2 0 2;
+    -fx-cursor: hand;
+}
+
+.tc-import-toast-close:hover {
+    -fx-text-fill: rgba(255, 255, 255, 0.96);
+}
+
+.root.theme-light .tc-import-toast-title {
+    -fx-text-fill: rgb(30, 30, 30);
+}
+
+.root.theme-light .tc-import-toast-meta {
+    -fx-text-fill: rgb(30, 30, 30);
+}
+
+.root.theme-light .tc-import-toast-list-box {
+    -fx-background-color: rgb(236, 234, 233);
+    -fx-border-color: rgba(0,0,0,0.14);
+}
+
+.root.theme-light .tc-import-toast-item {
+    -fx-text-fill: rgba(20, 20, 20, 0.92);
+}
+
+.root.theme-light .tc-import-toast-close {
+    -fx-text-fill: rgba(20, 20, 20, 0.62);
+}
+
+.root.theme-light .tc-import-toast-close:hover {
+    -fx-text-fill: rgba(20, 20, 20, 0.92);
+}

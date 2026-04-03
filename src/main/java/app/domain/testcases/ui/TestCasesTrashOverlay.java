@@ -87,6 +87,11 @@ public final class TestCasesTrashOverlay {
         impl.setOnDelete(r);
     }
 
+    public void setButtonText(String text) {
+        ensureImpl();
+        impl.setButtonText(text);
+    }
+
     public void setDeleteEnabled(boolean enabled) {
         ensureImpl();
         impl.setDeleteEnabled(enabled);
